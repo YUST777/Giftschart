@@ -1,0 +1,32 @@
+[Unit]
+Description=Premarket Gift Price Scheduler
+After=network.target
+Wants=network.target
+
+[Service]
+Type=simple
+User=yousefmsm1
+Group=yousefmsm1
+WorkingDirectory=/home/yousefmsm1/Desktop/last 3.4
+Environment=PATH=/home/yousefmsm1/Desktop/last 3.4/venv/bin
+ExecStart=/home/yousefmsm1/Desktop/last 3.4/venv/bin/python /home/yousefmsm1/Desktop/last 3.4/premarket_price_scheduler.py
+Restart=always
+RestartSec=30
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=premarket-scheduler
+
+# Security settings
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectSystem=strict
+ProtectHome=yes
+ReadWritePaths=/home/yousefmsm1/Desktop/last 3.4/sqlite_data
+ReadWritePaths=/home/yousefmsm1/Desktop/last 3.4/premarket_scheduler.log
+
+# Resource limits
+MemoryMax=1G
+TasksMax=50
+
+[Install]
+WantedBy=multi-user.target 

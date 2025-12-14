@@ -1,0 +1,22 @@
+{
+  "collection_name": "Not Pixel",
+  "sticker_name": "Error Pixel",
+  "template_path": "/home/yousefmsm1/Desktop/1.7/sticker_templates/Not_Pixel_Error_Pixel_template.png",
+  "dominant_color": [
+    117,
+    121,
+    126
+  ],
+  "x_center": 0,
+  "y_center": 0,
+  "card_width": 1600,
+  "card_height": 1000,
+  "dollar_x": 155,
+  "dollar_y": 285,
+  "ton_x": 215,
+  "ton_y": 465,
+  "star_x": 515,
+  "star_y": 465,
+  "supply_x": 1210,
+  "supply_y": 860
+}

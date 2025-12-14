@@ -1,0 +1,11 @@
+Database Backup Information
+Generated: 2025-10-13 07:02:33
+Total Files: 5
+Total Size: 4.62 MB
+
+Files Included:
+- premium_system.db: 0.04 MB
+- bypass_stats.db: 0.04 MB
+- analytics.db: 0.83 MB
+- user_requests.db: 3.68 MB
+- historical_prices.db: 0.04 MB

@@ -1,0 +1,152 @@
+{
+  "Happy Brownie": {
+    "price": 1.97,
+    "gift_data": {
+      "gift_num": 9337,
+      "customEmojiId": "5375067050282618866",
+      "gift_id": 201659553497,
+      "name": "Happy Brownie",
+      "model": "Strawberry (3%)",
+      "asset": "TON",
+      "symbol": "Horseshoe (0.4%)",
+      "backdrop": "Sapphire (1.2%)",
+      "availabilityIssued": 0,
+      "availabilityTotal": 0,
+      "backdropData": {},
+      "price": 1.97,
+      "status": "forsale",
+      "limited": false,
+      "auction": null,
+      "premarket": true,
+      "premarketStage": 2,
+      "premarketData": {}
+    },
+    "timestamp": "2025-10-13T21:43:04.607406"
+  },
+  "Spring Basket": {
+    "price": 2.75,
+    "gift_data": {
+      "gift_num": 91686,
+      "customEmojiId": "5397846856740928345",
+      "gift_id": 486155111693,
+      "name": "Spring Basket",
+      "model": "Balloon Dog (3%)",
+      "asset": "TON",
+      "symbol": "Horn (0.7%)",
+      "backdrop": "Satin Gold (1.2%)",
+      "availabilityIssued": 0,
+      "availabilityTotal": 0,
+      "backdropData": {},
+      "price": 2.75,
+      "status": "forsale",
+      "limited": false,
+      "auction": null,
+      "premarket": true,
+      "premarketStage": 2,
+      "premarketData": {
+        "premarketCollateralAmount": 0.4,
+        "premarketCollateralAsset": "TON",
+        "premarketLastSaleAmountPlusFee": 2.12,
+        "premarketLastSaleAsset": "TON",
+        "premarketExecutionDeadline": "2025-11-02T15:42:54.718Z"
+      }
+    },
+    "timestamp": "2025-10-13T21:43:05.886159"
+  },
+  "Instant Ramen": {
+    "price": 1.29,
+    "gift_data": {
+      "gift_num": 212948,
+      "customEmojiId": "5389060934201279247",
+      "gift_id": 885489408042,
+      "name": "Instant Ramen",
+      "model": "Sewing Stew (3%)",
+      "asset": "TON",
+      "symbol": "Red Deer (0.2%)",
+      "backdrop": "Khaki Green (1.5%)",
+      "availabilityIssued": 0,
+      "availabilityTotal": 0,
+      "backdropData": {},
+      "price": 1.29,
+      "status": "forsale",
+      "limited": false,
+      "auction": null,
+      "premarket": true,
+      "premarketStage": 2,
+      "premarketData": {}
+    },
+    "timestamp": "2025-10-13T21:43:07.180807"
+  },
+  "Faith Amulet": {
+    "price": 1.6,
+    "gift_data": {
+      "gift_num": 65499,
+      "customEmojiId": "5379557442885552212",
+      "gift_id": 956420937001,
+      "name": "Faith Amulet",
+      "model": "Greenstone (2.5%)",
+      "asset": "TON",
+      "symbol": "Strawberry (0.2%)",
+      "backdrop": "Aquamarine (1%)",
+      "availabilityIssued": 0,
+      "availabilityTotal": 0,
+      "backdropData": {},
+      "price": 1.6,
+      "status": "forsale",
+      "limited": false,
+      "auction": null,
+      "premarket": true,
+      "premarketStage": 2,
+      "premarketData": {}
+    },
+    "timestamp": "2025-10-13T21:43:08.468761"
+  },
+  "Mousse Cake": {
+    "price": 2.3,
+    "gift_data": {
+      "gift_num": 42924,
+      "customEmojiId": "5393593928584821392",
+      "gift_id": 684166560043,
+      "name": "Mousse Cake",
+      "model": "Razzle Dazzle (3%)",
+      "asset": "TON",
+      "symbol": "Fish Skeleton (0.6%)",
+      "backdrop": "French Blue (1.5%)",
+      "availabilityIssued": 0,
+      "availabilityTotal": 0,
+      "backdropData": {},
+      "price": 2.3,
+      "status": "forsale",
+      "limited": false,
+      "auction": null,
+      "premarket": true,
+      "premarketStage": 2,
+      "premarketData": {}
+    },
+    "timestamp": "2025-10-13T21:43:09.868791"
+  },
+  "Ice Cream": {
+    "price": 1.3,
+    "gift_data": {
+      "gift_num": 252018,
+      "customEmojiId": "5359771786978295848",
+      "gift_id": 947046232566,
+      "name": "Ice Cream",
+      "model": "Trio Scoop (3%)",
+      "asset": "TON",
+      "symbol": "Scissors (0.7%)",
+      "backdrop": "Coral Red (1.2%)",
+      "availabilityIssued": 0,
+      "availabilityTotal": 0,
+      "backdropData": {},
+      "price": 1.3,
+      "status": "forsale",
+      "limited": false,
+      "auction": null,
+      "premarket": true,
+      "premarketStage": 2,
+      "premarketData": {}
+    },
+    "timestamp": "2025-10-13T21:43:11.221124"
+  }
+}

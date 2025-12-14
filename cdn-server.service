@@ -1,0 +1,26 @@
+[Unit]
+Description=Telegram Bot Assets CDN Server
+After=network.target
+
+[Service]
+Type=simple
+User=yousefmsm1
+WorkingDirectory=/home/yousefmsm1/Desktop/3.6.3.1
+ExecStart=/home/yousefmsm1/Desktop/3.6.3.1/venv/bin/python /home/yousefmsm1/Desktop/3.6.3.1/cdn_server.py
+Restart=always
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+
+# Environment variables
+Environment=FLASK_ENV=production
+Environment=PYTHONPATH=/home/yousefmsm1/Desktop/3.6.3.1
+
+# Security settings
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ReadWritePaths=/home/yousefmsm1/Desktop/3.6.3.1
+
+[Install]
+WantedBy=multi-user.target 

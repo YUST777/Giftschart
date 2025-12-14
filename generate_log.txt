@@ -1,0 +1,404 @@
+Portal API (aportalsmp) not available: No module named 'aportalsmp'
+Please install with: pip install aportalsmp
+Portal API not available, legacy fallback only
+INFO:mrkt_quant_api:Fetching 1 May (ID: 5807641025165919973)
+INFO:mrkt_quant_api:[1 May] Using Quant API
+INFO:mrkt_quant_api:[Quant] Refreshing initData...
+INFO:telethon.network.mtprotosender:Connecting to 149.154.167.92:443/TcpFull...
+INFO:mrkt_quant_api:Fetching 1 May (ID: 5807641025165919973)
+INFO:mrkt_quant_api:[1 May] Using Quant API
+INFO:mrkt_quant_api:[Quant] Refreshing initData...
+INFO:telethon.network.mtprotosender:Connecting to 149.154.167.92:443/TcpFull...
+INFO:telethon.network.mtprotosender:Connection to 149.154.167.92:443/TcpFull complete!
+INFO:telethon.network.mtprotosender:Connection to 149.154.167.92:443/TcpFull complete!
+ERROR:mrkt_quant_api:Error getting Quant initData: database is locked
+INFO:telethon.network.mtprotosender:Disconnecting from 149.154.167.92:443/TcpFull...
+INFO:telethon.network.mtprotosender:Disconnection from 149.154.167.92:443/TcpFull complete!
+ERROR:mrkt_quant_api:[Quant] Error fetching 1 May: database is locked
+WARNING:mrkt_quant_api:[1 May] API failed - using mock data
+INFO:mrkt_quant_api:[Mock] Generated mock data for 1 May - Price: 5.7 TON
+INFO:telethon.network.mtprotosender:Disconnecting from 149.154.167.92:443/TcpFull...
+INFO:telethon.network.mtprotosender:Disconnection from 149.154.167.92:443/TcpFull complete!
+INFO:mrkt_quant_api:[Quant] initData refreshed successfully
+INFO:mrkt_quant_api:[Quant] Found 1 May - Price: 4.2 TON
+INFO:mrkt_quant_api:Fetching Backpack (ID: 5886756255493523118)
+INFO:mrkt_quant_api:[Backpack] Using Quant API
+WARNING:mrkt_quant_api:[Quant] Backpack has no active listings (floor_price: 0)
+WARNING:mrkt_quant_api:[Backpack] API failed - using mock data
+INFO:mrkt_quant_api:[Mock] Generated mock data for Backpack - Price: 1.71 TON
+INFO:mrkt_quant_api:[Cache] Returning cached data for Backpack
+INFO:mrkt_quant_api:Fetching Bird Mark (ID: 5832325860073407546)
+INFO:mrkt_quant_api:[Bird Mark] Using Quant API
+INFO:mrkt_quant_api:[Quant] Found Bird Mark - Price: 5.26 TON
+INFO:mrkt_quant_api:[Cache] Returning cached data for Bird Mark
+INFO:mrkt_quant_api:Fetching Book (ID: 5886387158889005864)
+INFO:mrkt_quant_api:[Book] Using Quant API
+WARNING:mrkt_quant_api:[Quant] Book has no active listings (floor_price: 0)
+WARNING:mrkt_quant_api:[Book] API failed - using mock data
+INFO:mrkt_quant_api:[Mock] Generated mock data for Book - Price: 2.74 TON
+INFO:mrkt_quant_api:[Cache] Returning cached data for Book
+INFO:mrkt_quant_api:Fetching Case (ID: 5884080014126745057)
+INFO:mrkt_quant_api:[Case] Using Quant API
+WARNING:mrkt_quant_api:[Quant] Case has no active listings (floor_price: 0)
+WARNING:mrkt_quant_api:[Case] API failed - using mock data
+INFO:mrkt_quant_api:[Mock] Generated mock data for Case - Price: 2.53 TON
+INFO:mrkt_quant_api:[Cache] Returning cached data for Case
+INFO:mrkt_quant_api:Fetching Coconut Drink (ID: 5832371318007268701)
+INFO:mrkt_quant_api:[Coconut Drink] Using Quant API
+INFO:mrkt_quant_api:[Quant] Found Coconut Drink - Price: 1.66 TON
+INFO:mrkt_quant_api:[Cache] Returning cached data for Coconut Drink
+INFO:mrkt_quant_api:Fetching Coffin (ID: 5776227780391864916)
+INFO:mrkt_quant_api:[Coffin] Using MRKT API (special gift with numeric ID)
+INFO:mrkt_quant_api:[MRKT] Refreshing JWT token...
+INFO:telethon.network.mtprotosender:Connecting to 149.154.167.92:443/TcpFull...
+INFO:mrkt_quant_api:Fetching Coffin (ID: 5776227780391864916)
+INFO:mrkt_quant_api:[Coffin] Using MRKT API (special gift with numeric ID)
+INFO:mrkt_quant_api:[MRKT] Refreshing JWT token...
+INFO:telethon.network.mtprotosender:Connecting to 149.154.167.92:443/TcpFull...
+INFO:telethon.network.mtprotosender:Connection to 149.154.167.92:443/TcpFull complete!
+INFO:telethon.network.mtprotosender:Connection to 149.154.167.92:443/TcpFull complete!
+ERROR:mrkt_quant_api:Error getting MRKT initData: database is locked
+INFO:telethon.network.mtprotosender:Disconnecting from 149.154.167.92:443/TcpFull...
+INFO:telethon.network.mtprotosender:Disconnection from 149.154.167.92:443/TcpFull complete!
+WARNING:mrkt_quant_api:[MRKT] Database locked, retrying in 1 second... (attempt 1/3)
+INFO:telethon.network.mtprotosender:Disconnecting from 149.154.167.92:443/TcpFull...
+INFO:telethon.network.mtprotosender:Disconnection from 149.154.167.92:443/TcpFull complete!
+INFO:mrkt_quant_api:[MRKT] JWT token refreshed successfully
+INFO:mrkt_quant_api:[MRKT] Found Coffin - Price: 24.885 TON
+INFO:telethon.network.mtprotosender:Connecting to 149.154.167.92:443/TcpFull...
+INFO:telethon.network.mtprotosender:Connection to 149.154.167.92:443/TcpFull complete!
+INFO:telethon.network.mtprotosender:Disconnecting from 149.154.167.92:443/TcpFull...
+INFO:telethon.network.mtprotosender:Disconnection from 149.154.167.92:443/TcpFull complete!
+INFO:mrkt_quant_api:[MRKT] JWT token refreshed successfully
+INFO:mrkt_quant_api:[MRKT] Found Coffin - Price: 24.885 TON
+INFO:mrkt_quant_api:Fetching Cone IceCream (ID: 5898012527257715797)
+INFO:mrkt_quant_api:[Cone IceCream] Using Quant API
+INFO:mrkt_quant_api:[Quant] Found Cone IceCream - Price: 1.61 TON
+INFO:mrkt_quant_api:[Cache] Returning cached data for Cone IceCream
+INFO:mrkt_quant_api:Fetching Cream IceCream (ID: 5897607679345427347)
+INFO:mrkt_quant_api:[Cream IceCream] Using Quant API
+INFO:mrkt_quant_api:[Quant] Found Cream IceCream - Price: 3.2 TON
+INFO:mrkt_quant_api:[Cache] Returning cached data for Cream IceCream
+INFO:mrkt_quant_api:Fetching Durov Glasses (ID: 5834651202612102354)
+INFO:mrkt_quant_api:[Durov Glasses] Using Quant API
+INFO:mrkt_quant_api:[Quant] Found Durov Glasses - Price: 305.0 TON
+INFO:mrkt_quant_api:[Cache] Returning cached data for Durov Glasses
+INFO:mrkt_quant_api:Fetching Durov's Statuette (ID: 6003477390536213997)
+INFO:mrkt_quant_api:[Durov's Statuette] Using MRKT API (special gift with numeric ID)
+INFO:mrkt_quant_api:[MRKT] Found Durov's Statuette - Price: 1295.8 TON
+INFO:mrkt_quant_api:[Cache] Returning cached data for Durov's Statuette
+INFO:mrkt_quant_api:Fetching Eagle (ID: 5999116401002939514)
+INFO:mrkt_quant_api:[Eagle] Using Quant API
+INFO:mrkt_quant_api:[Quant] Found Eagle - Price: 66.67 TON
+INFO:mrkt_quant_api:[Cache] Returning cached data for Eagle
+INFO:mrkt_quant_api:Fetching Easter Cake (ID: 5773791997064119815)
+INFO:mrkt_quant_api:[Easter Cake] Using Quant API
+INFO:mrkt_quant_api:[Quant] Found Easter Cake - Price: 2.99 TON
+INFO:mrkt_quant_api:[Cache] Returning cached data for Easter Cake
+INFO:mrkt_quant_api:Fetching Eight Roses (ID: 5933770397739647689)
+INFO:mrkt_quant_api:[Eight Roses] Using Quant API
+WARNING:mrkt_quant_api:[Quant] Eight Roses has no active listings (floor_price: 0)
+WARNING:mrkt_quant_api:[Eight Roses] API failed - using mock data
+INFO:mrkt_quant_api:[Mock] Generated mock data for Eight Roses - Price: 1.81 TON
+INFO:mrkt_quant_api:[Cache] Returning cached data for Eight Roses
+INFO:mrkt_quant_api:Fetching Golden Medal (ID: 5830340739074097859)
+INFO:mrkt_quant_api:[Golden Medal] Using Quant API
+INFO:mrkt_quant_api:[Quant] Found Golden Medal - Price: 46.67 TON
+INFO:mrkt_quant_api:[Cache] Returning cached data for Golden Medal
+INFO:mrkt_quant_api:Fetching Grave (ID: 5775955135867913556)
+INFO:mrkt_quant_api:[Grave] Using MRKT API (special gift with numeric ID)
+INFO:mrkt_quant_api:[MRKT] Found Grave - Price: 77.663 TON
+INFO:mrkt_quant_api:[Cache] Returning cached data for Grave
+INFO:mrkt_quant_api:Fetching Heart Pendant (ID: 5872744075014177223)
+INFO:mrkt_quant_api:[Heart Pendant] Using Quant API
+WARNING:mrkt_quant_api:[Quant] Heart Pendant has no active listings (floor_price: 0)
+WARNING:mrkt_quant_api:[Heart Pendant] API failed - using mock data
+INFO:mrkt_quant_api:[Mock] Generated mock data for Heart Pendant - Price: 4.95 TON
+INFO:mrkt_quant_api:[Cache] Returning cached data for Heart Pendant
+INFO:mrkt_quant_api:Fetching Lamp Candle (ID: 5913351908466098791)
+INFO:mrkt_quant_api:[Lamp Candle] Using Quant API
+WARNING:mrkt_quant_api:[Quant] Lamp Candle has no active listings (floor_price: 0)
+WARNING:mrkt_quant_api:[Lamp Candle] API failed - using mock data
+INFO:mrkt_quant_api:[Mock] Generated mock data for Lamp Candle - Price: 4.43 TON
+INFO:mrkt_quant_api:[Cache] Returning cached data for Lamp Candle
+INFO:mrkt_quant_api:Fetching Mask (ID: 5775966332847654507)
+INFO:mrkt_quant_api:[Mask] Using MRKT API (special gift with numeric ID)
+INFO:mrkt_quant_api:[MRKT] Found Mask - Price: 5.229 TON
+INFO:mrkt_quant_api:[Cache] Returning cached data for Mask
+INFO:mrkt_quant_api:Fetching Pencil (ID: 5882129648002794519)
+INFO:mrkt_quant_api:[Pencil] Using Quant API
+WARNING:mrkt_quant_api:[Quant] Pencil has no active listings (floor_price: 0)
+WARNING:mrkt_quant_api:[Pencil] API failed - using mock data
+INFO:mrkt_quant_api:[Mock] Generated mock data for Pencil - Price: 1.23 TON
+INFO:mrkt_quant_api:[Cache] Returning cached data for Pencil
+INFO:mrkt_quant_api:Fetching Pink Flamingo (ID: 5832644211639321671)
+INFO:mrkt_quant_api:[Pink Flamingo] Using Quant API
+INFO:mrkt_quant_api:[Quant] Found Pink Flamingo - Price: 3.14 TON
+INFO:mrkt_quant_api:[Cache] Returning cached data for Pink Flamingo
+INFO:mrkt_quant_api:Fetching REDO (ID: 5832279504491381684)
+INFO:mrkt_quant_api:[REDO] Using Quant API
+INFO:mrkt_quant_api:[Quant] Found REDO - Price: 115.0 TON
+INFO:mrkt_quant_api:[Cache] Returning cached data for REDO
+INFO:mrkt_quant_api:Fetching Red Star (ID: 5830323722413671504)
+INFO:mrkt_quant_api:[Red Star] Using Quant API
+INFO:mrkt_quant_api:[Quant] Found Red Star - Price: 5.28 TON
+INFO:mrkt_quant_api:[Cache] Returning cached data for Red Star
+INFO:mrkt_quant_api:Fetching Sand Castle (ID: 5834918435477259676)
+INFO:mrkt_quant_api:[Sand Castle] Using Quant API
+INFO:mrkt_quant_api:[Quant] Found Sand Castle - Price: 4.49 TON
+INFO:mrkt_quant_api:[Cache] Returning cached data for Sand Castle
+================================================================================
+Generating Price Cards for All Plus Premarket Gifts
+================================================================================
+Total gifts: 29
+
+[1/29] Generating card for: 1 May
+Creating gift card for: 1 May
+Fetching gift and chart data...
+[Plus Premarket] Using MRKT/Quant API for 1 May
+[Plus Premarket] Using MRKT/Quant API for 1 May chart data
+Error generating chart: 'float' object is not subscriptable
+  ✅ Saved: new_gift_cards/1_May.png
+[2/29] Generating card for: Backpack
+Creating gift card for: Backpack
+Fetching gift and chart data...
+[Plus Premarket] Using MRKT/Quant API for Backpack
+[Plus Premarket] Using MRKT/Quant API for Backpack chart data
+Error generating chart: 'float' object is not subscriptable
+  ✅ Saved: new_gift_cards/Backpack.png
+[3/29] Generating card for: Bird Mark
+Creating gift card for: Bird Mark
+Fetching gift and chart data...
+[Plus Premarket] Using MRKT/Quant API for Bird Mark
+[Plus Premarket] Using MRKT/Quant API for Bird Mark chart data
+Error generating chart: 'float' object is not subscriptable
+  ✅ Saved: new_gift_cards/Bird_Mark.png
+[4/29] Generating card for: Book
+Creating gift card for: Book
+Fetching gift and chart data...
+[Plus Premarket] Using MRKT/Quant API for Book
+[Plus Premarket] Using MRKT/Quant API for Book chart data
+Error generating chart: 'float' object is not subscriptable
+  ✅ Saved: new_gift_cards/Book.png
+[5/29] Generating card for: Case
+Creating gift card for: Case
+Fetching gift and chart data...
+[Plus Premarket] Using MRKT/Quant API for Case
+[Plus Premarket] Using MRKT/Quant API for Case chart data
+Error generating chart: 'float' object is not subscriptable
+  ✅ Saved: new_gift_cards/Case.png
+[6/29] Generating card for: Coconut Drink
+Creating gift card for: Coconut Drink
+Fetching gift and chart data...
+[Plus Premarket] Using MRKT/Quant API for Coconut Drink
+[Plus Premarket] Using MRKT/Quant API for Coconut Drink chart data
+Error generating chart: 'float' object is not subscriptable
+  ✅ Saved: new_gift_cards/Coconut_Drink.png
+[7/29] Generating card for: Coffin
+Creating gift card for: Coffin
+Fetching gift and chart data...
+[Plus Premarket] Using MRKT/Quant API for Coffin
+[Plus Premarket] Using MRKT/Quant API for Coffin chart data
+Error generating chart: 'float' object is not subscriptable
+  ✅ Saved: new_gift_cards/Coffin.png
+[8/29] Generating card for: Cone IceCream
+Creating gift card for: Cone IceCream
+Fetching gift and chart data...
+[Plus Premarket] Using MRKT/Quant API for Cone IceCream
+[Plus Premarket] Using MRKT/Quant API for Cone IceCream chart data
+Error generating chart: 'float' object is not subscriptable
+  ✅ Saved: new_gift_cards/Cone_IceCream.png
+[9/29] Generating card for: Cream IceCream
+Creating gift card for: Cream IceCream
+Fetching gift and chart data...
+[Plus Premarket] Using MRKT/Quant API for Cream IceCream
+[Plus Premarket] Using MRKT/Quant API for Cream IceCream chart data
+Error generating chart: 'float' object is not subscriptable
+  ✅ Saved: new_gift_cards/Cream_IceCream.png
+[10/29] Generating card for: Durov Glasses
+Creating gift card for: Durov Glasses
+Fetching gift and chart data...
+[Plus Premarket] Using MRKT/Quant API for Durov Glasses
+[Plus Premarket] Using MRKT/Quant API for Durov Glasses chart data
+Error generating chart: 'float' object is not subscriptable
+  ✅ Saved: new_gift_cards/Durov_Glasses.png
+[11/29] Generating card for: Durov's Statuette
+Creating gift card for: Durov's Statuette
+Fetching gift and chart data...
+[Plus Premarket] Using MRKT/Quant API for Durov's Statuette
+[Plus Premarket] Using MRKT/Quant API for Durov's Statuette chart data
+Error: Image file for Durov's Statuette not found at /home/yousefmsm1/Desktop/3.8.1/downloaded_images/Durov's_Statuette.png or /home/yousefmsm1/Desktop/3.8.1/downloaded_images/Durov'sStatuette.png
+  ❌ Failed to generate card for Durov's Statuette
+[12/29] Generating card for: Eagle
+Creating gift card for: Eagle
+Fetching gift and chart data...
+[Plus Premarket] Using MRKT/Quant API for Eagle
+[Plus Premarket] Using MRKT/Quant API for Eagle chart data
+Error generating chart: 'float' object is not subscriptable
+  ✅ Saved: new_gift_cards/Eagle.png
+[13/29] Generating card for: Easter Cake
+Creating gift card for: Easter Cake
+Fetching gift and chart data...
+[Plus Premarket] Using MRKT/Quant API for Easter Cake
+[Plus Premarket] Using MRKT/Quant API for Easter Cake chart data
+Error generating chart: 'float' object is not subscriptable
+  ✅ Saved: new_gift_cards/Easter_Cake.png
+[14/29] Generating card for: Eight Roses
+Creating gift card for: Eight Roses
+Fetching gift and chart data...
+[Plus Premarket] Using MRKT/Quant API for Eight Roses
+[Plus Premarket] Using MRKT/Quant API for Eight Roses chart data
+Error generating chart: 'float' object is not subscriptable
+  ✅ Saved: new_gift_cards/Eight_Roses.png
+[15/29] Generating card for: Golden Medal
+Creating gift card for: Golden Medal
+Fetching gift and chart data...
+[Plus Premarket] Using MRKT/Quant API for Golden Medal
+[Plus Premarket] Using MRKT/Quant API for Golden Medal chart data
+Error generating chart: 'float' object is not subscriptable
+  ✅ Saved: new_gift_cards/Golden_Medal.png
+[16/29] Generating card for: Grave
+Creating gift card for: Grave
+Fetching gift and chart data...
+[Plus Premarket] Using MRKT/Quant API for Grave
+[Plus Premarket] Using MRKT/Quant API for Grave chart data
+Error generating chart: 'float' object is not subscriptable
+  ✅ Saved: new_gift_cards/Grave.png
+[17/29] Generating card for: Heart Pendant
+Creating gift card for: Heart Pendant
+Fetching gift and chart data...
+[Plus Premarket] Using MRKT/Quant API for Heart Pendant
+[Plus Premarket] Using MRKT/Quant API for Heart Pendant chart data
+Error generating chart: 'float' object is not subscriptable
+  ✅ Saved: new_gift_cards/Heart_Pendant.png
+[18/29] Generating card for: Lamp Candle
+Creating gift card for: Lamp Candle
+Fetching gift and chart data...
+[Plus Premarket] Using MRKT/Quant API for Lamp Candle
+[Plus Premarket] Using MRKT/Quant API for Lamp Candle chart data
+Error generating chart: 'float' object is not subscriptable
+  ✅ Saved: new_gift_cards/Lamp_Candle.png
+[19/29] Generating card for: Mask
+Creating gift card for: Mask
+Fetching gift and chart data...
+[Plus Premarket] Using MRKT/Quant API for Mask
+[Plus Premarket] Using MRKT/Quant API for Mask chart data
+Error generating chart: 'float' object is not subscriptable
+  ✅ Saved: new_gift_cards/Mask.png
+[20/29] Generating card for: Pencil
+Creating gift card for: Pencil
+Fetching gift and chart data...
+[Plus Premarket] Using MRKT/Quant API for Pencil
+[Plus Premarket] Using MRKT/Quant API for Pencil chart data
+Error generating chart: 'float' object is not subscriptable
+  ✅ Saved: new_gift_cards/Pencil.png
+[21/29] Generating card for: Pink Flamingo
+Creating gift card for: Pink Flamingo
+Fetching gift and chart data...
+[Plus Premarket] Using MRKT/Quant API for Pink Flamingo
+[Plus Premarket] Using MRKT/Quant API for Pink Flamingo chart data
+Error generating chart: 'float' object is not subscriptable
+  ✅ Saved: new_gift_cards/Pink_Flamingo.png
+[22/29] Generating card for: REDO
+Creating gift card for: REDO
+Fetching gift and chart data...
+[Plus Premarket] Using MRKT/Quant API for REDO
+[Plus Premarket] Using MRKT/Quant API for REDO chart data
+Error generating chart: 'float' object is not subscriptable
+  ✅ Saved: new_gift_cards/REDO.png
+[23/29] Generating card for: Red Star
+Creating gift card for: Red Star
+Fetching gift and chart data...
+[Plus Premarket] Using MRKT/Quant API for Red Star
+[Plus Premarket] Using MRKT/Quant API for Red Star chart data
+Error generating chart: 'float' object is not subscriptable
+  ✅ Saved: new_gift_cards/Red_Star.png
+[24/29] Generating card for: Sand Castle
+Creating gift card for: Sand Castle
+Fetching gift and chart data...
+[Plus Premarket] Using MRKT/Quant API for Sand Castle
+[Plus Premarket] Using MRKT/Quant API for Sand Castle chart data
+Error generating chart: 'float' object is not subscriptable
+  ✅ Saved: new_gift_cards/Sand_Castle.png
+[25/29] Generating card for: Sneakers
+Creating gift card for: Sneakers
+INFO:mrkt_quant_api:Fetching Sneakers (ID: 6001229799790478558)
+INFO:mrkt_quant_api:[Sneakers] Using MRKT API (special gift with numeric ID)
+INFO:mrkt_quant_api:[MRKT] Refreshing JWT token...
+INFO:telethon.network.mtprotosender:Connecting to 149.154.167.92:443/TcpFull...
+INFO:mrkt_quant_api:Fetching Sneakers (ID: 6001229799790478558)
+INFO:mrkt_quant_api:[Sneakers] Using MRKT API (special gift with numeric ID)
+INFO:mrkt_quant_api:[MRKT] Refreshing JWT token...
+INFO:telethon.network.mtprotosender:Connecting to 149.154.167.92:443/TcpFull...
+INFO:telethon.network.mtprotosender:Connection to 149.154.167.92:443/TcpFull complete!
+INFO:telethon.network.mtprotosender:Connection to 149.154.167.92:443/TcpFull complete!
+ERROR:mrkt_quant_api:Error getting MRKT initData: database is locked
+INFO:telethon.network.mtprotosender:Disconnecting from 149.154.167.92:443/TcpFull...
+INFO:telethon.network.mtprotosender:Disconnection from 149.154.167.92:443/TcpFull complete!
+WARNING:mrkt_quant_api:[MRKT] Database locked, retrying in 1 second... (attempt 1/3)
+INFO:telethon.network.mtprotosender:Disconnecting from 149.154.167.92:443/TcpFull...
+INFO:telethon.network.mtprotosender:Disconnection from 149.154.167.92:443/TcpFull complete!
+INFO:mrkt_quant_api:[MRKT] JWT token refreshed successfully
+INFO:mrkt_quant_api:[MRKT] Found Sneakers - Price: 76.298992 TON
+INFO:telethon.network.mtprotosender:Connecting to 149.154.167.92:443/TcpFull...
+INFO:telethon.network.mtprotosender:Connection to 149.154.167.92:443/TcpFull complete!
+INFO:telethon.network.mtprotosender:Disconnecting from 149.154.167.92:443/TcpFull...
+INFO:telethon.network.mtprotosender:Disconnection from 149.154.167.92:443/TcpFull complete!
+INFO:mrkt_quant_api:[MRKT] JWT token refreshed successfully
+INFO:mrkt_quant_api:[MRKT] Found Sneakers - Price: 76.298992 TON
+INFO:mrkt_quant_api:Fetching Statue (ID: 5999298447486747746)
+INFO:mrkt_quant_api:[Statue] Using Quant API
+INFO:mrkt_quant_api:[Quant] Found Statue - Price: 3.4 TON
+INFO:mrkt_quant_api:[Cache] Returning cached data for Statue
+INFO:mrkt_quant_api:Fetching Surfboard (ID: 5832497899283415733)
+INFO:mrkt_quant_api:[Surfboard] Using Quant API
+INFO:mrkt_quant_api:[Quant] Found Surfboard - Price: 14.5 TON
+INFO:mrkt_quant_api:[Cache] Returning cached data for Surfboard
+INFO:mrkt_quant_api:Fetching T-shirt (ID: 6001425315291727333)
+INFO:mrkt_quant_api:[T-shirt] Using MRKT API (special gift with numeric ID)
+INFO:mrkt_quant_api:[MRKT] Found T-shirt - Price: 86.28928 TON
+INFO:mrkt_quant_api:[Cache] Returning cached data for T-shirt
+INFO:mrkt_quant_api:Fetching Torch (ID: 5999277561060787166)
+INFO:mrkt_quant_api:[Torch] Using Quant API
+INFO:mrkt_quant_api:[Quant] Found Torch - Price: 1.63 TON
+INFO:mrkt_quant_api:[Cache] Returning cached data for Torch
+Fetching gift and chart data...
+[Plus Premarket] Using MRKT/Quant API for Sneakers
+[Plus Premarket] Using MRKT/Quant API for Sneakers chart data
+Error generating chart: 'float' object is not subscriptable
+  ✅ Saved: new_gift_cards/Sneakers.png
+[26/29] Generating card for: Statue
+Creating gift card for: Statue
+Fetching gift and chart data...
+[Plus Premarket] Using MRKT/Quant API for Statue
+[Plus Premarket] Using MRKT/Quant API for Statue chart data
+Error generating chart: 'float' object is not subscriptable
+  ✅ Saved: new_gift_cards/Statue.png
+[27/29] Generating card for: Surfboard
+Creating gift card for: Surfboard
+Fetching gift and chart data...
+[Plus Premarket] Using MRKT/Quant API for Surfboard
+[Plus Premarket] Using MRKT/Quant API for Surfboard chart data
+Error generating chart: 'float' object is not subscriptable
+  ✅ Saved: new_gift_cards/Surfboard.png
+[28/29] Generating card for: T-shirt
+Creating gift card for: T-shirt
+Fetching gift and chart data...
+[Plus Premarket] Using MRKT/Quant API for T-shirt
+[Plus Premarket] Using MRKT/Quant API for T-shirt chart data
+Error: Image file for T-shirt not found at /home/yousefmsm1/Desktop/3.8.1/downloaded_images/T-shirt.png or /home/yousefmsm1/Desktop/3.8.1/downloaded_images/T-shirt.png
+  ❌ Failed to generate card for T-shirt
+[29/29] Generating card for: Torch
+Creating gift card for: Torch
+Fetching gift and chart data...
+[Plus Premarket] Using MRKT/Quant API for Torch
+[Plus Premarket] Using MRKT/Quant API for Torch chart data
+Error generating chart: 'float' object is not subscriptable
+  ✅ Saved: new_gift_cards/Torch.png
+
+================================================================================
+Generation Complete
+================================================================================
+Success: 27/29
+Failed:  2/29
+================================================================================

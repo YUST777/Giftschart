@@ -1,0 +1,68 @@
+# =============================================================================
+# Telegram Bot Requirements - Cross-Platform Compatible
+# =============================================================================
+# This requirements file is tested and compatible with both Windows and Linux
+# All packages have pre-compiled wheels or are pure Python
+
+# Core Telegram Bot Dependencies
+python-telegram-bot==22.1
+pyrogram==2.0.106
+tgcrypto==1.2.5
+
+# Image Processing Libraries
+Pillow==10.2.0
+matplotlib==3.6.3
+numpy==1.26.4
+
+# HTTP and Network Libraries
+requests==2.31.0
+httpx==0.28.1
+curl_cffi==0.11.4
+anyio==4.9.0
+
+# Utility Libraries
+python-dateutil==2.8.2
+PyYAML==6.0.1
+schedule==1.2.2
+tabulate==0.9.0
+
+# Text Processing and Matching
+fuzzywuzzy==0.18.0
+python-Levenshtein==0.27.1
+
+# Development and Testing
+pytest==8.4.1
+pytest-mock==3.14.1
+
+# Additional Features
+qrcode==7.4.2
+rich==13.7.1
+psutil==7.0.0
+
+# Portal & Tonnel API Integration
+aportalsmp
+tonnelmp
+
+# Build and Distribution Tools (Recommended)
+setuptools>=65.0.0
+wheel>=0.38.0
+
+# =============================================================================
+# Platform Compatibility Notes:
+# =============================================================================
+# ✅ All packages work on Windows 10/11 and Linux (Ubuntu/Debian/CentOS)
+# ✅ psutil automatically detects platform and installs appropriate binaries
+# ✅ python-Levenshtein has pre-compiled wheels for both platforms
+# ✅ curl_cffi works on both platforms with appropriate SSL libraries
+# ✅ tgcrypto provides fast encryption for pyrogram on both platforms
+# 
+# Installation Commands:
+# Linux/Mac:  pip install -r requirements.txt
+# Windows:    python -m pip install -r requirements.txt
+# 
+# Virtual Environment (Recommended):
+# python -m venv venv
+# source venv/bin/activate  # Linux/Mac
+# venv\Scripts\activate     # Windows
+# pip install -r requirements.txt
+# =============================================================================
