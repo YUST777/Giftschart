@@ -1,0 +1,10 @@
+*.log
+*.session
+*.db
+__pycache__/
+*.pyc
+.env
+node_modules/
+.next/
+*.zip
+backups/
