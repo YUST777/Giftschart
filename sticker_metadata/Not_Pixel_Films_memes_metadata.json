@@ -1,0 +1,22 @@
+{
+  "collection_name": "Not Pixel",
+  "sticker_name": "Films memes",
+  "template_path": "/home/yousefmsm1/Desktop/1.7/sticker_templates/Not_Pixel_Films_memes_template.png",
+  "dominant_color": [
+    122,
+    62,
+    44
+  ],
+  "x_center": 0,
+  "y_center": 0,
+  "card_width": 1600,
+  "card_height": 1000,
+  "dollar_x": 155,
+  "dollar_y": 285,
+  "ton_x": 215,
+  "ton_y": 465,
+  "star_x": 515,
+  "star_y": 465,
+  "supply_x": 1210,
+  "supply_y": 860
+}

@@ -1,0 +1,22 @@
+{
+  "collection_name": "Lazy and Rich",
+  "sticker_name": "Chill or thrill",
+  "template_path": "/home/yousefmsm1/Desktop/1.7/sticker_templates/Lazy_and_Rich_Chill_or_thrill_template.png",
+  "dominant_color": [
+    166,
+    131,
+    29
+  ],
+  "x_center": 0,
+  "y_center": 0,
+  "card_width": 1600,
+  "card_height": 1000,
+  "dollar_x": 155,
+  "dollar_y": 285,
+  "ton_x": 215,
+  "ton_y": 465,
+  "star_x": 515,
+  "star_y": 465,
+  "supply_x": 1210,
+  "supply_y": 860
+}

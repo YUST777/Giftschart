@@ -1,0 +1,44 @@
+*.log
+logs/
+*.session
+*.db
+__pycache__/
+*.pyc
+.env
+node_modules/
+.next/
+*.zip
+backups/
+
+# Generated Assets
+new_gift_cards/
+downloaded_images/
+Sticker_Price_Cards/
+sticker_collections/
+
+# Data
+sqlite_data/
+*.json
+!api/**/*.json
+!sticker_card_match_report.json
+!stats.json
+
+# Auth & State
+portal_auth_token.txt
+portal_session_string.txt
+last_generation.txt
+last_generation_time.txt
+backup_info.txt
+
+# Temporary/Ghost files
+cleanup_project.py
+missing_*.txt
+
+# System
+.vscode/
+.idea/
+pregenerate_run.out
+sticker_price_results.json
+.venv/
+.env
+*.env
