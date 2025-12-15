@@ -52,7 +52,7 @@ names = [
     "Statue", "Surfboard", "T-shirt", "Torch", "Airplane"
 ]
 
-base_url = "https://cdn.changes.tg/gifts/models/{}/png/Original.png"
+base_url = "https://cdn.changes.tg/gifts/models/{}/png/Original.webp"
 
 # Create output folder
 output_folder = os.path.join(script_dir, "downloaded_images")
@@ -60,12 +60,12 @@ os.makedirs(output_folder, exist_ok=True)
 
 # Special URLs that need special handling
 special_urls = {
-    "Jack-in-the-Box": "https://cdn.changes.tg/gifts/models/Jack-in-the-Box/png/Original.png",
-    "B-Day Candle": "https://cdn.changes.tg/gifts/models/B-Day%20Candle/png/Original.png",
-    "Durov's Cap": "https://cdn.changes.tg/gifts/models/Durov's%20Cap/png/Original.png",
-    "Plush Pepe": "https://cdn.changes.tg/gifts/models/Plush%20Pepe/png/Original.png",
-    "Perfume Bottle": "https://cdn.changes.tg/gifts/models/Perfume%20Bottle/png/Original.png",
-    "Precious Peach": "https://cdn.changes.tg/gifts/models/Precious%20Peach/png/Original.png"
+    "Jack-in-the-Box": "https://cdn.changes.tg/gifts/models/Jack-in-the-Box/png/Original.webp",
+    "B-Day Candle": "https://cdn.changes.tg/gifts/models/B-Day%20Candle/png/Original.webp",
+    "Durov's Cap": "https://cdn.changes.tg/gifts/models/Durov's%20Cap/png/Original.webp",
+    "Plush Pepe": "https://cdn.changes.tg/gifts/models/Plush%20Pepe/png/Original.webp",
+    "Perfume Bottle": "https://cdn.changes.tg/gifts/models/Perfume%20Bottle/png/Original.webp",
+    "Precious Peach": "https://cdn.changes.tg/gifts/models/Precious%20Peach/png/Original.webp"
 }
 
 def download_image(url, filepath, name):
@@ -103,7 +103,7 @@ else:
     for name, url in special_urls.items():
         # Normalize the filename for consistency
         safe_name = name.replace(' ', '_').replace('-', '_').replace("'", '')
-        filename = f"{safe_name}.png"
+        filename = f"{safe_name}.webp"
         filepath = os.path.join(output_folder, filename)
         
         # Skip if file already exists
@@ -121,7 +121,7 @@ else:
             
         # Normalize the filename for consistency
         safe_name = name.replace(' ', '_').replace('-', '_').replace("'", '')
-        filename = f"{safe_name}.png"
+        filename = f"{safe_name}.webp"
         filepath = os.path.join(output_folder, filename)
         
         # Skip if file already exists
@@ -146,7 +146,7 @@ def load_simplified_names():
         return names
         
     try:
-        gift_files = [f for f in os.listdir(downloads_dir) if f.endswith(".png")]
+        gift_files = [f for f in os.listdir(downloads_dir) if f.endswith(".webp")]
         for filename in gift_files:
             gift_name = os.path.splitext(filename)[0].replace("_", " ")
             simplified = gift_name.lower().replace("-", " ").replace("'", "")

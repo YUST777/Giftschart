@@ -29,8 +29,8 @@ TEMPLATES_DIR = os.path.join(script_dir, "sticker_templates")
 OUTPUT_DIR = os.path.join(script_dir, "Sticker_Price_Cards")
 ASSETS_DIR = os.path.join(script_dir, "assets")
 PRICE_DATA_FILE = os.path.join(script_dir, "sticker_price_results.json")
-TON_LOGO_PATH = os.path.join(ASSETS_DIR, "TON2.png")
-STAR_LOGO_PATH = os.path.join(ASSETS_DIR, "star.png")
+TON_LOGO_PATH = os.path.join(ASSETS_DIR, "TON2.webp")
+STAR_LOGO_PATH = os.path.join(ASSETS_DIR, "star.webp")
 FONT_PATH = os.path.join(script_dir, "Typekiln - EloquiaDisplay-ExtraBold.otf")
 
 # TON to USD conversion rate
@@ -119,7 +119,7 @@ def generate_price_card(collection, sticker, price, output_dir):
         sticker_norm = normalize_filename(sticker)
         
         # Template path
-        template_path = os.path.join(TEMPLATES_DIR, f"{collection_norm}_{sticker_norm}_template.png")
+        template_path = os.path.join(TEMPLATES_DIR, f"{collection_norm}_{sticker_norm}_template.webp")
         
         # Check if template exists
         if not os.path.exists(template_path):
@@ -239,7 +239,7 @@ def generate_price_card(collection, sticker, price, output_dir):
         draw.text((star_text_x, ton_text_y), f"{stars_price:,}".replace(",", " "), fill=price_color, font=ton_price_font)
         
         # Save the card
-        output_filename = f"{collection_norm}_{sticker_norm}_price_card.png"
+        output_filename = f"{collection_norm}_{sticker_norm}_price_card.webp"
         output_path = os.path.join(output_dir, output_filename)
         template.save(output_path)
         

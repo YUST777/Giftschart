@@ -50,7 +50,7 @@ def create_visual_analytics():
     plt.xticks(range(0, 24))
     plt.grid(True, alpha=0.3)
     plt.tight_layout()
-    plt.savefig(f'{charts_dir}/hourly_activity.png', dpi=300, bbox_inches='tight')
+    plt.savefig(f'{charts_dir}/hourly_activity.webp', dpi=300, bbox_inches='tight')
     plt.close()
     
     # 2. USER ACTIVITY DISTRIBUTION
@@ -85,7 +85,7 @@ def create_visual_analytics():
     plt.title('👥 User Activity Distribution', fontsize=16, fontweight='bold')
     plt.axis('equal')
     plt.tight_layout()
-    plt.savefig(f'{charts_dir}/user_activity_distribution.png', dpi=300, bbox_inches='tight')
+    plt.savefig(f'{charts_dir}/user_activity_distribution.webp', dpi=300, bbox_inches='tight')
     plt.close()
     
     # 3. TOP GROUPS BY ACTIVITY
@@ -116,7 +116,7 @@ def create_visual_analytics():
                 f'{width:,}', ha='left', va='center', fontweight='bold')
     
     plt.tight_layout()
-    plt.savefig(f'{charts_dir}/top_groups.png', dpi=300, bbox_inches='tight')
+    plt.savefig(f'{charts_dir}/top_groups.webp', dpi=300, bbox_inches='tight')
     plt.close()
     
     # 4. COMMAND USAGE CHART
@@ -147,7 +147,7 @@ def create_visual_analytics():
                 f'{width:,}', ha='left', va='center', fontweight='bold')
     
     plt.tight_layout()
-    plt.savefig(f'{charts_dir}/command_usage.png', dpi=300, bbox_inches='tight')
+    plt.savefig(f'{charts_dir}/command_usage.webp', dpi=300, bbox_inches='tight')
     plt.close()
     
     # 5. GIFT CATEGORIES CHART
@@ -176,7 +176,7 @@ def create_visual_analytics():
     plt.title('🎁 Gift Categories Distribution', fontsize=16, fontweight='bold')
     plt.axis('equal')
     plt.tight_layout()
-    plt.savefig(f'{charts_dir}/gift_categories.png', dpi=300, bbox_inches='tight')
+    plt.savefig(f'{charts_dir}/gift_categories.webp', dpi=300, bbox_inches='tight')
     plt.close()
     
     # 6. TOP STICKER COLLECTIONS
@@ -208,7 +208,7 @@ def create_visual_analytics():
                 f'{width:,}', ha='left', va='center', fontweight='bold')
     
     plt.tight_layout()
-    plt.savefig(f'{charts_dir}/top_stickers.png', dpi=300, bbox_inches='tight')
+    plt.savefig(f'{charts_dir}/top_stickers.webp', dpi=300, bbox_inches='tight')
     plt.close()
     
     # 7. ENGAGEMENT METRICS COMPARISON
@@ -236,7 +236,7 @@ def create_visual_analytics():
                 f'{value:,}', ha='center', va='bottom', fontweight='bold')
     
     plt.tight_layout()
-    plt.savefig(f'{charts_dir}/engagement_metrics.png', dpi=300, bbox_inches='tight')
+    plt.savefig(f'{charts_dir}/engagement_metrics.webp', dpi=300, bbox_inches='tight')
     plt.close()
     
     # 8. USER RETENTION CHART
@@ -267,7 +267,7 @@ def create_visual_analytics():
     plt.title('🔄 User Retention Analysis', fontsize=16, fontweight='bold')
     plt.axis('equal')
     plt.tight_layout()
-    plt.savefig(f'{charts_dir}/user_retention.png', dpi=300, bbox_inches='tight')
+    plt.savefig(f'{charts_dir}/user_retention.webp', dpi=300, bbox_inches='tight')
     plt.close()
     
     # 9. ACTIVITY BY MINUTE PATTERN
@@ -294,7 +294,7 @@ def create_visual_analytics():
     plt.xticks(range(0, 60, 5))
     plt.grid(True, alpha=0.3)
     plt.tight_layout()
-    plt.savefig(f'{charts_dir}/minute_pattern.png', dpi=300, bbox_inches='tight')
+    plt.savefig(f'{charts_dir}/minute_pattern.webp', dpi=300, bbox_inches='tight')
     plt.close()
     
     # 10. COMPREHENSIVE SUMMARY CHART

@@ -65,27 +65,27 @@ def create_safe_cdn_url(base_path, filename, file_type="general"):
     
     # Fix 3: Fix gift card URLs in inline query
     old_gift_pattern = r'gift_card_url = f"{CDN_BASE_URL}/new_gift_cards/\{gift_file_name\}_card\.png\?t=\{timestamp\}"'
-    new_gift_pattern = 'gift_card_url = create_safe_cdn_url("new_gift_cards", f"{gift_file_name}_card.png", "gift") + f"?t={timestamp}"'
+    new_gift_pattern = 'gift_card_url = create_safe_cdn_url("new_gift_cards", f"{gift_file_name}_card.webp", "gift") + f"?t={timestamp}"'
     content = re.sub(old_gift_pattern, new_gift_pattern, content)
     
     old_image_pattern = r'gift_image_url = f"{CDN_BASE_URL}/downloaded_images/\{gift_file_name\}\.png\?t=\{timestamp\}"'
-    new_image_pattern = 'gift_image_url = create_safe_cdn_url("downloaded_images", f"{gift_file_name}.png", "gift") + f"?t={timestamp}"'
+    new_image_pattern = 'gift_image_url = create_safe_cdn_url("downloaded_images", f"{gift_file_name}.webp", "gift") + f"?t={timestamp}"'
     content = re.sub(old_image_pattern, new_image_pattern, content)
     print("✅ Fixed gift card URLs")
     
     # Fix 4: Fix sticker URLs in inline query
     old_sticker_card_pattern = r'sticker_card_url = f"{CDN_BASE_URL}/sticker_price_cards/\{collection_normalized\}_\{sticker_normalized\}_price_card\.png\?t=\{timestamp\}"'
-    new_sticker_card_pattern = '''sticker_card_filename = f"{collection_normalized}_{sticker_normalized}_price_card.png"
+    new_sticker_card_pattern = '''sticker_card_filename = f"{collection_normalized}_{sticker_normalized}_price_card.webp"
                     sticker_card_url = create_safe_cdn_url("sticker_price_cards", sticker_card_filename) + f"?t={timestamp}"'''
     content = re.sub(old_sticker_card_pattern, new_sticker_card_pattern, content)
     print("✅ Fixed sticker card URLs")
     
     # Fix 5: Fix asset URLs
     asset_fixes = [
-        (r'thumbnail_url=f"{CDN_BASE_URL}/assets/giftschart\.png"', 'thumbnail_url=create_safe_cdn_url("assets", "giftschart.png")'),
-        (r'thumbnail_url=f"{CDN_BASE_URL}/assets/gifts\.png"', 'thumbnail_url=create_safe_cdn_url("assets", "gifts.png")'),
-        (r'thumbnail_url=f"{CDN_BASE_URL}/assets/stickers\.png"', 'thumbnail_url=create_safe_cdn_url("assets", "stickers.png")'),
-        (r'thumbnail_url=f"{CDN_BASE_URL}/assets/no%20result\.png"', 'thumbnail_url=create_safe_cdn_url("assets", "no result.png")')
+        (r'thumbnail_url=f"{CDN_BASE_URL}/assets/giftschart\.webp"', 'thumbnail_url=create_safe_cdn_url("assets", "giftschart.webp")'),
+        (r'thumbnail_url=f"{CDN_BASE_URL}/assets/gifts\.webp"', 'thumbnail_url=create_safe_cdn_url("assets", "gifts.webp")'),
+        (r'thumbnail_url=f"{CDN_BASE_URL}/assets/stickers\.webp"', 'thumbnail_url=create_safe_cdn_url("assets", "stickers.webp")'),
+        (r'thumbnail_url=f"{CDN_BASE_URL}/assets/no%20result\.webp"', 'thumbnail_url=create_safe_cdn_url("assets", "no result.webp")')
     ]
     
     for old_pattern, new_pattern in asset_fixes:

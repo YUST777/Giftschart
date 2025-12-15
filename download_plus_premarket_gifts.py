@@ -25,7 +25,7 @@ output_folder = os.path.join(script_dir, "downloaded_images")
 os.makedirs(output_folder, exist_ok=True)
 
 # Base URL for gift images
-BASE_URL = "https://cdn.changes.tg/gifts/originals/{}/Original.png"
+BASE_URL = "https://cdn.changes.tg/gifts/originals/{}/Original.webp"
 
 def download_image(gift_id, filename, gift_name):
     """Download a single gift image"""
@@ -80,7 +80,7 @@ def main():
     for normalized_name, gift_info in PLUS_PREMARKET_GIFTS.items():
         gift_name = gift_info["name"]
         gift_id = gift_info["id"]
-        filename = f"{normalized_name}.png"
+        filename = f"{normalized_name}.webp"
         
         # Check if already exists
         filepath = os.path.join(output_folder, filename)

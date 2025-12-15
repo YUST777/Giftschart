@@ -1243,7 +1243,7 @@ async def handle_premium_setup(update: Update, context: ContextTypes.DEFAULT_TYP
                         
                         # Get the path to the premium active image
                         script_dir = os.path.dirname(os.path.abspath(__file__))
-                        premium_active_image_path = os.path.join(script_dir, "assets", "premiumactive.png")
+                        premium_active_image_path = os.path.join(script_dir, "assets", "premiumactive.webp")
                         
                         await update.message.reply_photo(
                             photo=open(premium_active_image_path, 'rb'),
@@ -1578,7 +1578,7 @@ async def handle_premium_status(update: Update, context: ContextTypes.DEFAULT_TY
         # Send photo with status text
         import os
         script_dir = os.path.dirname(os.path.abspath(__file__))
-        photo_path = os.path.join(script_dir, "assets", "statues.png")
+        photo_path = os.path.join(script_dir, "assets", "statues.webp")
         if os.path.exists(photo_path):
             await update.message.reply_photo(
                 photo=open(photo_path, 'rb'),

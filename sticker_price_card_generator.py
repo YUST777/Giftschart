@@ -54,9 +54,9 @@ OUTPUT_DIR = os.path.join(script_dir, "Sticker_Price_Cards")
 ASSETS_DIR = os.path.join(script_dir, "assets")
 STICKER_COLLECTIONS_DIR = os.path.join(script_dir, "sticker_collections")
 PRICE_DATA_FILE = os.path.join(script_dir, "sticker_price_results.json")
-TON_LOGO_PATH = os.path.join(ASSETS_DIR, "TON2.png")
-TRIANGLE_LOGO_PATH = os.path.join(ASSETS_DIR, "triangle.png")  # You may need to create this asset
-STAR_LOGO_PATH = os.path.join(ASSETS_DIR, "star.png")  # Star image for sale price
+TON_LOGO_PATH = os.path.join(ASSETS_DIR, "TON2.webp")
+TRIANGLE_LOGO_PATH = os.path.join(ASSETS_DIR, "triangle.webp")  # You may need to create this asset
+STAR_LOGO_PATH = os.path.join(ASSETS_DIR, "star.webp")  # Star image for sale price
 FONT_PATH = os.path.join(script_dir, "Typekiln - EloquiaDisplay-ExtraBold.otf")
 CACHE_MAX_AGE = 1920  # 32 minutes in seconds
 
@@ -93,6 +93,21 @@ def safe_print(text):
             # If still fails, use a more aggressive replacement
             safe_text = safe_text.encode('ascii', 'ignore').decode('ascii')
             print(safe_text)
+
+def find_image_file(base_path):
+    """Find image file, trying .webp first, then .png/.jpg as fallback"""
+    webp_path = base_path.rsplit('.', 1)[0] + '.webp' if '.' in base_path else base_path + '.webp'
+    png_path = base_path.rsplit('.', 1)[0] + '.webp' if '.' in base_path else base_path + '.webp'
+    jpg_path = base_path.rsplit('.', 1)[0] + '.jpg' if '.' in base_path else base_path + '.jpg'
+    
+    if os.path.exists(webp_path):
+        return webp_path
+    elif os.path.exists(png_path):
+        return png_path
+    elif os.path.exists(jpg_path):
+        return jpg_path
+    else:
+        return base_path  # Return original if none exists
 
 def normalize_name(name):
     name = name.strip().lower()
@@ -231,9 +246,15 @@ def find_sticker_image(collection_norm, sticker_norm):
             sticker_dir = os.path.join(collection_dir, sticker_norm)
             if os.path.exists(sticker_dir):
                 for file in os.listdir(sticker_dir):
+                    # Try WebP first
+                    if re.match(r'^\d+(_|\.)?webp$', file):
+                        return os.path.join(sticker_dir, file)
+                    if file.endswith('.webp') or file.endswith('_webp'):
+                        return os.path.join(sticker_dir, file)
+                    # Then PNG/JPG
                     if re.match(r'^\d+(_|\.)?png$', file) or re.match(r'^\d+(_|\.)?jpg$', file):
                         return os.path.join(sticker_dir, file)
-                    if file.endswith('.png') or file.endswith('.jpg') or file.endswith('_png') or file.endswith('_jpg'):
+                    if file.endswith('.webp') or file.endswith('.jpg') or file.endswith('_png') or file.endswith('_jpg'):
                         return os.path.join(sticker_dir, file)
     except Exception as e:
         logger.error(f"Error finding sticker image: {e}")
@@ -241,25 +262,28 @@ def find_sticker_image(collection_norm, sticker_norm):
 
 def find_template_case_insensitive(collection_norm, sticker_norm):
     """Find template file with case-insensitive matching"""
-    # Try exact match first
-    template_path = os.path.join(TEMPLATES_DIR, f"{collection_norm}_{sticker_norm}_template.png")
+    # Try WebP first, then PNG
+    base_name = f"{collection_norm}_{sticker_norm}_template"
+    template_path = find_image_file(os.path.join(TEMPLATES_DIR, base_name))
     if os.path.exists(template_path):
         return template_path
     
     # Try with lowercase sticker name
-    template_path = os.path.join(TEMPLATES_DIR, f"{collection_norm}_{sticker_norm.lower()}_template.png")
+    base_name = f"{collection_norm}_{sticker_norm.lower()}_template"
+    template_path = find_image_file(os.path.join(TEMPLATES_DIR, base_name))
     if os.path.exists(template_path):
         return template_path
     
     # Try with lowercase collection and sticker name
-    template_path = os.path.join(TEMPLATES_DIR, f"{collection_norm.lower()}_{sticker_norm.lower()}_template.png")
+    base_name = f"{collection_norm.lower()}_{sticker_norm.lower()}_template"
+    template_path = find_image_file(os.path.join(TEMPLATES_DIR, base_name))
     if os.path.exists(template_path):
         return template_path
     
     # Try to find any matching file by listing directory and comparing case-insensitive
     try:
         for filename in os.listdir(TEMPLATES_DIR):
-            expected_name = f"{collection_norm}_{sticker_norm}_template.png".lower()
+            expected_name = f"{collection_norm}_{sticker_norm}_template.webp".lower()
             if filename.lower() == expected_name:
                 return os.path.join(TEMPLATES_DIR, filename)
     except Exception as e:
@@ -635,10 +659,10 @@ def generate_price_card(collection, sticker, price, output_dir):
         date_y = white_box_y + WHITE_BOX_HEIGHT - 50  # Position at bottom of white card area
         draw.text((date_x, date_y), date_text, fill=(100, 100, 100), font=date_font)
         
-        # Save the card
-        output_filename = f"{collection_norm}_{sticker_norm}_price_card.png"
+        # Save the card as WebP
+        output_filename = f"{collection_norm}_{sticker_norm}_price_card.webp"
         output_path = os.path.join(output_dir, output_filename)
-        card.save(output_path)
+        card.save(output_path, 'WEBP', quality=85, method=6)
         
         logger.info(f"Generated price card: {output_path}")
         return output_path

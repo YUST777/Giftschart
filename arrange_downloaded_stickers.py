@@ -22,8 +22,8 @@ for folder in os.listdir(src_base):
                 dst_pack = os.path.join(dst_collection, pack)
                 os.makedirs(dst_pack, exist_ok=True)
                 for img_num in range(1, 6):
-                    src_img = os.path.join(folder_path, f'{img_num}.png')
-                    dst_img = os.path.join(dst_pack, f'{img_num}.png')
+                    src_img = os.path.join(folder_path, f'{img_num}.webp')
+                    dst_img = os.path.join(dst_pack, f'{img_num}.webp')
                     if os.path.exists(src_img):
                         shutil.copy2(src_img, dst_img)
                         print(f'Moved: {src_img} -> {dst_img}')
@@ -38,8 +38,8 @@ for folder in os.listdir(src_base):
             dst_pack = os.path.join(dst_base, collection, pack)
             os.makedirs(dst_pack, exist_ok=True)
             for img_num in range(1, 6):
-                src_img = os.path.join(folder_path, f'{img_num}.png')
-                dst_img = os.path.join(dst_pack, f'{img_num}.png')
+                src_img = os.path.join(folder_path, f'{img_num}.webp')
+                dst_img = os.path.join(dst_pack, f'{img_num}.webp')
                 if os.path.exists(src_img):
                     shutil.copy2(src_img, dst_img)
                     print(f'Moved: {src_img} -> {dst_img}')
@@ -50,8 +50,8 @@ for folder in os.listdir(src_base):
         dst_collection = os.path.join(dst_base, folder)
         os.makedirs(dst_collection, exist_ok=True)
         for img_num in range(1, 6):
-            src_img = os.path.join(folder_path, f'{img_num}.png')
-            dst_img = os.path.join(dst_collection, f'{img_num}.png')
+            src_img = os.path.join(folder_path, f'{img_num}.webp')
+            dst_img = os.path.join(dst_collection, f'{img_num}.webp')
             if os.path.exists(src_img):
                 shutil.copy2(src_img, dst_img)
                 print(f'Moved: {src_img} -> {dst_img}')

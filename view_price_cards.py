@@ -24,7 +24,7 @@ def list_price_cards(directory):
         print(f"Directory not found: {directory}")
         return []
         
-    return [f for f in os.listdir(directory) if f.endswith('_price_card.png')]
+    return [f for f in os.listdir(directory) if f.endswith('_price_card.webp')]
 
 def view_random_cards(directory, count=5):
     """View a random sample of price cards"""
@@ -119,7 +119,7 @@ def view_top_cards(directory, count=10):
     
     # Display each top card
     for i, sticker in enumerate(top_stickers[:count], 1):
-        card_name = f"{sticker}_price_card.png"
+        card_name = f"{sticker}_price_card.webp"
         card_path = os.path.join(directory, card_name)
         
         if os.path.exists(card_path):

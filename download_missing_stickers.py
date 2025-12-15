@@ -27,7 +27,7 @@ for col_id, col_name, pack_id, pack_name in missing:
     found_img = False
     for img_num in range(1, 6):
         url = f'https://cdn.stickerdom.store/{col_id}/p/{pack_id}/{img_num}.png?v=3'
-        outpath = f'{outdir}/{img_num}.png'
+        outpath = f'{outdir}/{img_num}.webp'
         try:
             r = requests.get(url, timeout=10)
             if r.status_code == 200:

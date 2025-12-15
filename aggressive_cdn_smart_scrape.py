@@ -12,7 +12,7 @@ for col_id in range(1, 51):
         consecutive_not_found = 0
         for pack_id in range(1, 121):
             # Check if image already exists in sticker_collections
-            existing_path = os.path.join(existing_base, str(col_id), str(pack_id), f'{img_num}.png')
+            existing_path = os.path.join(existing_base, str(col_id), str(pack_id), f'{img_num}.webp')
             if os.path.exists(existing_path):
                 print(f'Already exists: {existing_path} (skipping)')
                 consecutive_not_found = 0
@@ -20,7 +20,7 @@ for col_id in range(1, 51):
             url = base_url.format(col_id=col_id, pack_id=pack_id, img_num=img_num)
             outdir = os.path.join(out_base, str(col_id), 'p', str(pack_id))
             os.makedirs(outdir, exist_ok=True)
-            outpath = os.path.join(outdir, f'{img_num}.png')
+            outpath = os.path.join(outdir, f'{img_num}.webp')
             try:
                 r = requests.get(url, timeout=8)
                 if r.status_code == 200 and r.content and r.content[:4] == b'\x89PNG':

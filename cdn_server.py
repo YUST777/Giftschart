@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 CDN Server for Telegram Bot Assets
-Serves files directly like: https://test.asadffastest.store/api/new_gift_cards/Electric_Skull_card.png
+Serves files directly like: https://test.asadffastest.store/api/new_gift_cards/Electric_Skull_card.webp
 """
 
 from flask import Flask, jsonify, send_from_directory, request
@@ -156,7 +156,7 @@ def serve_file(folder_key, filename):
             # Handle _png files as PNG images
             if filename.endswith('_png'):
                 mime_type = 'image/png'
-            elif filename.endswith('.png'):
+            elif filename.endswith('.webp'):
                 mime_type = 'image/png'
             elif filename.endswith('.jpg') or filename.endswith('.jpeg'):
                 mime_type = 'image/jpeg'
@@ -190,7 +190,7 @@ def serve_file(folder_key, filename):
             # Handle _png files as PNG images
             if filename.endswith('_png'):
                 mime_type = 'image/png'
-            elif filename.endswith('.png'):
+            elif filename.endswith('.webp'):
                 mime_type = 'image/png'
             elif filename.endswith('.jpg') or filename.endswith('.jpeg'):
                 mime_type = 'image/jpeg'

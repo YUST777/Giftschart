@@ -37,7 +37,7 @@ async def generate_all_cards():
             if card:
                 # Save the card
                 safe_name = gift_name.replace(" ", "_").replace("/", "_").replace("'", "")
-                filename = f"{output_dir}/{safe_name}.png"
+                filename = f"{output_dir}/{safe_name}.webp"
                 card.save(filename)
                 print(f"  ✅ Saved: {filename}")
                 success_count += 1

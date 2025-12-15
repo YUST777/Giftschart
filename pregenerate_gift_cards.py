@@ -55,7 +55,7 @@ def get_available_gift_names():
                 return []
             
             # Get all PNG files
-            gift_files = [f for f in os.listdir(images_dir) if f.endswith('.png')]
+            gift_files = [f for f in os.listdir(images_dir) if f.endswith('.webp')]
             
             # Extract gift names from filenames, skipping known duplicates and special files
             gift_names = []
@@ -108,9 +108,9 @@ def generate_card(gift_name):
         
         # Plus premarket gifts use different output filename (no _card suffix)
         if is_plus_premarket:
-            output_path = os.path.join(GIFT_CARDS_DIR, f"{normalized_filename}.png")
+            output_path = os.path.join(GIFT_CARDS_DIR, f"{normalized_filename}.webp")
         else:
-            output_path = os.path.join(GIFT_CARDS_DIR, f"{normalized_filename}_card.png")
+            output_path = os.path.join(GIFT_CARDS_DIR, f"{normalized_filename}_card.webp")
         
         # Generate the card with force_fresh=True to bypass all caches and provide output_path
         result = asyncio.run(new_card_design.create_gift_card(gift_name, output_path=output_path, force_fresh=True))
@@ -237,10 +237,10 @@ def should_regenerate():
 
 def pregenerate_all_cards_from_templates():
     template_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'card_templates')
-    templates = [f for f in os.listdir(template_dir) if f.endswith('_template.png')]
+    templates = [f for f in os.listdir(template_dir) if f.endswith('_template.webp')]
     for template_file in templates:
         # Extract gift name from template filename
-        gift_name = template_file.replace('_template.png', '').replace('_', ' ')
+        gift_name = template_file.replace('_template.webp', '').replace('_', ' ')
         # Handle special cases for normalization
         if gift_name == 'Jack in the Box':
             gift_name = 'Jack-in-the-Box'

@@ -76,7 +76,7 @@ def generate_live_price_card(collection, sticker):
             if directory.lower() == sticker_norm.lower():
                 sticker_dir = os.path.join(root, directory)
                 for file in os.listdir(sticker_dir):
-                    if file.endswith('.png') or file.endswith('.jpg'):
+                    if file.endswith('.webp') or file.endswith('.jpg'):
                         sticker_image_path = os.path.join(sticker_dir, file)
                         break
                 if sticker_image_path:
@@ -88,7 +88,7 @@ def generate_live_price_card(collection, sticker):
         print(f"⚠️ WARNING: Could not find sticker image for {collection} - {sticker}")
         # Try to find a template
         template_path = None
-        template_name = f"{collection_norm}_{sticker_norm}_template.png"
+        template_name = f"{collection_norm}_{sticker_norm}_template.webp"
         sticker_templates_dir = os.path.join(script_dir, "sticker_templates")
         if os.path.exists(os.path.join(sticker_templates_dir, template_name)):
             template_path = os.path.join(sticker_templates_dir, template_name)
@@ -121,7 +121,7 @@ def generate_live_price_card(collection, sticker):
         draw.text((50, 350), "LIVE PRICE DATA", fill=(255, 0, 0), font=font)
         
         # Save the card
-        output_filename = f"{collection_norm}_{sticker_norm}_live_price_card.png"
+        output_filename = f"{collection_norm}_{sticker_norm}_live_price_card.webp"
         output_path = os.path.join(OUTPUT_DIR, output_filename)
         card.save(output_path)
         

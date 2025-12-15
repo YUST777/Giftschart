@@ -93,7 +93,7 @@ def get_gift_card_url(gift_name: str) -> Optional[str]:
         normalized_name = gift_name.replace(" ", "_").replace("-", "_").replace("'", "")
     
     # Gift card file path
-    gift_card_path = os.path.join(script_dir, "new_gift_cards", f"{normalized_name}_card.png")
+    gift_card_path = os.path.join(script_dir, "new_gift_cards", f"{normalized_name}_card.webp")
     
     # Check if the gift card exists
     if not os.path.exists(gift_card_path):
@@ -126,8 +126,8 @@ if __name__ == "__main__":
         # Otherwise, list all available gift cards
         print("Available gift cards:")
         from glob import glob
-        cards = glob(os.path.join(script_dir, "new_gift_cards", "*_card.png"))
+        cards = glob(os.path.join(script_dir, "new_gift_cards", "*_card.webp"))
         for card in cards:
-            gift_name = os.path.basename(card).replace("_card.png", "")
+            gift_name = os.path.basename(card).replace("_card.webp", "")
             print(f"- {gift_name}")
         print("\nUsage: python image_uploader.py <gift_name>")

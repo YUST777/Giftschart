@@ -15,7 +15,7 @@ for col_id in range(1, 51):
                 url = base_url.format(col_id=col_id, pack_id=try_pack_id, img_num=img_num)
                 outdir = os.path.join(out_base, str(col_id), 'p', str(pack_id))
                 os.makedirs(outdir, exist_ok=True)
-                outpath = os.path.join(outdir, f'{img_num}.png')
+                outpath = os.path.join(outdir, f'{img_num}.webp')
                 try:
                     r = requests.get(url, timeout=8)
                     if r.status_code == 200 and r.content and r.content[:4] == b'\x89PNG':

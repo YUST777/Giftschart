@@ -84,14 +84,14 @@ def load_price_data():
         }
         
         # Get all template files
-        templates = [f for f in os.listdir(TEMPLATES_DIR) if f.endswith('_template.png')]
+        templates = [f for f in os.listdir(TEMPLATES_DIR) if f.endswith('_template.webp')]
         result['total_templates'] = len(templates)
         
         # Process each template
         for template_file in templates:
             # Extract collection and sticker name from template filename
             try:
-                parts = template_file.replace('_template.png', '').split('_')
+                parts = template_file.replace('_template.webp', '').split('_')
                 
                 # Handle complex names
                 if len(parts) <= 1:
@@ -194,7 +194,7 @@ def generate_price_card(collection, sticker, price, output_dir):
         os.makedirs(output_dir, exist_ok=True)
         collection_norm = normalize_filename(collection)
         sticker_norm = normalize_filename(sticker)
-        template_path = os.path.join(TEMPLATES_DIR, f"{collection_norm}_{sticker_norm}_template.png")
+        template_path = os.path.join(TEMPLATES_DIR, f"{collection_norm}_{sticker_norm}_template.webp")
         # Try to load template, else fallback
         if os.path.exists(template_path):
         template = Image.open(template_path).convert("RGBA")
@@ -243,7 +243,7 @@ def generate_price_card(collection, sticker, price, output_dir):
         draw.text((star_x, star_y), f"{stars_price:,}".replace(",", " "), fill=price_color, font=ton_price_font)
         
         # Save the card
-        output_filename = f"{collection_norm}_{sticker_norm}_price_card.png"
+        output_filename = f"{collection_norm}_{sticker_norm}_price_card.webp"
         output_path = os.path.join(output_dir, output_filename)
         template.save(output_path)
         logger.info(f"Generated price card: {output_path}")
@@ -261,7 +261,7 @@ def generate_price_card(collection, sticker, price, output_dir):
             draw.text((100, 100), f"{collection}", fill=(255,255,255), font=font)
             draw.text((100, 250), f"{sticker}", fill=(255,255,255), font=font)
             draw.text((100, 400), f"Price: {price} TON", fill=(255,255,0), font=font)
-            output_filename = f"{collection_norm}_{sticker_norm}_price_card.png"
+            output_filename = f"{collection_norm}_{sticker_norm}_price_card.webp"
             output_path = os.path.join(output_dir, output_filename)
             card.save(output_path)
             logger.info(f"Generated fallback price card: {output_path}")

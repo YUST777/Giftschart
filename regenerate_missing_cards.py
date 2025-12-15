@@ -35,7 +35,7 @@ async def regenerate_missing():
             
             if card:
                 safe_name = gift_name.replace(" ", "_").replace("-", "_").replace("'", "").replace("/", "_")
-                filename = f"{output_dir}/{safe_name}.png"
+                filename = f"{output_dir}/{safe_name}.webp"
                 card.save(filename)
                 print(f"  ✅ Saved: {filename}")
             else:

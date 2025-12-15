@@ -106,12 +106,12 @@ async def fetch_new_premarket_prices():
     print("📁 IMAGE FILE PATHS")
     print("-" * 70)
     image_paths = {
-        "Happy Brownie": "/home/yousefmsm1/Desktop/3.7.5.2/downloaded_images/Happy_Brownie.png",
-        "Spring Basket": "/home/yousefmsm1/Desktop/3.7.5.2/downloaded_images/Spring_Basket.png",
-        "Instant Ramen": "/home/yousefmsm1/Desktop/3.7.5.2/downloaded_images/Instant_Ramen.png",
-        "Faith Amulet": "/home/yousefmsm1/Desktop/3.7.5.2/downloaded_images/Faith_Amulet.png",
-        "Mousse Cake": "/home/yousefmsm1/Desktop/3.7.5.2/downloaded_images/Mousse_Cake.png",
-        "Ice Cream": "/home/yousefmsm1/Desktop/3.7.5.2/downloaded_images/Ice_Cream.png",
+        "Happy Brownie": "/home/yousefmsm1/Desktop/3.7.5.2/downloaded_images/Happy_Brownie.webp",
+        "Spring Basket": "/home/yousefmsm1/Desktop/3.7.5.2/downloaded_images/Spring_Basket.webp",
+        "Instant Ramen": "/home/yousefmsm1/Desktop/3.7.5.2/downloaded_images/Instant_Ramen.webp",
+        "Faith Amulet": "/home/yousefmsm1/Desktop/3.7.5.2/downloaded_images/Faith_Amulet.webp",
+        "Mousse Cake": "/home/yousefmsm1/Desktop/3.7.5.2/downloaded_images/Mousse_Cake.webp",
+        "Ice Cream": "/home/yousefmsm1/Desktop/3.7.5.2/downloaded_images/Ice_Cream.webp",
     }
     
     for gift_name, path in image_paths.items():

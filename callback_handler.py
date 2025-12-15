@@ -469,7 +469,7 @@ async def callback_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -
                 CDN_BASE_URL = "https://test.asadffastest.store/api"
                 from telegram_bot import normalize_gift_filename
                 gift_file_name = normalize_gift_filename(gift_name)
-                image_url = f"{CDN_BASE_URL}/new_gift_cards/{gift_file_name}_card.png"
+                image_url = f"{CDN_BASE_URL}/new_gift_cards/{gift_file_name}_card.webp"
                 
                 # Get the gift price data
                 try:

@@ -691,14 +691,14 @@ def get_sticker_card_path(collection, sticker):
     collection_normalized = normalize_name(collection)
     sticker_normalized = normalize_name(sticker)
     
-    filename = f"{collection_normalized}_{sticker_normalized}_price_card.png"
+    filename = f"{collection_normalized}_{sticker_normalized}_price_card.webp"
     filepath = os.path.join(STICKER_CARDS_DIR, filename)
     
     if os.path.exists(filepath):
         return filepath
     
     # Try alternative naming patterns
-    alt_filename = f"{collection_normalized}_{sticker_normalized}_card.png"
+    alt_filename = f"{collection_normalized}_{sticker_normalized}_card.webp"
     alt_filepath = os.path.join(STICKER_CARDS_DIR, alt_filename)
     
     if os.path.exists(alt_filepath):

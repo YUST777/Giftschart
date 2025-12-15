@@ -35,11 +35,24 @@ input_dir = os.path.join(script_dir, "downloaded_images")
 output_dir = os.path.join(script_dir, "new_gift_cards")
 assets_dir = os.path.join(script_dir, "assets")
 backgrounds_dir = os.path.join(script_dir, "pregenerated_backgrounds")
-background_path = os.path.join(assets_dir, "Background color this.png")
-white_box_path = os.path.join(assets_dir, "white box.png")
-ton_logo_path = os.path.join(assets_dir, "TON2.png")
-star_logo_path = os.path.join(assets_dir, "star.png")
+background_path = os.path.join(assets_dir, "Background color this.webp")
+white_box_path = os.path.join(assets_dir, "white box.webp")
+ton_logo_path = os.path.join(assets_dir, "TON2.webp")
+star_logo_path = os.path.join(assets_dir, "star.webp")
 font_path = os.path.join(script_dir, "Typekiln - EloquiaDisplay-ExtraBold.otf")
+
+# Helper function to find image file (tries .webp first, then .png)
+def find_image_file(base_path):
+    """Find image file, trying .webp first, then .png as fallback"""
+    webp_path = base_path.rsplit('.', 1)[0] + '.webp' if '.' in base_path else base_path + '.webp'
+    png_path = base_path.rsplit('.', 1)[0] + '.webp' if '.' in base_path else base_path + '.webp'
+    
+    if os.path.exists(webp_path):
+        return webp_path
+    elif os.path.exists(png_path):
+        return png_path
+    else:
+        return base_path  # Return original if neither exists
 
 # API endpoints (kept as fallback)
 GIFTS_API = "https://giftcharts-api.onrender.com/gifts"
@@ -824,19 +837,19 @@ async def create_gift_card(gift_name, output_path=None, force_fresh=False):
         else:
             # Normalize: replace spaces, hyphens, and apostrophes with underscores
             normalized_name = gift_name.replace(" ", "_").replace("-", "_").replace("'", "")
-        gift_img_path = os.path.join(input_dir, f"{normalized_name}.png")
+        gift_img_path = find_image_file(os.path.join(input_dir, f"{normalized_name}"))
         
         # Check if the file exists, if not try alternative naming patterns
         if not os.path.exists(gift_img_path):
-            # Try without underscores (for premarket gifts like SnoopDogg.png)
+            # Try without underscores (for premarket gifts like SnoopDogg)
             alt_name = gift_name.replace(" ", "").replace("-", "").replace("'", "")
-            alt_path = os.path.join(input_dir, f"{alt_name}.png")
+            alt_path = find_image_file(os.path.join(input_dir, alt_name))
             if os.path.exists(alt_path):
                 gift_img_path = alt_path
             else:
                 # Try original name with just spaces replaced
                 alt_name2 = gift_name.replace(" ", "_")
-                alt_path2 = os.path.join(input_dir, f"{alt_name2}.png")
+                alt_path2 = find_image_file(os.path.join(input_dir, alt_name2))
                 if os.path.exists(alt_path2):
                     gift_img_path = alt_path2
                 else:
@@ -848,7 +861,7 @@ async def create_gift_card(gift_name, output_path=None, force_fresh=False):
         
         # Check if we have a pre-generated background
         safe_name = gift_name.replace(' ', '_').replace('-', '_').replace("'", '')
-        pregenerated_bg_path = os.path.join(backgrounds_dir, f"{safe_name}_background.png")
+        pregenerated_bg_path = find_image_file(os.path.join(backgrounds_dir, f"{safe_name}_background"))
         
         if os.path.exists(pregenerated_bg_path):
             # Use the pre-generated background
@@ -1125,13 +1138,13 @@ async def create_gift_card(gift_name, output_path=None, force_fresh=False):
                         break
                 
                 if is_premarket:
-                    # For premarket gifts, use the display name with underscores (e.g., "Clover_Pin.png")
+                    # For premarket gifts, use the display name with underscores (e.g., "Clover_Pin.webp")
                     normalized_name = gift_name.replace(" ", "_").replace("-", "_").replace("'", "")
-                    gift_image_path = os.path.join(input_dir, f"{normalized_name}.png")
+                    gift_image_path = find_image_file(os.path.join(input_dir, normalized_name))
                 else:
                     # For regular gifts, use the display name with underscores
                     normalized_name = gift_name.replace(" ", "_").replace("-", "_").replace("'", "")
-                    gift_image_path = os.path.join(input_dir, f"{normalized_name}.png")
+                    gift_image_path = find_image_file(os.path.join(input_dir, normalized_name))
                 
                 # If gift image exists, add badge to it
                 if os.path.exists(gift_image_path):
@@ -1174,7 +1187,10 @@ async def create_gift_card(gift_name, output_path=None, force_fresh=False):
         if output_path:
             # Create directory if it doesn't exist
             os.makedirs(os.path.dirname(output_path), exist_ok=True)
-            card.save(output_path)
+            # Convert output path to WebP if it's PNG
+            if output_path.endswith('.webp'):
+                output_path = output_path[:-4] + '.webp'
+            card.save(output_path, 'WEBP', quality=85, method=6)
             
         return card
     
@@ -1197,11 +1213,11 @@ def generate_specific_gift(gift_name, filename_suffix=""):
         normalized_name = gift_name.replace(" ", "_").replace("-", "_").replace("'", "")
     
     # Define output path
-    output_path = os.path.join(output_dir, f"{normalized_name}{filename_suffix}_card.png")
+    output_path = os.path.join(output_dir, f"{normalized_name}{filename_suffix}_card.webp")
     
     try:
         # Check if template exists
-        template_path = os.path.join("card_templates", f"{normalized_name}_template.png")
+        template_path = find_image_file(os.path.join("card_templates", f"{normalized_name}_template"))
         if not os.path.exists(template_path):
             # Generate the template if it doesn't exist
             template_path = generate_template_card(gift_name)
@@ -1256,7 +1272,7 @@ def generate_template_card(gift_name):
         # Define the template path
         template_dir = "card_templates"
         os.makedirs(template_dir, exist_ok=True)
-        template_path = os.path.join(template_dir, f"{normalized_name}_template.png")
+        template_path = os.path.join(template_dir, f"{normalized_name}_template.webp")
         
         # Check if the template already exists
         if os.path.exists(template_path):
@@ -1273,13 +1289,13 @@ def generate_template_card(gift_name):
         white_box_img = white_box_img.resize(target_size)
         
         # Find the gift image file
-        gift_img_path = os.path.join(input_dir, f"{normalized_name}.png")
+        gift_img_path = find_image_file(os.path.join(input_dir, normalized_name))
         
         # Check if the file exists, if not try alternative naming patterns
         if not os.path.exists(gift_img_path):
-            # Try without underscores (for premarket gifts like SnoopDogg.png)
+            # Try without underscores (for premarket gifts like SnoopDogg)
             alt_name = gift_name.replace(" ", "")
-            alt_path = os.path.join(input_dir, f"{alt_name}.png")
+            alt_path = find_image_file(os.path.join(input_dir, alt_name))
             if os.path.exists(alt_path):
                 gift_img_path = alt_path
             else:
@@ -1290,7 +1306,7 @@ def generate_template_card(gift_name):
         dominant_color = get_dominant_color(gift_img_path)
         
         # Check if we have a pre-generated background
-        pregenerated_bg_path = os.path.join(backgrounds_dir, f"{normalized_name}_background.png")
+        pregenerated_bg_path = find_image_file(os.path.join(backgrounds_dir, f"{normalized_name}_background"))
         
         if os.path.exists(pregenerated_bg_path):
             # Use the pre-generated background
@@ -1435,8 +1451,10 @@ def generate_template_card(gift_name):
             line_y = watermark_y + (i * line_height)
             draw.text((watermark_x, line_y), line, fill=watermark_color, font=watermark_font)
         
-        # Save the template
-        template.save(template_path)
+        # Save the template as WebP
+        if template_path.endswith('.webp'):
+            template_path = template_path[:-4] + '.webp'
+        template.save(template_path, 'WEBP', quality=85, method=6)
         print(f"Generated template for {gift_name} at {template_path}")
         
         # Store metadata about the template
@@ -1483,7 +1501,7 @@ async def add_dynamic_elements(gift_name, template_path=None, output_path=None):
         
         # If no template path provided, use the default one
         if not template_path:
-            template_path = os.path.join("card_templates", f"{normalized_name}_template.png")
+            template_path = find_image_file(os.path.join("card_templates", f"{normalized_name}_template"))
         
         # If template doesn't exist, generate it
         if not os.path.exists(template_path):
@@ -1635,13 +1653,13 @@ async def add_dynamic_elements(gift_name, template_path=None, output_path=None):
                         break
                 
                 if is_premarket:
-                    # For premarket gifts, use the display name with underscores (e.g., "Clover_Pin.png")
+                    # For premarket gifts, use the display name with underscores (e.g., "Clover_Pin.webp")
                     normalized_name = gift_name.replace(" ", "_").replace("-", "_").replace("'", "")
-                    gift_image_path = os.path.join(input_dir, f"{normalized_name}.png")
+                    gift_image_path = find_image_file(os.path.join(input_dir, normalized_name))
                 else:
                     # For regular gifts, use the display name with underscores
                     normalized_name = gift_name.replace(" ", "_").replace("-", "_").replace("'", "")
-                    gift_image_path = os.path.join(input_dir, f"{normalized_name}.png")
+                    gift_image_path = find_image_file(os.path.join(input_dir, normalized_name))
                 
                 # If gift image exists, add badge to it
                 if os.path.exists(gift_image_path):
@@ -1683,7 +1701,10 @@ async def add_dynamic_elements(gift_name, template_path=None, output_path=None):
         # Save the final card
         if output_path:
             os.makedirs(os.path.dirname(output_path), exist_ok=True)
-            card.save(output_path)
+            # Convert output path to WebP if it's PNG
+            if output_path.endswith('.webp'):
+                output_path = output_path[:-4] + '.webp'
+            card.save(output_path, 'WEBP', quality=85, method=6)
             
         return card
         
@@ -1841,8 +1862,10 @@ def create_custom_card(image_path, output_path, name, price_usd, price_ton, chan
             line_y = watermark_y + (i * line_height)
             draw.text((watermark_x, line_y), line, fill=watermark_color, font=watermark_font)
         
-        # Save the card
-        card.save(output_path)
+        # Save the card as WebP
+        if output_path.endswith('.webp'):
+            output_path = output_path[:-4] + '.webp'
+        card.save(output_path, 'WEBP', quality=85, method=6)
         print(f"Custom card created: {output_path}")
         return output_path
     except Exception as e:

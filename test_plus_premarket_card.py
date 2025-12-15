@@ -41,7 +41,7 @@ async def test_plus_premarket_card():
                         print(f"   Image mode: {result.mode}")
                         
                         # Save the image to verify
-                        output_path = f"new_gift_cards/{gift_name.replace(' ', '_')}.png"
+                        output_path = f"new_gift_cards/{gift_name.replace(' ', '_')}.webp"
                         try:
                             result.save(output_path)
                             print(f"   Saved to: {output_path}")

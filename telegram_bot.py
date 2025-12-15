@@ -557,9 +557,9 @@ def get_gift_card_by_name(gift_name):
     
     # Plus premarket gifts use filename without _card suffix
     if is_plus_premarket:
-        filename = f"{normalized_name}.png"
+        filename = f"{normalized_name}.webp"
     else:
-        filename = f"{normalized_name}_card.png"
+        filename = f"{normalized_name}_card.webp"
     
     filepath = os.path.join(GIFT_CARDS_DIR, filename)
     
@@ -571,14 +571,14 @@ def get_gift_card_by_name(gift_name):
     # If not found, try the alternative format (for backward compatibility)
     if is_plus_premarket:
         # Try with _card suffix as fallback
-        alt_filename = f"{normalized_name}_card.png"
+        alt_filename = f"{normalized_name}_card.webp"
         alt_filepath = os.path.join(GIFT_CARDS_DIR, alt_filename)
         if os.path.exists(alt_filepath):
             logger.info(f"Found existing card for {gift_name} (alt format): {alt_filepath}")
             return alt_filepath
     else:
         # Try without _card suffix as fallback
-        alt_filename = f"{normalized_name}.png"
+        alt_filename = f"{normalized_name}.webp"
         alt_filepath = os.path.join(GIFT_CARDS_DIR, alt_filename)
         if os.path.exists(alt_filepath):
             logger.info(f"Found existing card for {gift_name} (alt format): {alt_filepath}")
@@ -653,11 +653,11 @@ def generate_gift_card(gift_file_name):
 
 # Get list of all available gift cards in the directory
 def get_available_gift_cards():
-    """Get all available gift cards including both _card.png and .png files"""
+    """Get all available gift cards including both _card.webp and .png files"""
     if os.path.exists(GIFT_CARDS_DIR):
-        # Get both _card.png files (regular gifts) and .png files (+premarket gifts)
-        card_files = [f for f in os.listdir(GIFT_CARDS_DIR) if f.endswith('_card.png')]
-        png_files = [f for f in os.listdir(GIFT_CARDS_DIR) if f.endswith('.png') and not f.endswith('_card.png')]
+        # Get both _card.webp files (regular gifts) and .png files (+premarket gifts)
+        card_files = [f for f in os.listdir(GIFT_CARDS_DIR) if f.endswith('_card.webp')]
+        png_files = [f for f in os.listdir(GIFT_CARDS_DIR) if f.endswith('.webp') and not f.endswith('_card.webp')]
         # Combine and return all gift card files
         return card_files + png_files
     return []
@@ -671,7 +671,7 @@ def get_random_gift_card():
 
 # Convert filename to display name
 def get_gift_name(filename):
-    # Remove _card.png and replace underscores with spaces
+    # Remove _card.webp and replace underscores with spaces
     return os.path.splitext(filename)[0].replace('_card', '').replace('_', ' ')
 
 # Enhanced function to find matching gifts with smart context detection
@@ -1334,7 +1334,7 @@ async def terms_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
     )
     
     # Send photo with terms text
-    photo_path = os.path.join(script_dir, "assets", "terms.png")
+    photo_path = os.path.join(script_dir, "assets", "terms.webp")
     if os.path.exists(photo_path):
         await update.message.reply_photo(
             photo=open(photo_path, 'rb'),
@@ -1422,7 +1422,7 @@ async def refund_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
             refund_text += "\nClick the button below to request a refund for any eligible group."
             
             # Send photo with refund text
-            photo_path = os.path.join(script_dir, "assets", "refund.png")
+            photo_path = os.path.join(script_dir, "assets", "refund.webp")
             if os.path.exists(photo_path):
                 await update.message.reply_photo(
                     photo=open(photo_path, 'rb'),
@@ -1445,7 +1445,7 @@ async def refund_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
             refund_text += "\n📞 **Contact Support**: @GiftsChart_Support for assistance."
             
             # Send photo with refund text
-            photo_path = os.path.join(script_dir, "assets", "refund.png")
+            photo_path = os.path.join(script_dir, "assets", "refund.webp")
             if os.path.exists(photo_path):
                 await update.message.reply_photo(
                     photo=open(photo_path, 'rb'),
@@ -1750,7 +1750,7 @@ async def inline_query(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
                 id=str(uuid4()),
                 title="❓ How to use it",
                 description="Learn how to use the bot effectively",
-                thumbnail_url=create_safe_cdn_url("assets", "giftschart.png"),
+                thumbnail_url=create_safe_cdn_url("assets", "giftschart.webp"),
                 input_message_content=InputTextMessageContent(
                     message_text="❓ **How to use Gift Price Tracker**\n\nTrack real-time prices of Telegram gifts and stickers!\n\n🎁 Browse gifts: Type 'gift'\n🌟 Browse stickers: Type 'sticker'\n\n**the flow**\n\n`@TWETestBot gift pepe`\n`@TWETestBot sticker azuki`\n\n💸 **Want to support the bot?**\nTON Donation Address:\n`UQCFRqB2vZnGZRh3ZoZAItNidk8zpkN0uRHlhzrnwweU3mos`\n\nOr you can use the Donate button below.\n\n> Every NFT has a price.\n> Know it. Live.",
                     parse_mode=ParseMode.MARKDOWN
@@ -1764,7 +1764,7 @@ async def inline_query(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
                 id=str(uuid4()),
                 title="🎁 Browse All Gifts",
                 description="Type 'gift' to see all 139 gifts (most expensive first)",
-                thumbnail_url=create_safe_cdn_url("assets", "gifts.png"),
+                thumbnail_url=create_safe_cdn_url("assets", "gifts.webp"),
                 input_message_content=InputTextMessageContent(
                     message_text="🎁 **Browse All Gifts**\n\nType 'gift' to see all 139 available gifts with their price cards!\n\n💎 *Most expensive gifts shown first*",
                     parse_mode=ParseMode.HTML
@@ -1778,7 +1778,7 @@ async def inline_query(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
                 id=str(uuid4()),
                 title="🌟 Browse All Stickers",
                 description="Type 'sticker' to see all 166 stickers (most expensive first)",
-                thumbnail_url=create_safe_cdn_url("assets", "stickers.png"),
+                thumbnail_url=create_safe_cdn_url("assets", "stickers.webp"),
                 input_message_content=InputTextMessageContent(
                     message_text="🌟 **Browse All Stickers**\n\nType 'sticker' to see all 166 available sticker packs!\n\n💎 *Most expensive stickers shown first*",
                     parse_mode=ParseMode.HTML
@@ -1840,10 +1840,10 @@ async def inline_query(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
             gift_list = []
             for gift in all_gifts:
                 # Extract clean gift name from filename
-                if gift.endswith("_card.png"):
-                    clean_gift_name = gift.replace("_card.png", "").replace("_", " ")
+                if gift.endswith("_card.webp"):
+                    clean_gift_name = gift.replace("_card.webp", "").replace("_", " ")
                 else:
-                    clean_gift_name = gift.replace(".png", "").replace("_", " ")
+                    clean_gift_name = gift.replace(".webp", "").replace("_", " ")
                 
                 # Special handling for B-Day Candle
                 if clean_gift_name == "B Day Candle":
@@ -1900,7 +1900,7 @@ async def inline_query(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
                 gift_card_url = create_safe_cdn_url("new_gift_cards", card_filename, "gift") + f"?t={timestamp}"
                 
                 # Use the gift image from downloaded_images as thumbnail (like stickers do)
-                gift_image_url = create_safe_cdn_url("downloaded_images", f"{gift_file_name}.png", "gift")
+                gift_image_url = create_safe_cdn_url("downloaded_images", f"{gift_file_name}.webp", "gift")
                 
                 # Get price for description if available
                 price = price_data.get(clean_gift_name.lower(), 0)
@@ -2056,7 +2056,7 @@ async def inline_query(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
                     
                     # Create CDN URLs - price card with cache-busting, thumbnail without cache-busting
                     timestamp = int(datetime.datetime.now().timestamp())
-                    sticker_card_filename = f"{collection_normalized}_{sticker_normalized}_price_card.png"
+                    sticker_card_filename = f"{collection_normalized}_{sticker_normalized}_price_card.webp"
                     sticker_card_url = create_safe_cdn_url("sticker_price_cards", sticker_card_filename) + f"?t={timestamp}"
                     image_number = get_sticker_image_number(collection, sticker)
                     collection_path = normalize_cdn_path(collection, "collection")
@@ -2142,7 +2142,7 @@ async def inline_query(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
                 id=str(uuid4()),
                 title="No results found",
                 description=f"No gifts or stickers found for '{query}'",
-                thumbnail_url=create_safe_cdn_url("assets", "no result.png"),
+                thumbnail_url=create_safe_cdn_url("assets", "no result.webp"),
                 input_message_content=InputTextMessageContent(
                     message_text=f"❌ No results found for '{query}'\n\n💡 Try:\n• Type 'gift' to see all gifts\n• Type 'sticker' to see all stickers\n• Search for specific names",
                     parse_mode=ParseMode.HTML
@@ -2174,14 +2174,14 @@ async def inline_query(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
         
         # Plus premarket gifts use filename without _card suffix
         if is_plus_premarket:
-            card_filename = f"{gift_file_name}.png"
+            card_filename = f"{gift_file_name}.webp"
         else:
-            card_filename = f"{gift_file_name}_card.png"
+            card_filename = f"{gift_file_name}_card.webp"
         
         # Create CDN URL for gift card with cache-busting, thumbnail without cache-busting
         timestamp = int(datetime.datetime.now().timestamp())
         gift_card_url = create_safe_cdn_url("new_gift_cards", card_filename, "gift") + f"?t={timestamp}"
-        gift_image_url = create_safe_cdn_url("downloaded_images", f"{gift_file_name}.png", "gift")
+        gift_image_url = create_safe_cdn_url("downloaded_images", f"{gift_file_name}.webp", "gift")
         
         # Prepare the caption
         caption = f"💎 {gift} 💎"
@@ -2211,7 +2211,7 @@ async def inline_query(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
         sticker_normalized = sticker.replace(" ", "_").replace("-", "_").replace("'", "").replace(":", "").replace("__", "_").lower()
         
         # Create CDN URL for sticker card
-        sticker_card_url = f"{CDN_BASE_URL}/sticker_price_cards/{collection_normalized}_{sticker_normalized}_price_card.png"
+        sticker_card_url = f"{CDN_BASE_URL}/sticker_price_cards/{collection_normalized}_{sticker_normalized}_price_card.webp"
         
         # Get sticker info (without price)
         description = f"{collection} - {sticker}"
@@ -2692,7 +2692,7 @@ async def configure_command(update: Update, context: ContextTypes.DEFAULT_TYPE) 
         )
         
         # Send photo with configure text
-        photo_path = os.path.join(script_dir, "assets", "configure.png")
+        photo_path = os.path.join(script_dir, "assets", "configure.webp")
         if os.path.exists(photo_path):
             await update.message.reply_photo(
                 photo=open(photo_path, 'rb'),

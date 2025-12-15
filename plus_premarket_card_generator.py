@@ -50,8 +50,8 @@ script_dir = os.path.dirname(os.path.abspath(__file__))
 OUTPUT_DIR = os.path.join(script_dir, "new_gift_cards")
 ASSETS_DIR = os.path.join(script_dir, "assets")
 DOWNLOADED_IMAGES_DIR = os.path.join(script_dir, "downloaded_images")
-TON_LOGO_PATH = os.path.join(ASSETS_DIR, "TON2.png")
-STAR_LOGO_PATH = os.path.join(ASSETS_DIR, "star.png")
+TON_LOGO_PATH = os.path.join(ASSETS_DIR, "TON2.webp")
+STAR_LOGO_PATH = os.path.join(ASSETS_DIR, "star.webp")
 TIME_ICON_PATH = os.path.join(ASSETS_DIR, "time.svg")
 FONT_PATH = os.path.join(script_dir, "Typekiln - EloquiaDisplay-ExtraBold.otf")
 
@@ -211,9 +211,12 @@ def find_gift_image(gift_name):
     # Remove quotes for pattern matching
     no_quotes = gift_name.replace("'", "")
     patterns = [
-        f"{normalized_name}.png",
-        f"{gift_name.replace(' ', '_')}.png",
-        f"{no_quotes.replace(' ', '').replace('-', '')}.png",
+        f"{normalized_name}.webp",
+        f"{normalized_name}.webp",  # Fallback
+        f"{gift_name.replace(' ', '_')}.webp",
+        f"{gift_name.replace(' ', '_')}.webp",  # Fallback
+        f"{no_quotes.replace(' ', '').replace('-', '')}.webp",
+        f"{no_quotes.replace(' ', '').replace('-', '')}.webp",  # Fallback
     ]
     
     for pattern in patterns:
@@ -235,7 +238,7 @@ def generate_plus_premarket_card(gift_name, gift_data, output_path=None):
         else:
             output_dir = OUTPUT_DIR
             safe_name = gift_name.replace(" ", "_").replace("-", "_").replace("'", "").replace("/", "_")
-            output_filename = f"{safe_name}.png"
+            output_filename = f"{safe_name}.webp"
         
         os.makedirs(output_dir, exist_ok=True)
         
@@ -485,9 +488,11 @@ def generate_plus_premarket_card(gift_name, gift_data, output_path=None):
         date_y = white_box_y + WHITE_BOX_HEIGHT - 50
         draw.text((date_x, date_y), current_date, fill=(100, 100, 100), font=date_font)
         
-        # Save the card
+        # Save the card as WebP
         final_output_path = os.path.join(output_dir, output_filename)
-        card.save(final_output_path)
+        if final_output_path.endswith('.webp'):
+            final_output_path = final_output_path[:-4] + '.webp'
+        card.save(final_output_path, 'WEBP', quality=85, method=6)
         
         logger.info(f"Generated plus premarket card: {final_output_path}")
         return card
