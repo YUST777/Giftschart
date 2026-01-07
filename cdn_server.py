@@ -20,8 +20,9 @@ logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
 
-# Base directory - update this to your actual path
-BASE_DIR = "/root/01studio/giftschart"
+# Base directory - use script_dir for Docker compatibility
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
 
 # Define the folders to serve
 FOLDERS = {
@@ -384,7 +385,7 @@ def internal_error(error):
 if __name__ == "__main__":
     # Configuration
     HOST = "0.0.0.0"  # Listen on all interfaces
-    PORT = 8081       # Use port 8081 (8080 is used by falconproxy)
+    PORT = 4000       # Changed to port 4000 as requested
     
     # Check if folders exist
     missing_folders = []

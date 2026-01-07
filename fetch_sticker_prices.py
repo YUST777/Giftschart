@@ -92,9 +92,15 @@ def save_updated_prices(price_data):
         human_timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         price_data["human_timestamp"] = human_timestamp
         
-        # Save data with pretty formatting
-        with open(PRICE_DATA_FILE, 'w') as f:
+        # Save data with pretty formatting (Atomic Write)
+        temp_file = f"{PRICE_DATA_FILE}.tmp"
+        with open(temp_file, 'w') as f:
             json.dump(price_data, f, indent=2)
+            f.flush()
+            os.fsync(f.fileno())  # Ensure data is written to disk
+        
+        # Atomic rename to overwrite target file
+        os.replace(temp_file, PRICE_DATA_FILE)
             
         logger.info(f"Updated price data saved to {PRICE_DATA_FILE} at {human_timestamp}")
         safe_print(f"💾 Saved price data at {human_timestamp}")
@@ -129,6 +135,14 @@ def update_sticker_prices():
     for i, sticker_data in enumerate(stickers):
         collection = sticker_data.get("collection", "")
         sticker = sticker_data.get("sticker", "")
+        
+        # Skip API fetching for Goodies (manually added, not in API)
+        if sticker_data.get("source") == "goodies":
+            safe_print(f"  ✨ {i+1}/{total_stickers} {collection} - {sticker}: Goodies item (skipping API)")
+            logger.info(f"Skipping API fetch for Goodies item: {collection} {sticker}")
+            updated_count += 1  # Count as "processed"
+            continue
+            
         price_info = sticker_api.get_sticker_price(collection, sticker, force_refresh=True)
         if price_info and "floor_price_ton" in price_info:
             old_price = sticker_data.get("price", 0)

@@ -49,7 +49,8 @@ names = [
     "Cone IceCream", "Cream IceCream", "Durov Glasses", "Durov's Statuette", "Eagle",
     "Easter Cake", "Eight Roses", "Golden Medal", "Grave", "Heart Pendant", "Lamp Candle",
     "Mask", "Pencil", "Pink Flamingo", "REDO", "Red Star", "Sand Castle", "Sneakers",
-    "Statue", "Surfboard", "T-shirt", "Torch", "Airplane"
+    "Statue", "Surfboard", "T-shirt", "Torch", "Airplane",
+    "Khabib's Papakha", "UFC Strike"
 ]
 
 base_url = "https://cdn.changes.tg/gifts/models/{}/png/Original.webp"

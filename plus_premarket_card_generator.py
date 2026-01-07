@@ -36,6 +36,14 @@ try:
 except ImportError:
     CAIROSVG_AVAILABLE = False
 
+# Try to import svglib for fallback SVG support
+try:
+    from svglib.svglib import svg2rlg
+    from reportlab.graphics import renderPM
+    SVGLIB_AVAILABLE = True
+except ImportError:
+    SVGLIB_AVAILABLE = False
+
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
@@ -92,41 +100,69 @@ def get_dominant_color(image_path):
         logger.error(f"Error getting dominant color: {e}")
         return (128, 128, 128)
 
-def load_svg_icon(svg_filename, size=(60, 60), color=(81, 81, 81)):
-    """Load SVG icon, colorize it, and convert to PIL Image"""
-    if not CAIROSVG_AVAILABLE:
-        logger.warning("cairosvg not available, cannot load SVG icon")
-        return None
-    
+def load_icon(filename, size=(60, 60), color=None):
+    """Load icon from assets (WebP/PNG) and optionally colorize it"""
     try:
-        # Read SVG file
-        svg_path = os.path.join(ASSETS_DIR, svg_filename)
-        if not os.path.exists(svg_path):
-            logger.warning(f"SVG icon not found at {svg_path}")
-            return None
+        base_name = os.path.splitext(filename)[0]
         
-        with open(svg_path, 'r') as f:
-            svg_content = f.read()
-        
-        # Replace the fill color in SVG with the desired color
-        # Convert color tuple to hex (ensure uppercase for consistency)
-        color_hex = '#{:02x}{:02x}{:02x}'.format(color[0], color[1], color[2]).upper()
-        # Replace all instances of the original fill color (#1C274C) with our desired color
-        # Also handle lowercase version just in case
-        svg_content = svg_content.replace('#1C274C', color_hex)
-        svg_content = svg_content.replace('#1c274c', color_hex)
-        # Replace fill attributes that might have the color (case-insensitive)
-        svg_content = re.sub(r'fill="#1[Cc]274[Cc]"', f'fill="{color_hex}"', svg_content)
-        
-        # Convert SVG to PNG using cairosvg
-        png_data = cairosvg.svg2png(bytestring=svg_content.encode('utf-8'), output_width=size[0], output_height=size[1])
-        
-        # Load PNG data into PIL Image
-        icon = Image.open(io.BytesIO(png_data)).convert('RGBA')
-        
-        return icon
+        # Try WebP first, then PNG
+        for ext in ['.webp', '.png', '.svg']:
+            path = os.path.join(ASSETS_DIR, f"{base_name}{ext}")
+            if not os.path.exists(path):
+                continue
+                
+            if ext == '.svg':
+                if CAIROSVG_AVAILABLE:
+                    # Use cairosvg
+                    with open(path, 'r') as f:
+                        svg_content = f.read()
+                    if color:
+                         color_hex = '#{:02x}{:02x}{:02x}'.format(color[0], color[1], color[2]).upper()
+                         svg_content = re.sub(r'fill="#1[Cc]274[Cc]"', f'fill="{color_hex}"', svg_content, flags=re.IGNORECASE)
+                         svg_content = svg_content.replace('#1C274C', color_hex)
+                    png_data = cairosvg.svg2png(bytestring=svg_content.encode('utf-8'), output_width=size[0], output_height=size[1])
+                    return Image.open(io.BytesIO(png_data)).convert('RGBA')
+                
+                elif SVGLIB_AVAILABLE:
+                    # Use svglib fallback
+                    try:
+                        drawing = svg2rlg(path)
+                        # SVGLIB doesn't support easy dynamic recoloring of loaded drawing easily without traversal
+                        # But we can colorize the result PNG
+                        
+                        # Render to PNG
+                        png_data = renderPM.drawToString(drawing, fmt='PNG')
+                        img = Image.open(io.BytesIO(png_data)).convert('RGBA')
+                        img = img.resize(size, Image.Resampling.LANCZOS)
+                        
+                        # Re-colorize if needed because we didn't modify SVG
+                        if color:
+                             colored = Image.new('RGBA', img.size, (*color, 255))
+                             colored.putalpha(img.getchannel('A'))
+                             return colored
+                        return img
+                    except Exception as e:
+                        logger.warning(f"SVGLIB conversion failed for {path}: {e}")
+                        continue
+                
+                else:
+                    continue
+
+            # Load Raster Image
+            img = Image.open(path).convert("RGBA")
+            img = img.resize(size, Image.Resampling.LANCZOS)
+            
+            if color:
+                # Colorize using alpha mask
+                colored = Image.new('RGBA', img.size, (*color, 255))
+                colored.putalpha(img.getchannel('A'))
+                return colored
+            
+            return img
+            
+        return None
     except Exception as e:
-        logger.warning(f"Error loading SVG icon {svg_filename}: {e}")
+        logger.warning(f"Error loading icon {filename}: {e}")
         return None
 
 def create_rounded_rectangle(draw, xy, radius, fill):
@@ -387,9 +423,9 @@ def generate_plus_premarket_card(gift_name, gift_data, output_path=None):
             icon_size = 60
             icon_y_offset = (text_height - icon_size) // 2 + text_top_offset
             
-            # Add supply icon (SVG)
+            # Add supply icon (WebP/SVG)
             try:
-                supply_icon = load_svg_icon("supply.svg", size=(icon_size, icon_size), color=dominant_color)
+                supply_icon = load_icon("supply.svg", size=(icon_size, icon_size), color=dominant_color)
                 if supply_icon:
                     card.paste(supply_icon, (int(current_x), int(info_y + icon_y_offset)), supply_icon)
                     current_x += icon_size + 10
@@ -441,14 +477,14 @@ def generate_plus_premarket_card(gift_name, gift_data, output_path=None):
                         # Use time icon for +premarket gifts
                         icon_filename = "time.svg"
                     
-                    # Add icon (SVG)
+                    # Add icon (WebP/SVG)
                     try:
-                        date_icon = load_svg_icon(icon_filename, size=(icon_size, icon_size), color=dominant_color)
+                        date_icon = load_icon(icon_filename, size=(icon_size, icon_size), color=dominant_color)
                         if date_icon:
                             card.paste(date_icon, (int(current_x), int(info_y + icon_y_offset)), date_icon)
                             current_x += icon_size + 10
                         else:
-                            logger.warning(f"{icon_filename} SVG could not be loaded")
+                            logger.warning(f"{icon_filename} icon could not be loaded")
                     except Exception as e:
                         logger.warning(f"Date icon error: {e}")
                     
@@ -490,8 +526,13 @@ def generate_plus_premarket_card(gift_name, gift_data, output_path=None):
         
         # Save the card as WebP
         final_output_path = os.path.join(output_dir, output_filename)
-        if final_output_path.endswith('.webp'):
-            final_output_path = final_output_path[:-4] + '.webp'
+        # Ensure correct extension (fix double-dot bug caused by [:-4] on .webp)
+        if final_output_path.lower().endswith('.webp'):
+            # It's already correct, do nothing (or ensure casing)
+            pass
+        else:
+            final_output_path += '.webp'
+            
         card.save(final_output_path, 'WEBP', quality=85, method=6)
         
         logger.info(f"Generated plus premarket card: {final_output_path}")

@@ -32,6 +32,8 @@ PRICE_DATA_FILE = os.path.join(script_dir, "sticker_price_results.json")
 # Path to the scripts
 FETCH_SCRIPT = "fetch_sticker_prices.py"
 GENERATE_CARDS_SCRIPT = "generate_all_sticker_price_cards.py"
+GOODIES_CARDS_SCRIPT = "goodies_price_card_generator.py"
+GIFTS_JSON_SCRIPT = os.path.join(script_dir, "api", "mrkt", "download_gifts_json.py")
 
 # Function to check data freshness
 def check_data_freshness():
@@ -126,6 +128,78 @@ def generate_price_cards():
         print(f"❌ Error generating price cards: {e}")
         return False, 0
 
+# Function to generate Goodies price cards
+def generate_goodies_cards():
+    """Generate price cards for all Goodies stickers"""
+    try:
+        start_time = time.time()
+        logger.info(f"Running {GOODIES_CARDS_SCRIPT} at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+        
+        # Run the script as a subprocess
+        result = subprocess.run([sys.executable, GOODIES_CARDS_SCRIPT], 
+                               capture_output=True, 
+                               text=True)
+        
+        # Calculate execution time
+        execution_time = time.time() - start_time
+        
+        # Log the output
+        if result.stdout:
+            logger.info(f"Output from {GOODIES_CARDS_SCRIPT}:\n{result.stdout}")
+        if result.stderr:
+            logger.error(f"Error output from {GOODIES_CARDS_SCRIPT}:\n{result.stderr}")
+            
+        # Check the return code
+        if result.returncode == 0:
+            logger.info(f"Successfully generated Goodies price cards in {execution_time:.2f} seconds")
+            print(f"✅ Goodies price cards generated successfully in {execution_time:.2f} seconds")
+        else:
+            logger.error(f"Failed to generate Goodies price cards, return code: {result.returncode}")
+            print(f"❌ Failed to generate Goodies price cards, error code: {result.returncode}")
+            
+        return result.returncode == 0, execution_time
+        return result.returncode == 0, execution_time
+    except Exception as e:
+        logger.error(f"Error generating Goodies price cards: {e}")
+        print(f"❌ Error generating Goodies price cards: {e}")
+        return False, 0
+
+# Function to update MRKT gifts data (fallback source)
+def update_mrkt_data():
+    """Run the download_gifts_json.py script"""
+    try:
+        start_time = time.time()
+        logger.info(f"Running {GIFTS_JSON_SCRIPT} at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+        
+        # Check if script exists
+        if not os.path.exists(GIFTS_JSON_SCRIPT):
+            logger.warning(f"MRKT download script not found at {GIFTS_JSON_SCRIPT}")
+            return False, 0
+            
+        # Run the script as a subprocess
+        result = subprocess.run([sys.executable, GIFTS_JSON_SCRIPT], 
+                               capture_output=True, 
+                               text=True)
+        
+        # Calculate execution time
+        execution_time = time.time() - start_time
+        
+        # Log output
+        if result.stdout:
+            logger.info(f"Output from MRKT download:\n{result.stdout}")
+        
+        if result.returncode == 0:
+            logger.info(f"Successfully updated MRKT data in {execution_time:.2f} seconds")
+            print(f"✅ MRKT fallback data updated in {execution_time:.2f} seconds")
+        else:
+            logger.error(f"Failed to update MRKT data: {result.stderr}")
+            print(f"⚠️ Failed to update MRKT data (using existing fallback)")
+            
+        return result.returncode == 0, execution_time
+    except Exception as e:
+        logger.error(f"Error updating MRKT data: {e}")
+        return False, 0
+
 # Function to run the complete update process
 def run_update_process():
     """Run the complete update process: fetch prices and generate cards"""
@@ -143,14 +217,22 @@ def run_update_process():
     # Step 1: Fetch prices from stickers.tools API
     fetch_success, fetch_time = run_fetch_script()
     
+    # Step 1.5: Update MRKT fallback data (independent of stickers)
+    mrkt_success, mrkt_time = update_mrkt_data()
+    
     # Step 2: Generate cards if fetch was successful
     if fetch_success:
         logger.info("Fetch successful, generating price cards")
         gen_success, gen_time = generate_price_cards()
+        
+        # Step 3: Generate Goodies cards
+        logger.info("Generating Goodies price cards")
+        goodies_success, goodies_time = generate_goodies_cards()
     else:
         logger.error("Fetch failed, skipping card generation")
         print("❌ Fetch failed, skipping card generation")
         gen_time = 0
+        goodies_time = 0
     
     # Calculate total execution time
     total_time = time.time() - total_start_time
@@ -161,7 +243,7 @@ def run_update_process():
     
     logger.info(f"Update process complete in {total_time:.2f} seconds")
     print(f"✅ UPDATE PROCESS COMPLETE: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-    print(f"⏱️ Total execution time: {total_time:.2f} seconds (Fetch: {fetch_time:.2f}s, Generate: {gen_time:.2f}s)")
+    print(f"⏱️ Total execution time: {total_time:.2f} seconds (Fetch: {fetch_time:.2f}s, Stickers: {gen_time:.2f}s, Goodies: {goodies_time:.2f}s)")
     print(f"{freshness_indicator} Data status: {status} ({age:.2f} minutes old)")
 
 # Function to display time until next update

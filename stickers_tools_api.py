@@ -22,6 +22,9 @@ def get_sticker_price(collection, sticker, force_refresh=True):
     for c in stats['collections'].values():
         if normalize_name(c['name']) == collection_norm:
             for s in c['stickers']:
+                # Skip invalid stickers (API sometimes returns issuer metadata entries)
+                if not isinstance(s, dict) or 'name' not in s:
+                    continue
                 if normalize_name(s['name']) == sticker_norm:
                     def safe_float(val):
                         try:

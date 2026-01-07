@@ -174,16 +174,21 @@ def main():
     # Fetch all collections and stickers from the live API
     stats = sticker_api.get_sticker_stats(force_refresh=True)
     total = 0
+    skipped = 0
     for collection in stats["collections"].values():
         collection_name = normalize_name(collection["name"])
         for sticker in collection["stickers"]:
+            # Skip invalid stickers (API sometimes returns issuer metadata entries)
+            if not isinstance(sticker, dict) or 'name' not in sticker:
+                skipped += 1
+                continue
             sticker_name = normalize_name(sticker["name"])
             price_info = sticker_api.get_sticker_price(collection_name, sticker_name, force_refresh=True)
             if price_info and price_info["floor_price_ton"] > 0:
                 price = price_info["floor_price_ton"]
                 generate_price_card(collection_name, sticker_name, price, args.output_dir)
                 total += 1
-    print(f"✅ Generated {total} price cards from live API data.")
+    print(f"✅ Generated {total} price cards from live API data. (Skipped {skipped} invalid entries)")
 
 if __name__ == "__main__":
     main() 

@@ -185,6 +185,53 @@ def apply_color_to_background(background_img, color):
         print(f"Error applying color to background: {e}")
         return background_img  # Return original background on error
 
+# Function to load local MRKT data as fallback
+def load_local_mrkt_data(gift_name):
+    """Load price from local gifts_collections.json if API fails"""
+    try:
+        json_path = os.path.join(script_dir, "api", "mrkt", "gifts_collections.json")
+        if not os.path.exists(json_path):
+            return None
+            
+        with open(json_path, 'r') as f:
+            data = json.load(f)
+            
+        # Normalize search name
+        target = gift_name.lower().replace("’", "'") # Handle smart quotes
+        
+        for item in data:
+            title = item.get('title', '').lower().replace("’", "'")
+            name = item.get('name', '').lower().replace("’", "'")
+            
+            if title == target or name == target:
+                # Found match
+                nano_price = item.get('floorPriceNanoTons')
+                if nano_price:
+                    price_ton = float(nano_price) / 1000000000.0
+                    
+                    # Get USD price
+                    try:
+                        from ton_price_utils import get_ton_price_usd
+                        ton_price_usd = get_ton_price_usd()
+                    except:
+                        ton_price_usd = 2.0
+                        
+                    price_usd = price_ton * ton_price_usd
+                    
+                    print(f"[Fallback] Found {gift_name} in local MRKT data: {price_ton} TON")
+                    return {
+                        "name": gift_name,
+                        "priceTon": price_ton,
+                        "priceUsd": price_usd,
+                        "changePercentage": 0,
+                        "upgradedSupply": "N/A",
+                        "is_fallback": True
+                    }
+        return None
+    except Exception as e:
+        print(f"Error loading local MRKT data: {e}")
+        return None
+
 # Function to fetch gift price data - updated to use Tonnel API for premarket gifts, Portal API for others
 async def fetch_gift_data(gift_name, force_fresh=False):
     """Fetch gift data using appropriate API based on gift type: MRKT/Quant for plus premarket, Tonnel for premarket, Portal for regular."""
@@ -251,11 +298,19 @@ async def fetch_gift_data(gift_name, force_fresh=False):
             
             # Use Portal API for regular gifts
             from portal_api import fetch_gift_data as portal_fetch
-            return await portal_fetch(gift_name, is_premarket=False)
+            data = await portal_fetch(gift_name, is_premarket=False)
+            
+            if data:
+                return data
+            
+            # If Portal API failed, try local MRKT data fallback
+            print(f"[Fallback] Checking local MRKT JSON for {gift_name}...")
+            return load_local_mrkt_data(gift_name)
             
     except Exception as e:
         print(f"Error fetching gift data for {gift_name}: {e}")
-        return None
+        # Try fallback even on exception
+        return load_local_mrkt_data(gift_name)
 
 # Function to fetch chart data for a gift - updated to use Legacy API for premarket gifts, Portal API for others
 async def fetch_chart_data(gift_name, force_fresh=False):
@@ -1188,7 +1243,7 @@ async def create_gift_card(gift_name, output_path=None, force_fresh=False):
             # Create directory if it doesn't exist
             os.makedirs(os.path.dirname(output_path), exist_ok=True)
             # Convert output path to WebP if it's PNG
-            if output_path.endswith('.webp'):
+            if output_path.endswith('.png'):
                 output_path = output_path[:-4] + '.webp'
             card.save(output_path, 'WEBP', quality=85, method=6)
             
@@ -1702,7 +1757,7 @@ async def add_dynamic_elements(gift_name, template_path=None, output_path=None):
         if output_path:
             os.makedirs(os.path.dirname(output_path), exist_ok=True)
             # Convert output path to WebP if it's PNG
-            if output_path.endswith('.webp'):
+            if output_path.endswith('.png'):
                 output_path = output_path[:-4] + '.webp'
             card.save(output_path, 'WEBP', quality=85, method=6)
             

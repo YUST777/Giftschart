@@ -40,24 +40,12 @@ except ImportError:
         return 2.10  # Fallback value
 
 def normalize_filename(name):
-    """Normalize filename for file operations"""
-    # Special case for collections with '&' in their name
-    if name == "Pudgy & Friends":
-        return "Pudgy_and_Friends"
-    elif name == "Lazy & Rich":
-        return "Lazy_and_Rich"
-    # Special case for specific stickers with "Friends" in their name
-    elif name == "Pudgy and Friends Friends Pengu x NASCAR":
-        return "Pudgy_and_Friends_Pengu_x_NASCAR"
-    elif name == "Pudgy and Friends Friends Pengu x Baby Shark":
-        return "Pudgy_and_Friends_Pengu_x_Baby_Shark"
-    # Special case for Lazy and Rich stickers
-    elif name == "Lazy and Rich Rich Sloth Capital":
-        return "Lazy_and_Rich_Sloth_Capital"
-    elif name == "Lazy and Rich Rich Chill or thrill":
-        return "Lazy_and_Rich_Chill_or_thrill"
-    else:
-        return name.replace(' ', '_').replace('&', '_and_')
+    """Normalize filename for file operations - matches sticker_price_card_generator.py"""
+    import re
+    name = name.strip().lower()
+    name = re.sub(r'[^a-z0-9]', '_', name)  # Replace ALL non-alphanumeric with _
+    name = re.sub(r'_+', '_', name)          # Collapse multiple _ to single _
+    return name.strip('_')
 
 def load_price_data():
     """Load price data from JSON file or fetch from MRKT API if needed"""
@@ -197,57 +185,58 @@ def generate_price_card(collection, sticker, price, output_dir):
         template_path = os.path.join(TEMPLATES_DIR, f"{collection_norm}_{sticker_norm}_template.webp")
         # Try to load template, else fallback
         if os.path.exists(template_path):
-        template = Image.open(template_path).convert("RGBA")
-        draw = ImageDraw.Draw(template)
-        
-        # Get dominant color from the metadata
-            dominant_color = tuple(load_metadata(collection, sticker).get('dominant_color', (148, 68, 143)))
-        
-        # Calculate USD price
-        ton_price_usd = get_ton_price_usd()
-        price_usd = price * ton_price_usd
-        
-        # Calculate price in Telegram Stars (1 Star = $0.016)
-        stars_price = int(price_usd / 0.016)
-        
-        # Load fonts
-        try:
-            price_font = ImageFont.truetype(FONT_PATH, 140)  # For USD price
-            ton_price_font = ImageFont.truetype(FONT_PATH, 50)  # For TON and Star prices
-        except Exception as e:
-            logger.error(f"Error loading font: {e}")
-            # Fallback to default font
-            price_font = ImageFont.load_default()
-            ton_price_font = ImageFont.load_default()
-        
-        # Get positions from metadata
-            dollar_x = load_metadata(collection, sticker).get('dollar_x', 155)
-            dollar_y = load_metadata(collection, sticker).get('dollar_y', 285)
-            ton_x = load_metadata(collection, sticker).get('ton_x', 215)
-            ton_y = load_metadata(collection, sticker).get('ton_y', 465)
-            star_x = load_metadata(collection, sticker).get('star_x', 515)
-            star_y = load_metadata(collection, sticker).get('star_y', 465)
-        
-        # Draw dollar sign with the dominant color
-        dollar_color = dominant_color
-        price_color = (20, 20, 20)  # Almost black
-        draw.text((dollar_x, dollar_y), "$", fill=dollar_color, font=price_font)
-        
-        # Draw USD price
-        draw.text((dollar_x + 100, dollar_y), f"{price_usd:,.0f}".replace(",", " "), fill=price_color, font=price_font)
-        
-        # Draw TON price text
-        draw.text((ton_x, ton_y), f"{price:.1f}".replace(".", ",").replace(",0", ""), fill=price_color, font=ton_price_font)
-        
-        # Draw Star price text
-        draw.text((star_x, star_y), f"{stars_price:,}".replace(",", " "), fill=price_color, font=ton_price_font)
-        
-        # Save the card
-        output_filename = f"{collection_norm}_{sticker_norm}_price_card.webp"
-        output_path = os.path.join(output_dir, output_filename)
-        template.save(output_path)
-        logger.info(f"Generated price card: {output_path}")
-        return output_path
+            template = Image.open(template_path).convert("RGBA")
+            draw = ImageDraw.Draw(template)
+            
+            # Get dominant color from the metadata
+            metadata = load_metadata(collection, sticker)
+            dominant_color = tuple(metadata.get('dominant_color', (148, 68, 143))) if metadata else (148, 68, 143)
+            
+            # Calculate USD price
+            ton_price_usd = get_ton_price_usd()
+            price_usd = price * ton_price_usd
+            
+            # Calculate price in Telegram Stars (1 Star = $0.016)
+            stars_price = int(price_usd / 0.016)
+            
+            # Load fonts
+            try:
+                price_font = ImageFont.truetype(FONT_PATH, 140)  # For USD price
+                ton_price_font = ImageFont.truetype(FONT_PATH, 50)  # For TON and Star prices
+            except Exception as e:
+                logger.error(f"Error loading font: {e}")
+                # Fallback to default font
+                price_font = ImageFont.load_default()
+                ton_price_font = ImageFont.load_default()
+            
+            # Get positions from metadata
+            dollar_x = metadata.get('dollar_x', 155) if metadata else 155
+            dollar_y = metadata.get('dollar_y', 285) if metadata else 285
+            ton_x = metadata.get('ton_x', 215) if metadata else 215
+            ton_y = metadata.get('ton_y', 465) if metadata else 465
+            star_x = metadata.get('star_x', 515) if metadata else 515
+            star_y = metadata.get('star_y', 465) if metadata else 465
+            
+            # Draw dollar sign with the dominant color
+            dollar_color = dominant_color
+            price_color = (20, 20, 20)  # Almost black
+            draw.text((dollar_x, dollar_y), "$", fill=dollar_color, font=price_font)
+            
+            # Draw USD price
+            draw.text((dollar_x + 100, dollar_y), f"{price_usd:,.0f}".replace(",", " "), fill=price_color, font=price_font)
+            
+            # Draw TON price text
+            draw.text((ton_x, ton_y), f"{price:.1f}".replace(".", ",").replace(",0", ""), fill=price_color, font=ton_price_font)
+            
+            # Draw Star price text
+            draw.text((star_x, star_y), f"{stars_price:,}".replace(",", " "), fill=price_color, font=ton_price_font)
+            
+            # Save the card
+            output_filename = f"{collection_norm}_{sticker_norm}_price_card.webp"
+            output_path = os.path.join(output_dir, output_filename)
+            template.save(output_path)
+            logger.info(f"Generated price card: {output_path}")
+            return output_path
         else:
             # Fallback: create a generic card
             logger.warning(f"Template not found: {template_path}, using fallback design.")

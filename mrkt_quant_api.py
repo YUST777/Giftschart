@@ -437,6 +437,7 @@ async def fetch_gift_data(gift_name: str) -> Optional[Dict[str, Any]]:
     """
     Fetch gift data for plus premarket gifts from MRKT or Quant API.
     Automatically determines which API to use based on gift ID.
+    Falls back to saved JSON if live API fails.
     
     Args:
         gift_name: Display name of the gift
@@ -460,24 +461,33 @@ async def fetch_gift_data(gift_name: str) -> Optional[Dict[str, Any]]:
     
     api_logger.info(f"Fetching {gift_name} (ID: {gift_id})")
     
-    # LIVE API ONLY - NO FALLBACKS
-    if not TELEGRAM_API_ID or not TELEGRAM_API_HASH:
-        logger.warning("Telegram credentials not configured. Returning None to use fallback data.")
-        return None
+    result = None
     
-    # Fetch from live API
-    if is_mrkt_gift(gift_id):
-        api_logger.info(f"[{gift_name}] Using MRKT API")
-        result = await fetch_from_mrkt(gift_id, gift_name)
+    # Try LIVE API first if credentials are available
+    if TELEGRAM_API_ID and TELEGRAM_API_HASH:
+        try:
+            # Fetch from live API
+            if is_mrkt_gift(gift_id):
+                api_logger.info(f"[{gift_name}] Using MRKT API")
+                result = await fetch_from_mrkt(gift_id, gift_name)
+            else:
+                api_logger.info(f"[{gift_name}] Using Quant API")
+                result = await fetch_from_quant(gift_id, gift_name)
+        except Exception as e:
+            api_logger.warning(f"[{gift_name}] Live API failed: {e}")
+            result = None
     else:
-        api_logger.info(f"[{gift_name}] Using Quant API")
-        result = await fetch_from_quant(gift_id, gift_name)
+        api_logger.warning(f"[{gift_name}] Telegram credentials not configured, using fallback")
     
-    # For gifts with $0 floor (no active listings), return None instead of raising exception
-    # The caller will handle fallback to first_sale_price
+    # FALLBACK TO SAVED JSON if live API failed
     if not result:
-        api_logger.warning(f"[{gift_name}] No active listings found (floor_price: $0)")
-        return None
+        api_logger.info(f"[{gift_name}] Falling back to saved JSON data")
+        result = _fetch_from_saved_json(gift_id, gift_name)
+    
+    # FALLBACK TO MOCK DATA if saved JSON also failed
+    if not result:
+        api_logger.warning(f"[{gift_name}] No saved JSON found, using mock data based on first sale price")
+        result = _generate_mock_data(gift_name)
     
     # Cache the result if successful
     if result:
@@ -485,6 +495,7 @@ async def fetch_gift_data(gift_name: str) -> Optional[Dict[str, Any]]:
         _cache_expiry[gift_name] = current_time
     
     return result
+
 
 async def fetch_chart_data(gift_name: str) -> Optional[list]:
     """

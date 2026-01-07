@@ -319,7 +319,7 @@ except ImportError:
 
 
 def normalize_cdn_path(name, path_type="general"):
-    """Standardized path normalization for CDN"""
+    """Standardized path normalization for CDN - matches generator's normalize_name()"""
     if path_type == "gift":
         # Handle gift-specific cases
         special_mappings = {
@@ -330,20 +330,31 @@ def normalize_cdn_path(name, path_type="general"):
             return special_mappings[name]
         return name.replace(" ", "_")
     
-    elif path_type == "collection":
-        return name.replace(" ", "_").replace("-", "_").replace("'", "").replace("&", "").replace("__", "_").lower()
-    
-    elif path_type == "sticker":
-        return name.replace(" ", "_").replace("-", "_").replace("'", "").replace(":", "").replace("__", "_").lower()
+    elif path_type == "collection" or path_type == "sticker":
+        # Use same logic as generator's normalize_name() for robust matching
+        normalized = name.strip().lower()
+        normalized = re.sub(r'[^a-z0-9]', '_', normalized)  # Replace ALL non-alphanumeric with _
+        normalized = re.sub(r'_+', '_', normalized)          # Collapse multiple _ to single _
+        return normalized.strip('_')
     
     else:
-        return name.replace(" ", "_").replace("-", "_").replace("'", "").lower()
+        # Fallback: also use robust normalization
+        normalized = name.strip().lower()
+        normalized = re.sub(r'[^a-z0-9]', '_', normalized)
+        normalized = re.sub(r'_+', '_', normalized)
+        return normalized.strip('_')
 
 # CDN Configuration
 CDN_BASE_URL = "https://giftschart.01studio.xyz/api"
 
 def create_safe_cdn_url(base_path, filename, file_type="general"):
     """Create safe CDN URL with proper encoding"""
+    # Don't normalize filenames that have file extensions (e.g., .webp, .png)
+    # The normalize function replaces '.' with '_' which breaks URLs
+    if '.' in filename and filename.rsplit('.', 1)[-1] in ['webp', 'png', 'jpg', 'jpeg', 'gif']:
+        encoded_filename = quote(filename)
+        return f"{CDN_BASE_URL}/{base_path}/{encoded_filename}"
+    
     normalized_filename = normalize_cdn_path(filename, file_type)
     encoded_filename = quote(normalized_filename)
     return f"{CDN_BASE_URL}/{base_path}/{encoded_filename}"
@@ -1052,10 +1063,13 @@ async def show_help_page(update: Update, context: ContextTypes.DEFAULT_TYPE, pag
     if page == 1:
         # Page 1: What the bot provides
         help_text = (
-            "🎁 *Gifts Chart Guide*\n"
+            "*Gifts Chart Guide*\n"
             "📖 *Page 1 of 3*\n\n"
-            "🌟 *What the bot provides:*\n"
-            "• All the gifts prices (86 of them) in a beautiful card using Portal API for market prices and Tonnel for premarket prices\n\n"
+            "*What the bot provides:*\n"
+            "• All gift prices (86+) using Portal API for market prices\n"
+            "• *Pre-market* prices powered by Tonnel\n"
+            "• *++Pre-market* gifts monitoring and alerts\n"
+            "• *Goodies* collections real-time price tracking\n\n"
         )
         
         # Add sticker info if available
@@ -1076,7 +1090,7 @@ async def show_help_page(update: Update, context: ContextTypes.DEFAULT_TYPE, pag
     elif page == 2:
         # Page 2: How to use
         help_text = (
-            "🎁 *Gifts Chart Guide*\n"
+            "*Gifts Chart Guide*\n"
             "📖 *Page 2 of 3*\n\n"
             "📱 *How to use:*\n"
             "You have three ways:\n\n"
@@ -1086,7 +1100,8 @@ async def show_help_page(update: Update, context: ContextTypes.DEFAULT_TYPE, pag
             "3️⃣ You can use the inline mode as: @giftschartbot term collection/gift\n\n"
             "*Examples:*\n"
             "• @giftschartbot gift pepe\n"
-            "• @giftschartbot sticker blue pengu\n\n"
+            "• @giftschartbot sticker blue pengu\n"
+            "• @giftschartbot goodies\n\n"
             "📄 *Next page: All available commands*"
         )
         
@@ -1098,7 +1113,7 @@ async def show_help_page(update: Update, context: ContextTypes.DEFAULT_TYPE, pag
     elif page == 3:
         # Page 3: Commands
         help_text = (
-            "🎁 *Gifts Chart Guide*\n"
+            "*Gifts Chart Guide*\n"
             "📖 *Page 3 of 3*\n\n"
             "👨‍💻 *All Commands:*\n"
             "/start - Welcome message\n"
@@ -1748,48 +1763,62 @@ async def inline_query(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
         results = [
             InlineQueryResultArticle(
                 id=str(uuid4()),
-                title="❓ How to use it",
+                title="How to use it",
                 description="Learn how to use the bot effectively",
                 thumbnail_url=create_safe_cdn_url("assets", "giftschart.webp"),
                 input_message_content=InputTextMessageContent(
-                    message_text="❓ **How to use Gift Price Tracker**\n\nTrack real-time prices of Telegram gifts and stickers!\n\n🎁 Browse gifts: Type 'gift'\n🌟 Browse stickers: Type 'sticker'\n\n**the flow**\n\n`@TWETestBot gift pepe`\n`@TWETestBot sticker azuki`\n\n💸 **Want to support the bot?**\nTON Donation Address:\n`UQCFRqB2vZnGZRh3ZoZAItNidk8zpkN0uRHlhzrnwweU3mos`\n\nOr you can use the Donate button below.\n\n> Every NFT has a price.\n> Know it. Live.",
+                    message_text="**How to use Gift Price Tracker**\n\nTrack real-time prices of Telegram gifts and stickers!\n\nBrowse gifts: Type 'gift' (includes Pre-market)\nBrowse stickers: Type 'sticker'\nBrowse Goodies: Type 'goodies'\n\n**the flow**\n\n`@TWETestBot gift pepe`\n`@TWETestBot sticker azuki`\n`@TWETestBot goodies`\n\n**Want to support the bot?**\nTON Donation Address:\n`UQCFRqB2vZnGZRh3ZoZAItNidk8zpkN0uRHlhzrnwweU3mos`\n\nOr you can use the Donate button below.\n\n> Every NFT has a price.\n> Know it. Live.",
                     parse_mode=ParseMode.MARKDOWN
                 ),
                 reply_markup=InlineKeyboardMarkup([
-                    [InlineKeyboardButton("📢 Join our channel", url="https://t.me/The01Studio")],
-                    [InlineKeyboardButton("💸 Donate", url="https://app.tonkeeper.com/transfer/UQCFRqB2vZnGZRh3ZoZAItNidk8zpkN0uRHlhzrnwweU3mos")]
+                    [InlineKeyboardButton("Join our channel", url="https://t.me/The01Studio")],
+                    [InlineKeyboardButton("Donate", url="https://app.tonkeeper.com/transfer/UQCFRqB2vZnGZRh3ZoZAItNidk8zpkN0uRHlhzrnwweU3mos")]
                 ])
             ),
             InlineQueryResultArticle(
                 id=str(uuid4()),
-                title="🎁 Browse All Gifts",
+                title="Browse All Gifts",
                 description="Type 'gift' to see all 139 gifts (most expensive first)",
                 thumbnail_url=create_safe_cdn_url("assets", "gifts.webp"),
                 input_message_content=InputTextMessageContent(
-                    message_text="🎁 **Browse All Gifts**\n\nType 'gift' to see all 139 available gifts with their price cards!\n\n💎 *Most expensive gifts shown first*",
+                    message_text="**Browse All Gifts**\n\nType 'gift' to see all 139 available gifts with their price cards!\n\n💎 *Most expensive gifts shown first*",
                     parse_mode=ParseMode.HTML
                 ),
                 reply_markup=InlineKeyboardMarkup([
-                    [InlineKeyboardButton("📢 Join our channel", url="https://t.me/The01Studio")],
-                    [InlineKeyboardButton("💡 Type 'gift' to browse", switch_inline_query_current_chat="gift")]
+                    [InlineKeyboardButton("Join our channel", url="https://t.me/The01Studio")],
+                    [InlineKeyboardButton("Type 'gift' to browse", switch_inline_query_current_chat="gift")]
                 ])
             ),
             InlineQueryResultArticle(
                 id=str(uuid4()),
-                title="🌟 Browse All Stickers",
+                title="Browse All Stickers",
                 description="Type 'sticker' to see all 166 stickers (most expensive first)",
                 thumbnail_url=create_safe_cdn_url("assets", "stickers.webp"),
                 input_message_content=InputTextMessageContent(
-                    message_text="🌟 **Browse All Stickers**\n\nType 'sticker' to see all 166 available sticker packs!\n\n💎 *Most expensive stickers shown first*",
+                    message_text="**Browse All Stickers**\n\nType 'sticker' to see all 166 available sticker packs!\n\n💎 *Most expensive stickers shown first*",
                     parse_mode=ParseMode.HTML
                 ),
                 reply_markup=InlineKeyboardMarkup([
-                    [InlineKeyboardButton("📢 Join our channel", url="https://t.me/The01Studio")],
-                    [InlineKeyboardButton("💡 Type 'sticker' to browse", switch_inline_query_current_chat="sticker")]
+                    [InlineKeyboardButton("Join our channel", url="https://t.me/The01Studio")],
+                    [InlineKeyboardButton("Type 'sticker' to browse", switch_inline_query_current_chat="sticker")]
+                ])
+            ),
+            InlineQueryResultArticle(
+                id=str(uuid4()),
+                title="Browse All Goodies",
+                description="Type 'goodies' to see all 21 Goodies collections",
+                thumbnail_url=create_safe_cdn_url("assets", "goodies.webp"),
+                input_message_content=InputTextMessageContent(
+                    message_text="**Browse All Goodies**\n\nType 'goodies' to see all 21 Goodies collections!\n\n🎨 *Premium collectibles from Goodies app*",
+                    parse_mode=ParseMode.HTML
+                ),
+                reply_markup=InlineKeyboardMarkup([
+                    [InlineKeyboardButton("Join our channel", url="https://t.me/The01Studio")],
+                    [InlineKeyboardButton("Type 'goodies' to browse", switch_inline_query_current_chat="goodies")]
                 ])
             )
         ]
-        await update.inline_query.answer(results, cache_time=60)
+        await update.inline_query.answer(results, cache_time=0)
         return
         
     # Handle 'gift' query - show all gifts (NO leaderboard entry)
@@ -1807,15 +1836,15 @@ async def inline_query(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
                         title="No gifts available",
                         description="No gift cards found",
                         input_message_content=InputTextMessageContent(
-                            message_text="❌ No gift cards available at the moment. Please try again later.",
+                            message_text="No gift cards available at the moment. Please try again later.",
                             parse_mode=ParseMode.HTML
                         ),
                         reply_markup=InlineKeyboardMarkup([
-                            [InlineKeyboardButton("📢 Join our channel", url="https://t.me/The01Studio")]
+                            [InlineKeyboardButton("Join our channel", url="https://t.me/The01Studio")]
                         ])
                     )
                 ]
-                await update.inline_query.answer(results, cache_time=5)
+                await update.inline_query.answer(results, cache_time=0)
                 return
             
             # Load price data to sort by real API prices (similar to stickers)
@@ -1917,12 +1946,12 @@ async def inline_query(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
                         description=description,
                         thumbnail_url=gift_image_url,
                         input_message_content=InputTextMessageContent(
-                            message_text=f"<a href='{gift_card_url}'> </a><b>💎 {clean_gift_name} 💎</b>",
+                            message_text=f"<a href='{gift_card_url}'> </a><b>{clean_gift_name}</b>",
                             parse_mode=ParseMode.HTML,
                             disable_web_page_preview=False
                         ),
                         reply_markup=InlineKeyboardMarkup([
-                            [InlineKeyboardButton("📢 Join our channel", url="https://t.me/The01Studio")]
+                            [InlineKeyboardButton("Join our channel", url="https://t.me/The01Studio")]
                         ])
                     )
                 )
@@ -1933,7 +1962,7 @@ async def inline_query(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
             with_fallback = len(current_page_gifts) - with_real_prices
             
             logger.info(f"Sending {len(results)} gift results ({with_real_prices} with real prices, {with_fallback} with alphabetical fallback), next_offset: {next_offset}")
-            await update.inline_query.answer(results, cache_time=1, next_offset=next_offset)  # Pagination support
+            await update.inline_query.answer(results, cache_time=0, next_offset=next_offset)  # Pagination support
             return
             
         except Exception as e:
@@ -1955,6 +1984,14 @@ async def inline_query(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
                 for collection in collections:
                     # Skip dogs_og collection from general sticker query (too many stickers)
                     if collection.lower() == "dogs og":
+                        continue
+                    
+                    # Skip Goodies collections (they have their own dedicated inline query 'goodies')
+                    goodies_collections = [
+                        'Teddie', 'WSB', 'Lamborghini', 'Cool Cats', 'Oracle Red Bull Racing', 
+                        'NOT Wise', 'Moonbirds', 'Pudgy Penguins x Kung Fu Panda', 'Doodles'
+                    ]
+                    if collection in goodies_collections:
                         continue
                     stickers = sticker_integration.get_stickers_in_collection(collection)
                     for sticker in stickers:
@@ -2009,11 +2046,11 @@ async def inline_query(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
                                 parse_mode=ParseMode.HTML
                             ),
                             reply_markup=InlineKeyboardMarkup([
-                                [InlineKeyboardButton("📢 Join our channel", url="https://t.me/The01Studio")]
+                                [InlineKeyboardButton("Join our channel", url="https://t.me/The01Studio")]
                             ])
                         )
                     ]
-                    await update.inline_query.answer(results, cache_time=5)
+                    await update.inline_query.answer(results, cache_time=0)
                     return
                 
                 results = []
@@ -2075,19 +2112,136 @@ async def inline_query(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
                                 disable_web_page_preview=False
                             ),
                             reply_markup=InlineKeyboardMarkup([
-                                [InlineKeyboardButton("📢 Join our channel", url="https://t.me/The01Studio")]
+                                [InlineKeyboardButton("Join our channel", url="https://t.me/The01Studio")]
                             ])
                         )
                     )
                 
                 logger.info(f"Sending {len(results)} sticker results for inline query, next_offset: {next_offset}")
-                await update.inline_query.answer(results, cache_time=1, next_offset=next_offset)  # Pagination support
+                await update.inline_query.answer(results, cache_time=0, next_offset=next_offset)  # Pagination support
                 return
             else:
                 logger.warning("Sticker functionality not available")
                 
         except Exception as e:
             logger.error(f"Error showing all stickers: {e}")
+            import traceback
+            logger.error(f"Traceback: {traceback.format_exc()}")
+    
+    # Handle 'goodies' query - show all Goodies stickers
+    if query == "goodies" or query.startswith("goodies"):
+        try:
+            logger.info("Processing 'goodies' inline query")
+            
+            # Goodies stickers with their prices
+            GOODIES_STICKERS = [
+                ('teddie', 'goodies_intern', 225),
+                ('teddie', 'teddie_nakamoto', 225),
+                ('teddie', 'festive_teddie_chaos', 225),
+                ('oracle_red_bull_racing', 'boxie_pitwall', 9),
+                ('oracle_red_bull_racing', 'boxie_racer', 9),
+                ('oracle_red_bull_racing', 'boxie_feels', 9),
+                ('not_wise', 'not_wise_stonks', 11.25),
+                ('wsb', 'paper_hands', 5.57),
+                ('wsb', 'diamond_hands', 5.57),
+                ('cool_cats', 'cool_cat_react_pack_i', 12.38),
+                ('cool_cats', 'cool_cat_react_pack_ii', 12.38),
+                ('doodles', 'icons_awaken', 5.17),
+                ('doodles', 'timeless_monsters', 5.17),
+                ('moonbirds', 'moonbirds_set_2', 18.56),
+                ('moonbirds', 'moonbirds_set_2_sketch', 18.56),
+                ('pudgy_penguins_x_kung_fu_panda', 'grand_master_oogway', 6.75),
+                ('pudgy_penguins_x_kung_fu_panda', 'dragon_warrior_po', 6.75),
+                ('pudgy_penguins_x_kung_fu_panda', 'master_shifu', 6.75),
+                ('lamborghini', 'lamborghini_revuelto', 7.84),
+                ('lamborghini', 'lamborghini_urus', 7.84),
+                ('lamborghini', 'lamborghini_temerario', 7.84),
+            ]
+            
+            # Sort by price (highest first)
+            all_goodies = sorted(GOODIES_STICKERS, key=lambda x: -x[2])
+            logger.info(f"Found {len(all_goodies)} Goodies stickers")
+            
+            if not all_goodies:
+                results = [
+                    InlineQueryResultArticle(
+                        id=str(uuid4()),
+                        title="No Goodies available",
+                        description="No Goodies cards found",
+                        input_message_content=InputTextMessageContent(
+                            message_text="❌ No Goodies cards available at the moment. Please try again later.",
+                            parse_mode=ParseMode.HTML
+                        ),
+                        reply_markup=InlineKeyboardMarkup([
+                            [InlineKeyboardButton("Join our channel", url="https://t.me/The01Studio")]
+                        ])
+                    )
+                ]
+                await update.inline_query.answer(results, cache_time=0)
+                return
+            
+            results = []
+            
+            # Implement pagination using offset
+            try:
+                page_offset = int(offset) if offset.isdigit() else 0
+            except (ValueError, AttributeError):
+                page_offset = 0
+            
+            # Show 50 goodies per page
+            RESULTS_PER_PAGE = 50
+            start_idx = page_offset * RESULTS_PER_PAGE
+            end_idx = start_idx + RESULTS_PER_PAGE
+            
+            # Calculate next offset if there are more results
+            next_offset = None
+            if end_idx < len(all_goodies):
+                next_offset = str(page_offset + 1)
+            
+            logger.info(f"Showing Goodies {start_idx} to {end_idx} (page {page_offset}, total: {len(all_goodies)})")
+            
+            goodies_to_show = all_goodies[start_idx:end_idx]
+            
+            for collection, sticker, price in goodies_to_show:
+                result_id = str(uuid4())
+                
+                # Normalize names for CDN URL
+                collection_normalized = normalize_cdn_path(collection, "collection")
+                sticker_normalized = normalize_cdn_path(sticker, "sticker")
+                
+                # Create CDN URLs
+                timestamp = int(datetime.datetime.now().timestamp())
+                goodies_card_filename = f"{collection_normalized}_{sticker_normalized}_price_card.webp"
+                goodies_card_url = create_safe_cdn_url("sticker_price_cards", goodies_card_filename) + f"?t={timestamp}"
+                goodies_image_url = f"{CDN_BASE_URL}/sticker_collections/{quote(collection_normalized)}/{quote(sticker_normalized)}/1.webp"
+                
+                # Format display names
+                display_collection = collection.replace('_', ' ').title()
+                display_sticker = sticker.replace('_', ' ').title()
+                
+                results.append(
+                    InlineQueryResultArticle(
+                        id=result_id,
+                        title=f"{display_collection} - {display_sticker}",
+                        description=f"Goodies from {display_collection}",
+                        thumbnail_url=goodies_image_url,
+                        input_message_content=InputTextMessageContent(
+                            message_text=f"<a href='{goodies_card_url}'> </a><b>{display_collection} - {display_sticker}</b>",
+                            parse_mode=ParseMode.HTML,
+                            disable_web_page_preview=False
+                        ),
+                        reply_markup=InlineKeyboardMarkup([
+                            [InlineKeyboardButton("Join our channel", url="https://t.me/The01Studio")]
+                        ])
+                    )
+                )
+            
+            logger.info(f"Sending {len(results)} Goodies results for inline query, next_offset: {next_offset}")
+            await update.inline_query.answer(results, cache_time=0, next_offset=next_offset)
+            return
+                
+        except Exception as e:
+            logger.error(f"Error showing all Goodies: {e}")
             import traceback
             logger.error(f"Traceback: {traceback.format_exc()}")
     
@@ -2144,17 +2298,17 @@ async def inline_query(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
                 description=f"No gifts or stickers found for '{query}'",
                 thumbnail_url=create_safe_cdn_url("assets", "no result.webp"),
                 input_message_content=InputTextMessageContent(
-                    message_text=f"❌ No results found for '{query}'\n\n💡 Try:\n• Type 'gift' to see all gifts\n• Type 'sticker' to see all stickers\n• Search for specific names",
+                    message_text=f"No results found for '{query}'\n\nTry:\n• Type 'gift' to see all gifts\n• Type 'sticker' to see all stickers\n• Search for specific names",
                     parse_mode=ParseMode.HTML
                 ),
                 reply_markup=InlineKeyboardMarkup([
-                    [InlineKeyboardButton("📢 Join our channel", url="https://t.me/The01Studio")],
-                    [InlineKeyboardButton("🎁 Browse Gifts", switch_inline_query_current_chat="gift")],
-                    [InlineKeyboardButton("🌟 Browse Stickers", switch_inline_query_current_chat="sticker")]
+                    [InlineKeyboardButton("Join our channel", url="https://t.me/The01Studio")],
+                    [InlineKeyboardButton("Browse Gifts", switch_inline_query_current_chat="gift")],
+                    [InlineKeyboardButton("Browse Stickers", switch_inline_query_current_chat="sticker")]
                 ])
             )
         ]
-        await update.inline_query.answer(results, cache_time=5)
+        await update.inline_query.answer(results, cache_time=0)
         return
     
     # Create results with images from CDN
@@ -2197,7 +2351,7 @@ async def inline_query(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
                 caption=caption,
                 parse_mode=ParseMode.HTML,
                 reply_markup=InlineKeyboardMarkup([
-                    [InlineKeyboardButton("📢 Join our channel", url="https://t.me/The01Studio")]
+                    [InlineKeyboardButton("Join our channel", url="https://t.me/The01Studio")]
                 ])
             )
         )
@@ -2206,9 +2360,9 @@ async def inline_query(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
     for collection, sticker in stickers_to_show:
         result_id = str(uuid4())
         
-        # Normalize collection and sticker names for CDN URL - handle special characters properly
-        collection_normalized = collection.replace(" ", "_").replace("-", "_").replace("'", "").replace("&", "").replace("__", "_").lower()
-        sticker_normalized = sticker.replace(" ", "_").replace("-", "_").replace("'", "").replace(":", "").replace("__", "_").lower()
+        # Normalize collection and sticker names for CDN URL using the proper normalization function
+        collection_normalized = normalize_cdn_path(collection, "collection")
+        sticker_normalized = normalize_cdn_path(sticker, "sticker")
         
         # Create CDN URL for sticker card
         sticker_card_url = f"{CDN_BASE_URL}/sticker_price_cards/{collection_normalized}_{sticker_normalized}_price_card.webp"
@@ -2236,14 +2390,14 @@ async def inline_query(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
                     disable_web_page_preview=False
                 ),
                 reply_markup=InlineKeyboardMarkup([
-                    [InlineKeyboardButton("📢 Join our channel", url="https://t.me/The01Studio")]
+                    [InlineKeyboardButton("Join our channel", url="https://t.me/The01Studio")]
                 ])
             )
         )
     
     # Answer with the results immediately
     try:
-        await update.inline_query.answer(results, cache_time=60)
+        await update.inline_query.answer(results, cache_time=0)
         logger.info(f"Sent inline query results with CDN images")
     except Exception as e:
         logger.error(f"Error sending inline query results: {e}")
@@ -2284,7 +2438,7 @@ async def inline_query(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
                 )
             )
         
-        await update.inline_query.answer(fallback_results, cache_time=60)
+        await update.inline_query.answer(fallback_results, cache_time=0)
 
 
 # Update the handle_message function to check for FOMO, Samir and Zeus keywords
@@ -2381,7 +2535,6 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
             
             # Check for configure flow - handle it directly here
             if context.user_data.get('configure_step') == 'link_update':
-                from telegram import InlineKeyboardMarkup, InlineKeyboardButton
                 logger.info("Handling link update in message handler")
                 try:
                     from premium_system import premium_system, is_valid_link

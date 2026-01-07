@@ -1,8 +1,40 @@
 __pycache__
 *.pyc
+*.pyo
 .DS_Store
 node_modules
-downloaded_images
-sqlite_data
-
 .git
+.gitignore
+
+# Log files (100MB+)
+*.log
+*.out
+gift_api_results.log
+pregenerate_cards.log
+pregeneration_scheduler.log
+pregenerate_run.out
+generate_log.txt
+
+# Session files (included via volumes)
+*.session
+portal_auth_token.txt
+portal_session_string.txt
+
+# SQLite data (included via volumes)
+sqlite_data/
+
+# Generated cards (included via volumes)
+new_gift_cards/
+Sticker_Price_Cards/
+downloaded_images/
+sticker_collections/
+card_metadata/
+sticker_metadata/
+pregenerated_backgrounds/
+
+# Backup files
+*.backup
+
+# IDE
+.vscode/
+.idea/

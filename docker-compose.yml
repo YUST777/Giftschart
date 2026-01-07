@@ -1,0 +1,95 @@
+# =============================================================================
+# GiftsChart Telegram Bot - Docker Compose
+# 4 services: bot, cdn, card scheduler, sticker scheduler
+# =============================================================================
+
+version: "3.8"
+
+services:
+  # Main Telegram Bot
+  bot:
+    build: .
+    container_name: giftschart_bot
+    restart: unless-stopped
+    command: python3 telegram_bot.py
+    volumes:
+      - ./sqlite_data:/app/sqlite_data
+      - ./new_gift_cards:/app/new_gift_cards
+      - ./Sticker_Price_Cards:/app/Sticker_Price_Cards
+      - ./downloaded_images:/app/downloaded_images
+      - ./sticker_collections:/app/sticker_collections
+      - ./assets:/app/assets
+      - ./card_metadata:/app/card_metadata
+      - ./sticker_metadata:/app/sticker_metadata
+      - ./portal_auth_token.txt:/app/portal_auth_token.txt
+      - ./portal_session_string.txt:/app/portal_session_string.txt
+      - ./account.session:/app/account.session
+      - ./gifts_session.session:/app/gifts_session.session
+    environment:
+      - TZ=UTC
+    depends_on:
+      - cdn
+    networks:
+      - giftschart_network
+
+  # CDN Server (Flask on port 4000)
+  cdn:
+    build: .
+    container_name: giftschart_cdn
+    restart: unless-stopped
+    command: python3 cdn_server.py
+    ports:
+      - "4000:4000"
+    volumes:
+      - ./new_gift_cards:/app/new_gift_cards
+      - ./Sticker_Price_Cards:/app/Sticker_Price_Cards
+      - ./sticker_collections:/app/sticker_collections
+      - ./downloaded_images:/app/downloaded_images
+      - ./assets:/app/assets
+    environment:
+      - TZ=UTC
+    networks:
+      - giftschart_network
+
+  # Card Pregeneration Scheduler (every 32 minutes)
+  scheduler:
+    build: .
+    container_name: giftschart_scheduler
+    restart: unless-stopped
+    command: python3 pregenerate_gift_cards.py
+    volumes:
+      - ./sqlite_data:/app/sqlite_data
+      - ./new_gift_cards:/app/new_gift_cards
+      - ./downloaded_images:/app/downloaded_images
+      - ./assets:/app/assets
+      - ./portal_auth_token.txt:/app/portal_auth_token.txt
+      - ./portal_session_string.txt:/app/portal_session_string.txt
+      - ./account.session:/app/account.session
+      - ./gifts_session.session:/app/gifts_session.session
+      - ./last_generation_time.txt:/app/last_generation_time.txt
+    environment:
+      - TZ=UTC
+    networks:
+      - giftschart_network
+
+  # Sticker Update Scheduler
+  sticker:
+    build: .
+    container_name: giftschart_sticker
+    restart: unless-stopped
+    command: python3 scheduled_sticker_update.py
+    volumes:
+      - ./sqlite_data:/app/sqlite_data
+      - ./Sticker_Price_Cards:/app/Sticker_Price_Cards
+      - ./sticker_collections:/app/sticker_collections
+      - ./sticker_metadata:/app/sticker_metadata
+      - ./assets:/app/assets
+      - ./sticker_price_results.json:/app/sticker_price_results.json
+    environment:
+      - TZ=UTC
+    networks:
+      - giftschart_network
+
+networks:
+  giftschart_network:
+    driver: bridge

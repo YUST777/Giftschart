@@ -106,27 +106,54 @@ def generate_card(gift_name):
         
         normalized_filename = normalize_gift_filename(gift_name)
         
-        # Plus premarket gifts use different output filename (no _card suffix)
+        # Plus premarket gifts use different generator and output filename
         if is_plus_premarket:
             output_path = os.path.join(GIFT_CARDS_DIR, f"{normalized_filename}.webp")
+            
+            # Use the dedicated plus premarket card generator
+            try:
+                from plus_premarket_card_generator import generate_plus_premarket_card
+                import mrkt_quant_api
+                
+                # Fetch gift data from MRKT/Quant API (with fallback to saved JSON)
+                gift_data = asyncio.run(mrkt_quant_api.fetch_gift_data(gift_name))
+                
+                if gift_data:
+                    result = generate_plus_premarket_card(gift_name, gift_data, output_path=output_path)
+                    if result:
+                        logger.info(f"Successfully generated Plus Premarket card for {gift_name} at {output_path}")
+                        return True
+                    else:
+                        logger.error(f"Failed to generate Plus Premarket card for {gift_name}")
+                        return False
+                else:
+                    logger.error(f"No data available for Plus Premarket gift {gift_name}")
+                    return False
+            except Exception as e:
+                logger.error(f"Error generating Plus Premarket card for {gift_name}: {e}")
+                import traceback
+                logger.error(traceback.format_exc())
+                return False
         else:
+            # Regular gifts use new_card_design
             output_path = os.path.join(GIFT_CARDS_DIR, f"{normalized_filename}_card.webp")
-        
-        # Generate the card with force_fresh=True to bypass all caches and provide output_path
-        result = asyncio.run(new_card_design.create_gift_card(gift_name, output_path=output_path, force_fresh=True))
-        
-        if result:
-            logger.info(f"Successfully generated card for {gift_name} at {output_path}")
-            return True
-        else:
-            logger.error(f"Failed to generate card for {gift_name}")
-            return False
+            
+            # Generate the card with force_fresh=True to bypass all caches and provide output_path
+            result = asyncio.run(new_card_design.create_gift_card(gift_name, output_path=output_path, force_fresh=True))
+            
+            if result:
+                logger.info(f"Successfully generated card for {gift_name} at {output_path}")
+                return True
+            else:
+                logger.error(f"Failed to generate card for {gift_name}")
+                return False
             
     except Exception as e:
         logger.error(f"Error generating card for {gift_name}: {e}")
         import traceback
         logger.error(traceback.format_exc())
         return False
+
 
 def generate_all_cards():
     """Generate all gift cards concurrently"""

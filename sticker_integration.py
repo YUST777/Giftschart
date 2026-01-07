@@ -11,6 +11,8 @@ import json
 import logging
 import re
 from datetime import datetime
+import asyncio
+import functools
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, InputMediaPhoto
 from telegram.ext import ContextTypes
 from difflib import get_close_matches
@@ -846,10 +848,35 @@ async def send_sticker_card(update: Update, context: ContextTypes.DEFAULT_TYPE, 
             await update.message.reply_text(error_msg)
         return
     
-    # Get sticker price info from stickers.tools API
-    price_info = sticker_api.get_sticker_price(collection, sticker)
+    # Get sticker price info from stickers.tools API (run in executor to avoid blocking)
+    try:
+        loop = asyncio.get_running_loop()
+        price_info = await loop.run_in_executor(
+            None,
+            functools.partial(sticker_api.get_sticker_price, collection, sticker)
+        )
+    except Exception as e:
+        logger.error(f"Error fetching sticker price for {collection} - {sticker}: {e}")
+        price_info = None
+    
+    # Fallback to local price data for Goodies stickers
     if not price_info:
-        await update.message.reply_text(f"No price info for {collection} - {sticker}.")
+        sticker_data = load_sticker_price_data()
+        for item in sticker_data.get("stickers_with_prices", []):
+            if item.get("collection") == collection and item.get("sticker") == sticker:
+                price_info = {
+                    "floor_price_ton": item.get("floor_price_ton", 0),
+                    "floor_price_usd": item.get("floor_price_usd", 0),
+                    "supply": item.get("supply", 0),
+                    "source": "local"
+                }
+                break
+    
+    if not price_info:
+        if update.message:
+            await update.message.reply_text(f"No price info for {collection} - {sticker}.")
+        elif update.callback_query:
+            await update.callback_query.answer(f"No price info for {collection} - {sticker}.", show_alert=True)
         return
     
     # Determine group id for premium
