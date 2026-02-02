@@ -63,7 +63,7 @@ TON_LOGO_PATH = os.path.join(ASSETS_DIR, "TON2.webp")
 TRIANGLE_LOGO_PATH = os.path.join(ASSETS_DIR, "triangle.webp")  # You may need to create this asset
 STAR_LOGO_PATH = os.path.join(ASSETS_DIR, "star.webp")  # Star image for sale price
 FONT_PATH = os.path.join(script_dir, "Typekiln - EloquiaDisplay-ExtraBold.otf")
-CACHE_MAX_AGE = 1920  # 32 minutes in seconds
+CACHE_MAX_AGE = 1800  # 30 minutes in seconds
 
 # Global variables for tracking cache vs live API usage
 cached_usage = 0
@@ -424,7 +424,7 @@ def generate_price_card(collection, sticker, price, output_dir):
         os.makedirs(output_dir, exist_ok=True)
         
         # Get price info from stickers.tools API
-        price_info = sticker_api.get_sticker_price(collection, sticker, force_refresh=True)
+        price_info = sticker_api.get_sticker_price(collection, sticker, force_refresh=False)
         if not price_info:
             logger.warning(f"No price info for {collection} - {sticker}")
             return None

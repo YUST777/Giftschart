@@ -9,7 +9,7 @@ script_dir = os.path.dirname(os.path.abspath(__file__))
 config_file = os.path.join(script_dir, "bot_config.py")
 
 # Default values
-BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "7896040752:AAHTM8jlCSe227r7MchVqKnHeOfVn6OLRns")
+BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "7896040752:AAENd2iminPy6m015euaHJXTLcr3ah7LjJk")
 BOT_USERNAME = "@giftsChartBot"
 RESPOND_TO_ALL_MESSAGES = True
 USE_DIRECT_IP = False
@@ -65,3 +65,6 @@ try:
 except Exception as e:
     print(f"Error loading environment configuration: {e}")
     traceback.print_exc()
+
+# CDN Configuration
+CDN_BASE_URL = "https://giftschart.the01studio.xyz/api"

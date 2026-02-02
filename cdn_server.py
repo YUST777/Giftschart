@@ -88,7 +88,7 @@ def index():
         },
         "total_folders": len(FOLDERS),
         "server_time": datetime.now().isoformat(),
-        "base_url": "https://giftschart.01studio.xyz"
+        "base_url": "https://giftschart.the01studio.xyz"
     })
 
 @app.route("/api/<folder_key>")
@@ -245,8 +245,8 @@ def file_info(folder_key, filename):
             "modified": file_info["modified"],
             "mime_type": mime_type,
             "encoding": encoding,
-            "url": f"https://asadffastest.store/api/{folder_key}/{filename}",
-            "info_url": f"https://asadffastest.store/api/{folder_key}/{filename}/info"
+            "url": f"https://giftschart.the01studio.xyz/api/{folder_key}/{filename}",
+            "info_url": f"https://giftschart.the01studio.xyz/api/{folder_key}/{filename}/info"
         })
     except Exception as e:
         logger.error(f"Error getting file info for {filename} from {folder_key}: {e}")

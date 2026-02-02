@@ -696,17 +696,37 @@ def get_sticker_card_path(collection, sticker):
     filename = f"{collection_normalized}_{sticker_normalized}_price_card.webp"
     filepath = os.path.join(STICKER_CARDS_DIR, filename)
     
-    if os.path.exists(filepath):
-        return filepath
-    
-    # Try alternative naming patterns
-    alt_filename = f"{collection_normalized}_{sticker_normalized}_card.webp"
-    alt_filepath = os.path.join(STICKER_CARDS_DIR, alt_filename)
-    
-    if os.path.exists(alt_filepath):
-        return alt_filepath
-    
-    return None
+    # Check if file exists and is fresh (less than 32 minutes old)
+    should_generate = False
+    if not os.path.exists(filepath):
+        should_generate = True
+    else:
+        # Check freshness
+        try:
+            mtime = os.path.getmtime(filepath)
+            if (time.time() - mtime) > (30 * 60):
+                should_generate = True
+                logger.info(f"Card for {collection} - {sticker} is stale (>30m), regenerating...")
+        except:
+             should_generate = True
+
+    if should_generate:
+        try:
+            logger.info(f"Generating price card for {collection} - {sticker}...")
+            # Determine which generator to use
+            if collection.lower() in ['teddie', 'lamborghini', 'not_wise', 'oracle_red_bull_racing', 'wsb', 'cool_cats', 'doodles', 'moonbirds', 'pudgy_penguins_x_kung_fu_panda', 'neiro', 'steady_teddys', 'bonk', 'goodies_blindbox']:
+                cmd = [sys.executable, os.path.join(SCRIPT_DIR, "goodies_price_card_generator.py"), collection, sticker, "0"]
+            else:
+                cmd = [sys.executable, os.path.join(SCRIPT_DIR, "sticker_price_card_generator.py"), collection, sticker, "0"]
+            
+            import subprocess
+            subprocess.run(cmd, check=True, timeout=30)
+        except Exception as e:
+            logger.error(f"Failed to generate card for {collection} - {sticker}: {e}")
+            if not os.path.exists(filepath):
+                 return None
+
+    return filepath
 
 def find_matching_stickers(query):
     """Find stickers that match the query with exact name matching only."""

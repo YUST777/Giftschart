@@ -249,8 +249,8 @@ def should_regenerate():
             
         elapsed_minutes = (current_time - last_time) / 60
         
-        # Regenerate if more than 32 minutes have passed
-        if elapsed_minutes >= 32:
+        # Regenerate if more than 35 minutes have passed
+        if elapsed_minutes >= 35:
             logger.info(f"Last generation was {elapsed_minutes:.1f} minutes ago, will regenerate")
             return True
         else:
@@ -295,8 +295,8 @@ def main():
         logger.error(traceback.format_exc())
 
 if __name__ == "__main__":
-    schedule.every(32).minutes.do(main)
-    print("Starting scheduled card generation every 32 minutes...")
+    schedule.every(35).minutes.do(main)
+    print("Starting scheduled card generation every 35 minutes...")
     main()  # Run once at startup
     while True:
         schedule.run_pending()

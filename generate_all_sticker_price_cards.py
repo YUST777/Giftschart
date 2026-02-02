@@ -111,13 +111,16 @@ def generate_all_price_cards(price_data, output_dir):
     # Track start time
     start_time = time.time()
     
-    # Generate cards for each sticker with price
-    for i, item in enumerate(stickers):
+    # Use ThreadPoolExecutor for concurrent generation
+    from concurrent.futures import ThreadPoolExecutor, as_completed
+    
+    # Define a helper function for the thread pool
+    def process_sticker(i, item):
         collection = normalize_name(item['collection'])
         sticker = normalize_name(item['sticker'])
         price = item['price']
         
-        # Calculate progress percentage
+        # Calculate progress percentage (approximate)
         progress = (i + 1) / total_stickers * 100
         
         logger.info(f"Generating price card for {collection} - {sticker}: {price} TON")
@@ -125,27 +128,45 @@ def generate_all_price_cards(price_data, output_dir):
         card_start_time = time.time()
         result = generate_price_card(collection, sticker, price, output_dir)
         card_time = time.time() - card_start_time
+        return result, collection, sticker, price, card_time
+
+    # Use 4 workers to speed up generation
+    max_workers = 4
+    logger.info(f"Starting concurrent generation with {max_workers} workers")
+    
+    with ThreadPoolExecutor(max_workers=max_workers) as executor:
+        # Submit all tasks
+        futures = {executor.submit(process_sticker, i, item): i for i, item in enumerate(stickers)}
         
-        if result:
-            successful += 1
-            safe_print(f"  ✅ {i+1}/{total_stickers} {collection} - {sticker}: {price} TON ({card_time:.2f}s)")
-        else:
-            failed += 1
-            safe_print(f"  ❌ {i+1}/{total_stickers} {collection} - {sticker}: Failed ({card_time:.2f}s)")
-        
-        # Create a progress bar (every 5%)
-        if (i + 1) % max(1, int(total_stickers / 20)) == 0 or i == total_stickers - 1:
-            bar_length = 30
-            filled_length = int(bar_length * progress / 100)
-            bar = '█' * filled_length + '░' * (bar_length - filled_length)
-            
-            # Calculate ETA
-            elapsed_time = time.time() - start_time
-            items_per_second = (i + 1) / elapsed_time if elapsed_time > 0 else 0
-            remaining_items = total_stickers - (i + 1)
-            eta_seconds = remaining_items / items_per_second if items_per_second > 0 else 0
-            
-            safe_print(f"  [{bar}] {progress:.1f}% Complete - ETA: {int(eta_seconds//60)}m {int(eta_seconds%60)}s")
+        for future in as_completed(futures):
+            i = futures[future]
+            try:
+                result, collection, sticker, price, card_time = future.result()
+                if result:
+                    successful += 1
+                    safe_print(f"  ✅ {collection} - {sticker}: {price} TON ({card_time:.2f}s)")
+                else:
+                    failed += 1
+                    safe_print(f"  ❌ {collection} - {sticker}: Failed ({card_time:.2f}s)")
+            except Exception as e:
+                failed += 1
+                logger.error(f"Error processing sticker {i}: {e}")
+                
+            # Create a progress bar (every 5%)
+            progress = (successful + failed) / total_stickers * 100
+            if (successful + failed) % max(1, int(total_stickers / 20)) == 0:
+                bar_length = 30
+                filled_length = int(bar_length * progress / 100)
+                bar = '█' * filled_length + '░' * (bar_length - filled_length)
+                
+                # Calculate ETA
+                elapsed_time = time.time() - start_time
+                items_processed = successful + failed
+                items_per_second = items_processed / elapsed_time if elapsed_time > 0 else 0
+                remaining_items = total_stickers - items_processed
+                eta_seconds = remaining_items / items_per_second if items_per_second > 0 else 0
+                
+                safe_print(f"  [{bar}] {progress:.1f}% Complete - ETA: {int(eta_seconds//60)}m {int(eta_seconds%60)}s")
     
     # Get final cache counts
     from sticker_price_card_generator import cached_usage, live_api_usage

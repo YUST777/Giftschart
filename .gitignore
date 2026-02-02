@@ -34,3 +34,4 @@ backup_info.txt
 .idea/
 pregenerate_run.out
 sticker_price_results.json
+.venv/

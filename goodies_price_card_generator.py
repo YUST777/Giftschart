@@ -64,7 +64,7 @@ TON_LOGO_PATH = os.path.join(ASSETS_DIR, "TON2.webp")
 TRIANGLE_LOGO_PATH = os.path.join(ASSETS_DIR, "triangle.webp")  # You may need to create this asset
 STAR_LOGO_PATH = os.path.join(ASSETS_DIR, "star.webp")  # Star image for sale price
 FONT_PATH = os.path.join(script_dir, "Typekiln - EloquiaDisplay-ExtraBold.otf")
-CACHE_MAX_AGE = 1920  # 32 minutes in seconds
+CACHE_MAX_AGE = 1800  # 30 minutes in seconds
 
 # Global variables for tracking cache vs live API usage
 cached_usage = 0
@@ -190,6 +190,11 @@ try:
     SVGLIB_AVAILABLE = True
 except ImportError:
     SVGLIB_AVAILABLE = False
+
+def load_icon(filename, size, color=None):
+    """Load an icon and resize it, optionally coloring it"""
+    try:
+        base_name = filename.rsplit('.', 1)[0]
         
         # Try WebP first, then PNG
         for ext in ['.webp', '.png', '.svg']:

@@ -52,16 +52,18 @@ MIN_REQUEST_INTERVAL = 0.5  # 500ms between requests
 _rate_limit_until = 0  # Timestamp until which we should wait due to rate limiting
 
 # Try to import Portal API library
-try:
-    from aportalsmp.gifts import search as portal_search
-    from aportalsmp.auth import update_auth
-    from aportalsmp.classes.Exceptions import requestError, authDataError
-    PORTAL_API_AVAILABLE = True
-    logger.info("Portal API (aportalsmp) loaded successfully")
-except ImportError as e:
-    PORTAL_API_AVAILABLE = False
-    logger.error(f"Portal API (aportalsmp) not available: {e}")
-    logger.error("Please install with: pip install aportalsmp")
+# Force Portal API off to avoid interactive login issues
+PORTAL_API_AVAILABLE = False
+# try:
+#     from aportalsmp.gifts import search as portal_search
+#     from aportalsmp.auth import update_auth
+#     from aportalsmp.classes.Exceptions import requestError, authDataError
+#     PORTAL_API_AVAILABLE = True
+#     logger.info("Portal API (aportalsmp) loaded successfully")
+# except ImportError as e:
+#     PORTAL_API_AVAILABLE = False
+#     logger.error(f"Portal API (aportalsmp) not available: {e}")
+#     logger.error("Please install with: pip install aportalsmp")
 
 # Supply data cache for legacy API
 _supply_data_cache = {}

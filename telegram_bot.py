@@ -297,13 +297,15 @@ except ImportError:
         await query.message.reply_text("Callback handling is not fully set up.")
 
 # Import the image uploader
-try:
-    from image_uploader import get_gift_card_url
-    IMAGE_UPLOADER_AVAILABLE = True
-    logger.info("Image uploader available.")
-except ImportError:
-    logger.warning("Image uploader not available. Inline images will not work correctly.")
-    IMAGE_UPLOADER_AVAILABLE = False
+# Image uploader (Catbox fallback) - DISABLED per user request
+IMAGE_UPLOADER_AVAILABLE = False
+# try:
+#     from image_uploader import get_gift_card_url
+#     IMAGE_UPLOADER_AVAILABLE = True
+#     logger.info("Image uploader available.")
+# except ImportError:
+#     logger.warning("Image uploader not available. Inline images will not work correctly.")
+#     IMAGE_UPLOADER_AVAILABLE = False
 
 # Import admin dashboard
 try:
@@ -316,6 +318,25 @@ except ImportError:
 
 # We use catbox.moe for image hosting via image_uploader.py
 
+
+def format_display_name(name):
+    """Convert snake_case or underscored names to proper Title Case for display.
+    
+    Examples:
+        'bored_stickers' -> 'Bored Stickers'
+        'cool_cats' -> 'Cool Cats'
+        '2092' -> '#2092' (numeric sticker IDs get # prefix)
+    """
+    if not name:
+        return name
+    
+    # If it's just a number (sticker ID), add # prefix
+    if name.isdigit():
+        return f"#{name}"
+    
+    # Replace underscores with spaces and title case
+    formatted = name.replace('_', ' ').title()
+    return formatted
 
 
 def normalize_cdn_path(name, path_type="general"):
@@ -344,8 +365,11 @@ def normalize_cdn_path(name, path_type="general"):
         normalized = re.sub(r'_+', '_', normalized)
         return normalized.strip('_')
 
-# CDN Configuration
-CDN_BASE_URL = "https://giftschart.01studio.xyz/api"
+# CDN Configuration - Import from bot_config (do not hardcode!)
+try:
+    from bot_config import CDN_BASE_URL
+except ImportError:
+    CDN_BASE_URL = "https://giftschart.the01studio.xyz/api"  # Fallback
 
 def create_safe_cdn_url(base_path, filename, file_type="general"):
     """Create safe CDN URL with proper encoding"""
@@ -2100,14 +2124,19 @@ async def inline_query(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
                     sticker_path = normalize_cdn_path(sticker, "sticker")
                     sticker_image_url = f"{CDN_BASE_URL}/sticker_collections/{quote(collection_path)}/{quote(sticker_path)}/{quote(image_number)}"
                     
+                    # Format names for display (convert snake_case to Title Case)
+                    collection_display = format_display_name(collection)
+                    sticker_display = format_display_name(sticker)
+                    title = f"{collection_display} - {sticker_display}"
+                    
                     results.append(
                         InlineQueryResultArticle(
                             id=result_id,
-                            title=f"{collection} - {sticker}",
-                            description=f"Sticker from {collection}",
+                            title=title,
+                            description=f"Sticker Price Card",
                             thumbnail_url=sticker_image_url,
                             input_message_content=InputTextMessageContent(
-                                message_text=f"<a href='{sticker_card_url}'> </a><b>{collection} - {sticker}</b>",
+                                message_text=f"<a href='{sticker_card_url}'> </a><b>{collection_display} - {sticker_display}</b>",
                                 parse_mode=ParseMode.HTML,
                                 disable_web_page_preview=False
                             ),
@@ -2133,29 +2162,64 @@ async def inline_query(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
         try:
             logger.info("Processing 'goodies' inline query")
             
-            # Goodies stickers with their prices
+            # Goodies stickers with their prices (complete list from stickers.tools)
             GOODIES_STICKERS = [
-                ('teddie', 'goodies_intern', 225),
-                ('teddie', 'teddie_nakamoto', 225),
-                ('teddie', 'festive_teddie_chaos', 225),
-                ('oracle_red_bull_racing', 'boxie_pitwall', 9),
-                ('oracle_red_bull_racing', 'boxie_racer', 9),
-                ('oracle_red_bull_racing', 'boxie_feels', 9),
-                ('not_wise', 'not_wise_stonks', 11.25),
-                ('wsb', 'paper_hands', 5.57),
-                ('wsb', 'diamond_hands', 5.57),
-                ('cool_cats', 'cool_cat_react_pack_i', 12.38),
-                ('cool_cats', 'cool_cat_react_pack_ii', 12.38),
-                ('doodles', 'icons_awaken', 5.17),
-                ('doodles', 'timeless_monsters', 5.17),
-                ('moonbirds', 'moonbirds_set_2', 18.56),
-                ('moonbirds', 'moonbirds_set_2_sketch', 18.56),
-                ('pudgy_penguins_x_kung_fu_panda', 'grand_master_oogway', 6.75),
-                ('pudgy_penguins_x_kung_fu_panda', 'dragon_warrior_po', 6.75),
-                ('pudgy_penguins_x_kung_fu_panda', 'master_shifu', 6.75),
-                ('lamborghini', 'lamborghini_revuelto', 7.84),
-                ('lamborghini', 'lamborghini_urus', 7.84),
-                ('lamborghini', 'lamborghini_temerario', 7.84),
+                # Teddie (3)
+                ('teddie', 'teddie_goodies_intern', 245),
+                ('teddie', 'teddie_nakamoto', 303.8),
+                ('teddie', 'teddie_xmas', 313.9),
+                # Goodies Blindbox (8)
+                ('goodies_blindbox', 'teddie_s_goodies', 999),
+                ('goodies_blindbox', 'conviction_or_capitulation', 90),
+                ('goodies_blindbox', 'box_box_boxie', 34.5),
+                ('goodies_blindbox', 'be_cool', 20),
+                ('goodies_blindbox', 'origin_of_the_birb', 20),
+                ('goodies_blindbox', 'monsters_unleashed_icons_of_horror', 11.8),
+                ('goodies_blindbox', 'masters_drop', 11),
+                ('goodies_blindbox', 'lamborghini', 11),
+                # Oracle Red Bull Racing (3)
+                ('oracle_red_bull_racing', 'boxie_pitwall', 11.3),
+                ('oracle_red_bull_racing', 'boxie_racer', 23),
+                ('oracle_red_bull_racing', 'boxie_feels', 85),
+                # NOT Wise (1)
+                ('not_wise', 'not_wise_stonks_x_goodies', 15.6),
+                # WSB (2)
+                ('wsb', 'paper_hands', 8.5),
+                ('wsb', 'diamond_hands', 21.5),
+                # Cool Cats (2)
+                ('cool_cats', 'cool_cat_react_pack_i', 11),
+                ('cool_cats', 'cool_cat_react_pack_ii', 22),
+                # Doodles (4)
+                ('doodles', 'doodles_icons_awaken', 44.9),
+                ('doodles', 'doodles_timeless_monsters', 14.4),
+                ('doodles', 'doodles_holo_pack', 0),
+                ('doodles', 'doodles_gold_pack', 0),
+                # Moonbirds (2)
+                ('moonbirds', 'moonbirds_set_2', 26),
+                ('moonbirds', 'moonbirds_set_2_sketch', 45),
+                # Pudgy Penguins x Kung Fu Panda (3)
+                ('pudgy_penguins_x_kung_fu_panda', 'grand_master_oogway', 11.7),
+                ('pudgy_penguins_x_kung_fu_panda', 'dragon_warrior_po', 5.8),
+                ('pudgy_penguins_x_kung_fu_panda', 'master_shifu', 46.9),
+                # Lamborghini (3)
+                ('lamborghini', 'lamborghini_revuelto', 27),
+                ('lamborghini', 'lamborghini_urus', 6),
+                ('lamborghini', 'lamborghini_temerario', 8.5),
+                # BONK (2)
+                ('bonk', 'bonk_the_dog', 27),
+                ('bonk', 'bonk_hit_harder', 15),
+                # Neiro (2)
+                ('neiro', 'neiro_woof_vault', 27.5),
+                ('neiro', 'neiro_woofin_mad', 15),
+                # Meebits (2)
+                ('meebits', 'meebits_cube_culture', 16.6),
+                ('meebits', 'meebits_blocky_drop', 8.2),
+                # Steady Teddys (2)
+                ('steady_teddys', 'tedism', 15),
+                ('steady_teddys', 'ted_blessed', 8.5),
+                # Final Bosu (2) - NEW
+                ('final_bosu', 'final_bosu_letsugo_vol_i', 4.2),
+                ('final_bosu', 'final_bosu_letsugo_vol_ii', 1.3),
             ]
             
             # Sort by price (highest first)
@@ -2367,9 +2431,14 @@ async def inline_query(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
         # Create CDN URL for sticker card
         sticker_card_url = f"{CDN_BASE_URL}/sticker_price_cards/{collection_normalized}_{sticker_normalized}_price_card.webp"
         
-        # Get sticker info (without price)
-        description = f"{collection} - {sticker}"
-        caption = f"<b>{collection} - {sticker}</b>"
+        # Format names for display (convert snake_case to Title Case)
+        collection_display = format_display_name(collection)
+        sticker_display = format_display_name(sticker)
+        
+        # Get sticker info for display
+        title = f"{collection_display} - {sticker_display}"
+        description = f"Sticker Price Card"
+        caption = f"<b>{collection_display} - {sticker_display}</b>"
         
         # Create CDN URL for sticker image thumbnail without cache-busting
         image_number = get_sticker_image_number(collection, sticker)
@@ -2381,7 +2450,7 @@ async def inline_query(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
         results.append(
             InlineQueryResultArticle(
                 id=result_id,
-                title=f"{collection} - {sticker}",
+                title=title,
                 description=description,
                 thumbnail_url=sticker_image_url,
                 input_message_content=InputTextMessageContent(
