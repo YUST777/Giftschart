@@ -35,3 +35,5 @@ backup_info.txt
 pregenerate_run.out
 sticker_price_results.json
 .venv/
+.env
+*.env

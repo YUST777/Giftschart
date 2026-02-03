@@ -1,27 +1,28 @@
 # Telegram Bot Configuration
 
 import os
-import sys
-import traceback
+import logging
+
+# Load environment variables from .env file
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass  # python-dotenv not installed, rely on system env vars
 
 # File paths - using the script directory
 script_dir = os.path.dirname(os.path.abspath(__file__))
-config_file = os.path.join(script_dir, "bot_config.py")
 
-# Default values
-BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "7896040752:AAENd2iminPy6m015euaHJXTLcr3ah7LjJk")
-BOT_USERNAME = "@giftsChartBot"
+# Bot configuration - loaded from environment
+BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN")
+if not BOT_TOKEN:
+    raise ValueError("TELEGRAM_BOT_TOKEN not set! Create a .env file with your token.")
+
+BOT_USERNAME = os.environ.get("TELEGRAM_BOT_USERNAME", "@giftsChartBot")
 RESPOND_TO_ALL_MESSAGES = True
 USE_DIRECT_IP = False
 API_TELEGRAM_IP = "149.154.167.220"
 SKIP_SSL_VERIFY = False
-
-# Admin user IDs - list of Telegram user IDs allowed to access the admin panel
-ADMIN_USER_IDS = [800092886, 6529233780]  # Add your user IDs here
-
-# Portal API configuration (replaces Tonnel API)
-# Portal API credentials are now handled in portal_api.py
-# No additional configuration needed here
 
 # Special groups configuration
 # These groups will have custom buttons with specific referral links
@@ -46,25 +47,6 @@ DEFAULT_MRKT_LINK = "https://t.me/mrkt/app?startapp=7660176383"
 
 # Help system configuration
 HELP_IMAGE_PATH = os.path.join(script_dir, "assets", "help.jpg")
-
-# Try to load custom configuration from environment
-try:
-    # Check if token is provided in environment
-    if "TELEGRAM_BOT_TOKEN" in os.environ:
-        BOT_TOKEN = os.environ["TELEGRAM_BOT_TOKEN"]
-        print("Using bot token from environment variable")
-    
-    # Check if username is provided in environment
-    if "TELEGRAM_BOT_USERNAME" in os.environ:
-        BOT_USERNAME = os.environ["TELEGRAM_BOT_USERNAME"]
-        print(f"Using bot username from environment: {BOT_USERNAME}")
-        
-    # Portal API configuration is handled in portal_api.py
-    # No environment variables needed for Portal API
-        
-except Exception as e:
-    print(f"Error loading environment configuration: {e}")
-    traceback.print_exc()
 
 # CDN Configuration
 CDN_BASE_URL = "https://giftschart.the01studio.xyz/api"

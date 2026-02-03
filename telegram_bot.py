@@ -213,13 +213,7 @@ try:
                 await configure_callback_handler(update, context)
             return
         
-        # Check if this is an admin callback
-        if data.startswith("admin_"):
-            if ADMIN_DASHBOARD_AVAILABLE:
-                await handle_admin_callback(update, context)
-            else:
-                await query.answer("Admin dashboard not available")
-            return
+
         
         # Check if this is a sticker-related callback
         if data.startswith("sticker_"):
@@ -268,13 +262,7 @@ except ImportError:
                 await query.answer("Invalid page number", show_alert=True)
             return
         
-        # Check if this is an admin callback
-        if query.data.startswith("admin_"):
-            if ADMIN_DASHBOARD_AVAILABLE:
-                await handle_admin_callback(update, context)
-            else:
-                await query.answer("Admin dashboard not available")
-            return
+
         
         # Check if this is a sticker-related callback
         if query.data.startswith("sticker_"):
@@ -307,14 +295,8 @@ IMAGE_UPLOADER_AVAILABLE = False
 #     logger.warning("Image uploader not available. Inline images will not work correctly.")
 #     IMAGE_UPLOADER_AVAILABLE = False
 
-# Import admin dashboard
-try:
-    from admin_dashboard import admin_command, handle_admin_callback, log_gift_request, log_sticker_request, log_api_fetch
-    ADMIN_DASHBOARD_AVAILABLE = True
-    logger.info("Admin dashboard available.")
-except ImportError:
-    logger.warning("Admin dashboard not available.")
-    ADMIN_DASHBOARD_AVAILABLE = False
+# Admin dashboard removed
+ADMIN_DASHBOARD_AVAILABLE = False
 
 # We use catbox.moe for image hosting via image_uploader.py
 
@@ -3210,11 +3192,7 @@ def backup_system_worker():
     # Create backup bot instance
     backup_bot = Bot(token=BOT_TOKEN)
     
-    # Import admin user IDs
-    try:
-        from bot_config import ADMIN_USER_IDS
-    except ImportError:
-        ADMIN_USER_IDS = [800092886, 6529233780]  # Fallback admin IDs
+
     
     # Paths
     sqlite_data_dir = os.path.join(script_dir, "sqlite_data")
@@ -3529,10 +3507,7 @@ def main() -> None:
     application.add_handler(CommandHandler("refund", refund_command))
     application.add_handler(CommandHandler("sticker", sticker_command))
     
-    # Add admin command handler
-    if ADMIN_DASHBOARD_AVAILABLE:
-        application.add_handler(CommandHandler("admin", admin_command))
-        logger.info("Admin command handler registered")
+
     
     # Inline mode handler
     application.add_handler(InlineQueryHandler(inline_query))
