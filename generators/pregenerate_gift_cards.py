@@ -8,27 +8,37 @@ import asyncio
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import schedule
 
+# Add project root to path for config imports
+_project_root = os.path.dirname(os.path.abspath(__file__))
+if os.path.basename(_project_root) != 'giftschart':
+    _project_root = os.path.dirname(_project_root)
+if _project_root not in sys.path:
+    sys.path.insert(0, _project_root)
+
+# Import centralized paths
+from config.paths import (
+    PROJECT_ROOT, GIFT_CARDS_DIR, LAST_GENERATION_TIME_FILE, 
+    DOWNLOADED_IMAGES_DIR, PREGENERATE_CARDS_LOG, CARD_TEMPLATES_DIR
+)
+
 # Set up logging
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.FileHandler("pregenerate_cards.log"),
+        logging.FileHandler(PREGENERATE_CARDS_LOG),
         logging.StreamHandler()
     ]
 )
 logger = logging.getLogger("pregenerate_cards")
 
-# Add parent directory to path to import gift_card_generator
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
-import gift_card_generator
+import generators.gift_card_generator as gift_card_generator
 
-# Path for the output cards
-GIFT_CARDS_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "new_gift_cards")
+# Ensure output directory exists (already done in config, but good for safety)
 os.makedirs(GIFT_CARDS_DIR, exist_ok=True)
 
 # Path for tracking the last generation time
-TIMESTAMP_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "last_generation_time.txt")
+TIMESTAMP_FILE = LAST_GENERATION_TIME_FILE
 
 def get_available_gift_names():
     """Get a list of all available gift names from main.py (includes plus premarket gifts)"""
@@ -42,11 +52,8 @@ def get_available_gift_names():
         except ImportError:
             logger.warning("Could not import names from main.py, falling back to directory scan")
             
-            # Fallback: Get the directory where the script is located
-            script_dir = os.path.dirname(os.path.abspath(__file__))
-            
-            # Path to the downloaded images
-            images_dir = os.path.join(script_dir, "downloaded_images")
+            # Path to the downloaded images - using centralized config
+            images_dir = DOWNLOADED_IMAGES_DIR
             
             # Check if directory exists
             if not os.path.exists(images_dir):
@@ -99,7 +106,7 @@ def generate_card(gift_name):
         # Check if this is a plus premarket gift
         is_plus_premarket = False
         try:
-            from plus_premarket_gifts import is_plus_premarket_gift
+            from services.plus_premarket_gifts import is_plus_premarket_gift
             is_plus_premarket = is_plus_premarket_gift(gift_name)
         except ImportError:
             pass
@@ -112,7 +119,7 @@ def generate_card(gift_name):
             
             # Use the dedicated plus premarket card generator
             try:
-                from plus_premarket_card_generator import generate_plus_premarket_card
+                from generators.plus_premarket_card_generator import generate_plus_premarket_card
                 import mrkt_quant_api
                 
                 # Fetch gift data from MRKT/Quant API (with fallback to saved JSON)
@@ -161,7 +168,7 @@ def generate_all_cards():
     
     # Clear all caches before starting batch generation
     try:
-        import tonnel_api
+        from services import tonnel_api
         tonnel_api.clear_all_caches()
         logger.info("🧹 CLEARED: All caches cleared before batch generation")
     except Exception as e:
@@ -263,7 +270,7 @@ def should_regenerate():
 
 
 def pregenerate_all_cards_from_templates():
-    template_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'card_templates')
+    template_dir = CARD_TEMPLATES_DIR
     templates = [f for f in os.listdir(template_dir) if f.endswith('_template.webp')]
     for template_file in templates:
         # Extract gift name from template filename

@@ -7,6 +7,15 @@ custom referral links for groups, and premium user management.
 """
 
 import os
+import sys
+
+# Add project root to path for config imports
+_project_root = os.path.dirname(os.path.abspath(__file__))
+if os.path.basename(_project_root) != 'giftschart':
+    _project_root = os.path.dirname(_project_root)
+if _project_root not in sys.path:
+    sys.path.insert(0, _project_root)
+
 import sqlite3
 import logging
 import time
@@ -33,8 +42,8 @@ import threading
 # Configure logging
 logger = logging.getLogger(__name__)
 
-# Database file for premium data
-PREMIUM_DB_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "sqlite_data", "premium_system.db")
+# Import centralized paths
+from config.paths import PREMIUM_DB_FILE
 
 # Premium subscription price (in Telegram Stars)
 PREMIUM_PRICE_STARS = 99  # Number of Stars to charge (99 Stars = 9900 units)
@@ -935,8 +944,8 @@ async def handle_premium_button(update: Update, context: ContextTypes.DEFAULT_TY
         )
 
         # Get the path to the premium image
-        script_dir = os.path.dirname(os.path.abspath(__file__))
-        premium_image_path = os.path.join(script_dir, "assets", "premium.jpg")
+        from config.paths import ASSETS_DIR
+        premium_image_path = os.path.join(ASSETS_DIR, "premium.jpg")
         
         if query and hasattr(query, 'message'):
             await query.message.reply_photo(

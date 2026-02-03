@@ -1,7 +1,7 @@
 module.exports = {
     apps: [{
         name: "giftschart-bot",
-        script: "telegram_bot.py",
+        script: "core/start_bot.py",
         cwd: "/root/01studio/giftschart",
         interpreter: "python3",
         autorestart: true,
@@ -13,7 +13,7 @@ module.exports = {
         }
     }, {
         name: "gift-generator-cron",
-        script: "pregenerate_gift_cards.py",
+        script: "generators/pregenerate_gift_cards.py",
         cwd: "/root/01studio/giftschart",
         interpreter: "python3",
         autorestart: true,
@@ -24,7 +24,7 @@ module.exports = {
         }
     }, {
         name: "giftschart-cdn",
-        script: "cdn_server.py",
+        script: "services/cdn_server.py",
         cwd: "/root/01studio/giftschart",
         interpreter: "python3",
         autorestart: true,

@@ -1,6 +1,15 @@
 # Telegram Bot Configuration
 
 import os
+import sys
+
+# Add project root to path for config imports
+_project_root = os.path.dirname(os.path.abspath(__file__))
+if os.path.basename(_project_root) != 'giftschart':
+    _project_root = os.path.dirname(_project_root)
+if _project_root not in sys.path:
+    sys.path.insert(0, _project_root)
+
 import logging
 
 # Load environment variables from .env file
@@ -10,8 +19,8 @@ try:
 except ImportError:
     pass  # python-dotenv not installed, rely on system env vars
 
-# File paths - using the script directory
-script_dir = os.path.dirname(os.path.abspath(__file__))
+# Import centralized paths
+from config.paths import PROJECT_ROOT, ASSETS_DIR
 
 # Bot configuration - loaded from environment
 BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN")
@@ -46,7 +55,7 @@ DEFAULT_PORTAL_LINK = "https://t.me/portals/market?startapp=q7iu6i"
 DEFAULT_MRKT_LINK = "https://t.me/mrkt/app?startapp=7660176383"
 
 # Help system configuration
-HELP_IMAGE_PATH = os.path.join(script_dir, "assets", "help.jpg")
+HELP_IMAGE_PATH = os.path.join(ASSETS_DIR, "help.jpg")
 
 # CDN Configuration
 CDN_BASE_URL = "https://giftschart.the01studio.xyz/api"

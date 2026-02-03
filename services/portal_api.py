@@ -22,12 +22,19 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Get script directory for cross-platform compatibility
-script_dir = os.path.dirname(os.path.abspath(__file__))
+_project_root = os.path.dirname(os.path.abspath(__file__))
+if os.path.basename(_project_root) != 'giftschart':
+    _project_root = os.path.dirname(_project_root)
+if _project_root not in sys.path:
+    sys.path.insert(0, _project_root)
+
+# Import centralized paths
+from config.paths import GIFT_API_RESULTS_LOG, PORTAL_TOKEN_FILE, PORTAL_SESSION_FILE
 
 # Set up detailed logging for API results
 api_logger = logging.getLogger("gift_api_results")
 api_logger.setLevel(logging.INFO)
-api_log_handler = logging.FileHandler(os.path.join(script_dir, "gift_api_results.log"))
+api_log_handler = logging.FileHandler(GIFT_API_RESULTS_LOG)
 api_log_handler.setFormatter(logging.Formatter("%(asctime)s - %(levelname)s - %(message)s"))
 if not any(isinstance(h, logging.FileHandler) and h.baseFilename == api_log_handler.baseFilename for h in api_logger.handlers):
     api_logger.addHandler(api_log_handler)
@@ -45,8 +52,7 @@ API_HASH = os.getenv("PORTAL_API_HASH", "")
 
 
 # Portal API token management
-PORTAL_TOKEN_FILE = os.path.join(script_dir, "portal_auth_token.txt")
-PORTAL_SESSION_STRING_FILE = os.path.join(script_dir, "portal_session_string.txt")
+PORTAL_SESSION_STRING_FILE = PORTAL_SESSION_FILE
 _portal_auth_token = None
 _token_last_refreshed = 0
 TOKEN_REFRESH_INTERVAL = 1920  # 32 minutes in seconds
@@ -57,18 +63,16 @@ MIN_REQUEST_INTERVAL = 0.5  # 500ms between requests
 _rate_limit_until = 0  # Timestamp until which we should wait due to rate limiting
 
 # Try to import Portal API library
-# Force Portal API off to avoid interactive login issues
-PORTAL_API_AVAILABLE = False
-# try:
-#     from aportalsmp.gifts import search as portal_search
-#     from aportalsmp.auth import update_auth
-#     from aportalsmp.classes.Exceptions import requestError, authDataError
-#     PORTAL_API_AVAILABLE = True
-#     logger.info("Portal API (aportalsmp) loaded successfully")
-# except ImportError as e:
-#     PORTAL_API_AVAILABLE = False
-#     logger.error(f"Portal API (aportalsmp) not available: {e}")
-#     logger.error("Please install with: pip install aportalsmp")
+try:
+    from aportalsmp.gifts import search as portal_search
+    from aportalsmp.auth import update_auth
+    from aportalsmp.classes.Exceptions import requestError, authDataError
+    PORTAL_API_AVAILABLE = True
+    logger.info("Portal API (aportalsmp) loaded successfully")
+except ImportError as e:
+    PORTAL_API_AVAILABLE = False
+    logger.error(f"Portal API (aportalsmp) not available: {e}")
+    logger.error("Please install with: pip install aportalsmp")
 
 # Supply data cache for legacy API
 _supply_data_cache = {}
@@ -124,7 +128,7 @@ async def get_fresh_auth_token() -> str:
                 api_logger.info("[Portal Auth] Attempting to use session string...")
                 token = await update_auth(
                     session_string=session_string,
-                    session_path=script_dir,
+                    session_path=_project_root,
                     session_name="account"
                 )
                 if token:
@@ -142,7 +146,7 @@ async def get_fresh_auth_token() -> str:
             token = await update_auth(
                 api_id=API_ID, 
                 api_hash=API_HASH,
-                session_path=script_dir,
+                session_path=_project_root,
                 session_name="account"
             )
             if token:

@@ -14,6 +14,14 @@ import sqlite3
 import requests
 from datetime import datetime, timedelta
 from urllib.parse import quote
+import sys
+
+# Add project root to path for config imports
+_project_root = os.path.dirname(os.path.abspath(__file__))
+if os.path.basename(_project_root) != 'giftschart':
+    _project_root = os.path.dirname(_project_root)
+if _project_root not in sys.path:
+    sys.path.insert(0, _project_root)
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -79,9 +87,9 @@ def clear_price_cache():
     _cache_expiry.clear()
     logger.info("🧹 CLEARED: Price cache cleared")
 
-# Historical price database setup
-script_dir = os.path.dirname(os.path.abspath(__file__))
-PRICE_DB_FILE = os.path.join(script_dir, "sqlite_data", "historical_prices.db")
+# Historical price database setup - using centralized config
+from config.paths import HISTORICAL_PRICES_DB_FILE
+PRICE_DB_FILE = HISTORICAL_PRICES_DB_FILE
 
 def get_legacy_supply_data(gift_name: str) -> Any:
     """Get supply data from Legacy API (kept for compatibility)."""

@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 
 # Import special groups configuration
 try:
-    from bot_config import (
+    from core.bot_config import (
         SPECIAL_GROUPS, DEFAULT_BUY_SELL_LINK, DEFAULT_TONNEL_LINK, DEFAULT_PALACE_LINK, DEFAULT_PORTAL_LINK, DEFAULT_MRKT_LINK
     )
 except ImportError:
@@ -46,7 +46,7 @@ async def callback_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -
             chat_id = update.effective_chat.id
             logger.info(f"Checking rate limit for user {user_id} in chat {chat_id}")
             
-            from rate_limiter import can_user_use_command
+            from core.rate_limiter import can_user_use_command
             can_use, seconds_remaining = can_user_use_command(user_id, chat_id, "premium_button")
             
             if not can_use:
@@ -100,8 +100,15 @@ async def callback_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -
             try:
                 # Get script directory for cross-platform compatibility
                 import os
-                script_dir = os.path.dirname(os.path.abspath(__file__))
-                premium_image_path = os.path.join(script_dir, "assets", "premium.jpg")
+                import sys
+                _project_root = os.path.dirname(os.path.abspath(__file__))
+                if os.path.basename(_project_root) != 'giftschart':
+                    _project_root = os.path.dirname(_project_root)
+                if _project_root not in sys.path:
+                    sys.path.insert(0, _project_root)
+                
+                from config.paths import ASSETS_DIR
+                premium_image_path = os.path.join(ASSETS_DIR, "premium.jpg")
                 
                 # Send photo with promotional message as caption
                 if os.path.exists(premium_image_path):
@@ -123,7 +130,7 @@ async def callback_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -
                 
                 # Register the promotional message as linked to the original message
                 try:
-                    from rate_limiter import register_linked_message
+                    from core.rate_limiter import register_linked_message
                     register_linked_message(user_id, update.effective_chat.id, query.message.message_id, promo_message.message_id)
                 except Exception as reg_e:
                     logger.error(f"Error registering linked message: {reg_e}")
@@ -138,7 +145,7 @@ async def callback_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -
         
         logger.info("Calling handle_premium_button function")
         try:
-            from premium_system import handle_premium_button
+            from core.premium_system import handle_premium_button
             await handle_premium_button(update, context)
             logger.info("handle_premium_button completed successfully")
         except ImportError:
@@ -155,7 +162,7 @@ async def callback_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -
             user_id = update.effective_user.id
             chat_id = update.effective_chat.id
             
-            from rate_limiter import can_user_use_command
+            from core.rate_limiter import can_user_use_command
             can_use, seconds_remaining = can_user_use_command(user_id, chat_id, "premium_info")
             
             if not can_use:
@@ -183,7 +190,7 @@ async def callback_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -
             user_id = update.effective_user.id
             chat_id = update.effective_chat.id
             
-            from rate_limiter import can_user_use_command
+            from core.rate_limiter import can_user_use_command
             can_use, seconds_remaining = can_user_use_command(user_id, chat_id, "cancel_premium")
             
             if not can_use:
@@ -198,7 +205,7 @@ async def callback_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -
             logger.error(f"Error in cancel premium button rate limiting: {e}")
         
         try:
-            from premium_system import handle_premium_cancel
+            from core.premium_system import handle_premium_cancel
             await handle_premium_cancel(update, context)
         except ImportError:
             await query.answer("Premium system not available", show_alert=True)
@@ -216,7 +223,7 @@ async def callback_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -
             user_id = update.effective_user.id
             chat_id = update.effective_chat.id
             
-            from rate_limiter import can_user_use_command
+            from core.rate_limiter import can_user_use_command
             can_use, seconds_remaining = can_user_use_command(user_id, chat_id, "configure_callback")
             
             if not can_use:
@@ -233,10 +240,10 @@ async def callback_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -
         logger.info(f"Handling configure callback: {callback_data}")
         try:
             if callback_data == "edit_done":
-                from telegram_bot import configure_done_handler
+                from core.telegram_bot import configure_done_handler
                 await configure_done_handler(update, context)
             else:
-                from telegram_bot import configure_callback_handler
+                from core.telegram_bot import configure_callback_handler
                 await configure_callback_handler(update, context)
         except ImportError:
             await query.answer("Configure functionality not available", show_alert=True)
@@ -357,7 +364,7 @@ async def callback_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -
         gift_file_name = callback_data[5:]  # Remove "gift_" prefix
         # Convert sanitized callback data back to original gift name
         try:
-            from telegram_bot import desanitize_callback_data
+            from core.telegram_bot import desanitize_callback_data
             gift_name = desanitize_callback_data(gift_file_name)
         except ImportError:
             # Fallback to simple underscore replacement if function not available
@@ -369,7 +376,7 @@ async def callback_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -
         message_id = query.message.message_id
         
         try:
-            from rate_limiter import can_delete_message, get_message_owner
+            from core.rate_limiter import can_delete_message, get_message_owner
             logger.info(f"🔒 Checking ownership for gift button '{callback_data}' - User: {user_id}, Chat: {chat_id}, Message: {message_id}")
             
             is_owner = can_delete_message(user_id, chat_id, message_id)
@@ -407,7 +414,7 @@ async def callback_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -
             else:
                 chat_id = update.effective_chat.id
             
-            from rate_limiter import can_user_request
+            from core.rate_limiter import can_user_request
             can_request, seconds_remaining = can_user_request(user_id, chat_id, gift_name)
             
             if not can_request:
@@ -454,7 +461,7 @@ async def callback_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -
                     logger.error(f"Error updating inline message: {e}")
                 
                 # Generate a fresh gift card with timestamp to ensure it's new
-                from telegram_bot import generate_timestamped_card
+                from core.telegram_bot import generate_timestamped_card
                 card_path = generate_timestamped_card(gift_file_name)
                 
                 if not card_path:
@@ -467,13 +474,13 @@ async def callback_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -
                 
                 # Use CDN URL instead of Catbox
                 CDN_BASE_URL = "https://test.asadffastest.store/api"
-                from telegram_bot import normalize_gift_filename
+                from core.telegram_bot import normalize_gift_filename
                 gift_file_name = normalize_gift_filename(gift_name)
                 image_url = f"{CDN_BASE_URL}/new_gift_cards/{gift_file_name}_card.webp"
                 
                 # Get the gift price data
                 try:
-                    import gift_card_generator
+                    import generators.gift_card_generator as gift_card_generator
                     gift_data = gift_card_generator.fetch_gift_data(gift_name)
                     if gift_data:
                         price_usd = float(gift_data.get("priceUsd", 0))
@@ -531,7 +538,7 @@ async def callback_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -
                 loading_message = await query.message.reply_text(f"📊 Generating price card for {gift_name}...")
                 
                 # Generate the gift card
-                from telegram_bot import generate_gift_price_card
+                from core.telegram_bot import generate_gift_price_card
                 card_path = await generate_gift_price_card(gift_file_name)
                 
                 if not card_path:
@@ -544,7 +551,7 @@ async def callback_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -
                 chat_id = update.effective_chat.id
                 
                 # Check if this is a premium group and use custom links
-                from premium_system import premium_system
+                from core.premium_system import premium_system
                 buy_sell_link = DEFAULT_BUY_SELL_LINK
                 portal_link = None
                 if premium_system.is_group_premium(chat_id):
@@ -577,7 +584,7 @@ async def callback_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -
                 )
                 
                 # Register message ownership in database for delete permission
-                from rate_limiter import register_message
+                from core.rate_limiter import register_message
                 register_message(user_id, chat_id, sent_message.message_id)
                 
                 # Delete the loading message
@@ -609,7 +616,7 @@ async def callback_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -
         gift_file_name = callback_data[13:]  # Remove "gift_markets_" prefix
         # Convert sanitized callback data back to original gift name
         try:
-            from telegram_bot import desanitize_callback_data
+            from core.telegram_bot import desanitize_callback_data
             gift_name = desanitize_callback_data(gift_file_name)
         except ImportError:
             # Fallback to simple underscore replacement if function not available
@@ -621,7 +628,7 @@ async def callback_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -
         message_id = query.message.message_id
         
         try:
-            from rate_limiter import can_delete_message, get_message_owner
+            from core.rate_limiter import can_delete_message, get_message_owner
             logger.info(f"🔒 Checking ownership for gift markets button '{callback_data}' - User: {user_id}, Chat: {chat_id}, Message: {message_id}")
             
             is_owner = can_delete_message(user_id, chat_id, message_id)
@@ -707,7 +714,7 @@ async def callback_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -
         message_id = query.message.message_id
         
         try:
-            from rate_limiter import can_delete_message, get_message_owner
+            from core.rate_limiter import can_delete_message, get_message_owner
             logger.info(f"🔒 Checking ownership for category button '{callback_data}' - User: {user_id}, Chat: {chat_id}, Message: {message_id}")
             
             is_owner = can_delete_message(user_id, chat_id, message_id)
@@ -735,7 +742,7 @@ async def callback_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -
             return
         
         category = callback_data[9:]  # Remove "category_" prefix
-        from telegram_bot import get_gift_keyboard
+        from core.telegram_bot import get_gift_keyboard
         reply_markup = get_gift_keyboard(category)
         
         # Instead of editing the message, send a new message and delete the old one
@@ -757,7 +764,7 @@ async def callback_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -
         message_id = query.message.message_id
         
         try:
-            from rate_limiter import can_delete_message, get_message_owner
+            from core.rate_limiter import can_delete_message, get_message_owner
             logger.info(f"🔒 Checking ownership for page button '{callback_data}' - User: {user_id}, Chat: {chat_id}, Message: {message_id}")
             
             is_owner = can_delete_message(user_id, chat_id, message_id)
@@ -789,7 +796,7 @@ async def callback_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -
         page = int(parts[1])
         category = parts[2] if len(parts) > 2 else None
         
-        from telegram_bot import get_gift_keyboard
+        from core.telegram_bot import get_gift_keyboard
         reply_markup = get_gift_keyboard(category, page)
         
         # Update the text based on whether we're showing a category or all gifts
@@ -815,7 +822,7 @@ async def callback_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -
         message_id = query.message.message_id
         
         try:
-            from rate_limiter import can_delete_message, get_message_owner
+            from core.rate_limiter import can_delete_message, get_message_owner
             logger.info(f"🔒 Checking ownership for back_to_categories button - User: {user_id}, Chat: {chat_id}, Message: {message_id}")
             
             is_owner = can_delete_message(user_id, chat_id, message_id)
@@ -861,7 +868,7 @@ async def callback_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -
         message_id = query.message.message_id
         
         try:
-            from rate_limiter import can_delete_message, get_message_owner
+            from core.rate_limiter import can_delete_message, get_message_owner
             logger.info(f"🔒 Checking ownership for random_gift button - User: {user_id}, Chat: {chat_id}, Message: {message_id}")
             
             is_owner = can_delete_message(user_id, chat_id, message_id)
@@ -919,7 +926,7 @@ async def callback_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -
         message_id = query.message.message_id
         
         try:
-            from rate_limiter import can_delete_message, get_message_owner
+            from core.rate_limiter import can_delete_message, get_message_owner
             logger.info(f"🔒 Checking ownership for show_markets button - User: {user_id}, Chat: {chat_id}, Message: {message_id}")
             
             is_owner = can_delete_message(user_id, chat_id, message_id)
@@ -963,7 +970,7 @@ async def callback_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -
         message_id = query.message.message_id
         
         try:
-            from rate_limiter import can_delete_message, get_message_owner
+            from core.rate_limiter import can_delete_message, get_message_owner
             logger.info(f"🔒 Checking ownership for back_to_main button - User: {user_id}, Chat: {chat_id}, Message: {message_id}")
             
             is_owner = can_delete_message(user_id, chat_id, message_id)

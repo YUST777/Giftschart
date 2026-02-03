@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
 """
-Sticker Price Card Generator
+Goodies Price Card Generator
 
-This script generates sticker price cards using a modern design with the sticker's
-dominant color as background and a white rounded box for content.
-It uses the MRKT API to get real-time price data for stickers.
+This script generates Goodies sticker price cards using the same modern design
+as regular sticker cards (1600x1000). It uses hardcoded price data from MRKT Goodies API.
 """
 
 import os
@@ -19,50 +18,61 @@ import re
 from PIL import Image, ImageDraw, ImageFont, ImageFilter, ImageEnhance, ImageOps
 import numpy as np
 import colorsys
-import stickers_tools_api as sticker_api
 
-# Try to import cairosvg for SVG support (optional)
-try:
-    import cairosvg
-    CAIROSVG_AVAILABLE = True
-except ImportError:
-    CAIROSVG_AVAILABLE = False
-
-# Try to import svglib for fallback SVG support
-try:
-    from svglib.svglib import svg2rlg
-    from reportlab.graphics import renderPM
-    SVGLIB_AVAILABLE = True
-except ImportError:
-    SVGLIB_AVAILABLE = False
-
-# Hardcoded data import removed
-hsd = None
-
-# Import initial sticker data
-# No longer using hardcoded initial data - using API data instead
-sid = None
+# Goodies prices from MRKT API (floor prices in TON)
+GOODIES_PRICES = {
+    ('teddie', 'goodies_intern'): {'price_ton': 225, 'supply': 555},
+    ('teddie', 'teddie_nakamoto'): {'price_ton': 225, 'supply': 333},
+    ('teddie', 'festive_teddie_chaos'): {'price_ton': 225, 'supply': 125},
+    ('oracle_red_bull_racing', 'boxie_pitwall'): {'price_ton': 9, 'supply': 533},
+    ('oracle_red_bull_racing', 'boxie_racer'): {'price_ton': 9, 'supply': 222},
+    ('oracle_red_bull_racing', 'boxie_feels'): {'price_ton': 9, 'supply': 133},
+    ('not_wise', 'not_wise_stonks'): {'price_ton': 11.25, 'supply': 502},
+    ('wsb', 'paper_hands'): {'price_ton': 5.57, 'supply': 969},
+    ('wsb', 'diamond_hands'): {'price_ton': 5.57, 'supply': 696},
+    ('cool_cats', 'cool_cat_react_pack_i'): {'price_ton': 12.38, 'supply': 555},
+    ('cool_cats', 'cool_cat_react_pack_ii'): {'price_ton': 12.38, 'supply': 333},
+    ('doodles', 'icons_awaken'): {'price_ton': 5.17, 'supply': 1111},
+    ('doodles', 'timeless_monsters'): {'price_ton': 5.17, 'supply': 3555},
+    ('moonbirds', 'moonbirds_set_2'): {'price_ton': 18.56, 'supply': 555},
+    ('moonbirds', 'moonbirds_set_2_sketch'): {'price_ton': 18.56, 'supply': 333},
+    ('pudgy_penguins_x_kung_fu_panda', 'grand_master_oogway'): {'price_ton': 6.75, 'supply': 3000},
+    ('pudgy_penguins_x_kung_fu_panda', 'dragon_warrior_po'): {'price_ton': 6.75, 'supply': 6000},
+    ('pudgy_penguins_x_kung_fu_panda', 'master_shifu'): {'price_ton': 6.75, 'supply': 888},
+    ('lamborghini', 'lamborghini_revuelto'): {'price_ton': 7.84, 'supply': 863},
+    ('lamborghini', 'lamborghini_urus'): {'price_ton': 7.84, 'supply': 4000},
+    ('lamborghini', 'lamborghini_temerario'): {'price_ton': 7.84, 'supply': 1500},
+}
 
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
-logger = logging.getLogger('sticker_price_card_generator')
+logger = logging.getLogger('goodies_price_card_generator')
 
 # Get script directory for cross-platform compatibility
-script_dir = os.path.dirname(os.path.abspath(__file__))
+_project_root = os.path.dirname(os.path.abspath(__file__))
+if os.path.basename(_project_root) != 'giftschart':
+    _project_root = os.path.dirname(_project_root)
+if _project_root not in sys.path:
+    sys.path.insert(0, _project_root)
+
+# Import centralized paths
+from config.paths import (
+    PROJECT_ROOT, ASSETS_DIR, STICKER_COLLECTIONS_DIR, 
+    STICKER_PRICE_RESULTS_FILE, MAIN_FONT_PATH, 
+    STICKER_PRICE_CARDS_DIR, CARD_TEMPLATES_DIR
+)
 
 # Constants
-TEMPLATES_DIR = os.path.join(script_dir, "sticker_templates")
-OUTPUT_DIR = os.path.join(script_dir, "Sticker_Price_Cards")
-ASSETS_DIR = os.path.join(script_dir, "assets")
-STICKER_COLLECTIONS_DIR = os.path.join(script_dir, "sticker_collections")
-PRICE_DATA_FILE = os.path.join(script_dir, "sticker_price_results.json")
+TEMPLATES_DIR = CARD_TEMPLATES_DIR
+OUTPUT_DIR = STICKER_PRICE_CARDS_DIR
+PRICE_DATA_FILE = STICKER_PRICE_RESULTS_FILE
 TON_LOGO_PATH = os.path.join(ASSETS_DIR, "TON2.webp")
-TRIANGLE_LOGO_PATH = os.path.join(ASSETS_DIR, "triangle.webp")  # You may need to create this asset
-STAR_LOGO_PATH = os.path.join(ASSETS_DIR, "star.webp")  # Star image for sale price
-FONT_PATH = os.path.join(script_dir, "assets/fonts/Typekiln - EloquiaDisplay-ExtraBold.otf")
+TRIANGLE_LOGO_PATH = os.path.join(ASSETS_DIR, "triangle.webp")
+STAR_LOGO_PATH = os.path.join(ASSETS_DIR, "star.webp")
+FONT_PATH = MAIN_FONT_PATH
 CACHE_MAX_AGE = 1800  # 30 minutes in seconds
 
 # Global variables for tracking cache vs live API usage
@@ -175,10 +185,25 @@ def load_price_data():
         logger.error(f"Error loading price data: {e}")
         return None
 
-def load_icon(filename, size=(60, 60), color=None):
-    """Load icon from assets (WebP/PNG) and optionally colorize it"""
+# Try to import cairosvg for SVG support (optional)
+try:
+    import cairosvg
+    CAIROSVG_AVAILABLE = True
+except ImportError:
+    CAIROSVG_AVAILABLE = False
+
+# Try to import svglib for fallback SVG support
+try:
+    from svglib.svglib import svg2rlg
+    from reportlab.graphics import renderPM
+    SVGLIB_AVAILABLE = True
+except ImportError:
+    SVGLIB_AVAILABLE = False
+
+def load_icon(filename, size, color=None):
+    """Load an icon and resize it, optionally coloring it"""
     try:
-        base_name = os.path.splitext(filename)[0]
+        base_name = filename.rsplit('.', 1)[0]
         
         # Try WebP first, then PNG
         for ext in ['.webp', '.png', '.svg']:
@@ -229,9 +254,7 @@ def load_icon(filename, size=(60, 60), color=None):
             
             if color:
                 # Colorize using alpha mask
-                # Create a solid color image
                 colored = Image.new('RGBA', img.size, (*color, 255))
-                # Apply the alpha channel from the original image
                 colored.putalpha(img.getchannel('A'))
                 return colored
             
@@ -415,7 +438,7 @@ def create_gradient_background(width, height, color):
     return gradient_bg
 
 def generate_price_card(collection, sticker, price, output_dir):
-    """Generate a price card for a sticker using the new modern design"""
+    """Generate a price card for a Goodies sticker using the modern design"""
     try:
         # Normalize names for file operations
         collection_norm = normalize_name(collection)
@@ -423,16 +446,52 @@ def generate_price_card(collection, sticker, price, output_dir):
         # Create output directory if it doesn't exist
         os.makedirs(output_dir, exist_ok=True)
         
-        # Get price info from stickers.tools API
-        price_info = sticker_api.get_sticker_price(collection, sticker, force_refresh=False)
-        if not price_info:
-            logger.warning(f"No price info for {collection} - {sticker}")
-            return None
-        price_ton = price_info['floor_price_ton']
-        price_usd = price_info['floor_price_usd']
-        supply = price_info['supply']
-        initial_supply = price_info.get('initial_supply', 0)
-        init_price_usd = price_info.get('init_price_usd', 0)
+        # Get price info from GOODIES_PRICES keys (as allowlist)
+        price_key = (collection_norm, sticker_norm)
+        
+        # Determine price and supply from live data if available
+        # Load live price data if not passed or global
+        price_ton = None
+        supply = 0
+        
+        # Try to find in live price data
+        price_data = load_price_data()
+        found_live = False
+        
+        if price_data and 'stickers_with_prices' in price_data:
+            for item in price_data['stickers_with_prices']:
+                # Normalize item names for comparison
+                item_coll_norm = normalize_name(item.get('collection', ''))
+                item_sticker_norm = normalize_name(item.get('sticker', ''))
+                
+                if item_coll_norm == collection_norm and item_sticker_norm == sticker_norm:
+                    price_ton = item.get('price', 0)
+                    # supply = item.get('supply', 0) # API might not have supply, check carefully
+                    found_live = True
+                    logger.info(f"Using LIVE price for {collection} - {sticker}: {price_ton} TON")
+                    break
+        
+        # Fallback to hardcoded if not found (but use hardcoded supply anyway as API might miss it)
+        if price_key in GOODIES_PRICES:
+            hardcoded_info = GOODIES_PRICES[price_key]
+            if not found_live:
+                price_ton = hardcoded_info['price_ton']
+                logger.warning(f"Using HARDCODED price for {collection} - {sticker}: {price_ton} TON")
+            
+            # Use hardcoded supply as fallback/default
+            supply = hardcoded_info.get('supply', 0)
+        else:
+            if not found_live:
+                logger.warning(f"No price info for {collection} - {sticker}")
+                return None
+                
+        if price_ton is None:
+             return None
+        
+        # Calculate USD price
+        ton_price_usd = get_ton_price_usd()
+        price_usd = price_ton * ton_price_usd
+        init_price_usd = 0  # Goodies don't have init price
         
         # Find sticker image
         sticker_image_path = find_sticker_image(collection_norm, sticker_norm)
@@ -741,22 +800,39 @@ def generate_all_price_cards(price_data, output_dir):
     logger.info(f"Price card generation complete: {cached_usage} from cache, {live_api_usage} from live API")
 
 def main():
-    """Main function"""
-    parser = argparse.ArgumentParser(description="Generate sticker price cards")
-    parser.add_argument("collection", help="Collection name")
-    parser.add_argument("sticker", help="Sticker name")
-    parser.add_argument("price", type=float, help="Price in TON")
+    """Main function - generates all Goodies price cards"""
+    parser = argparse.ArgumentParser(description="Generate Goodies sticker price cards")
+    parser.add_argument("collection", nargs='?', help="Collection name (optional)")
+    parser.add_argument("sticker", nargs='?', help="Sticker name (optional)")
+    parser.add_argument("price", type=float, nargs='?', help="Price in TON (optional)")
     parser.add_argument("--output-dir", default=OUTPUT_DIR, help="Output directory")
+    parser.add_argument("--all", action="store_true", help="Generate all Goodies cards")
     
     args = parser.parse_args()
     
-    # Generate the price card
-    result = generate_price_card(args.collection, args.sticker, args.price, args.output_dir)
-    
-    if result:
-        print(f"Price card generated: {result}")
+    if args.all or (not args.collection and not args.sticker):
+        # Generate all Goodies cards
+        print(f"Generating all {len(GOODIES_PRICES)} Goodies price cards...")
+        generated = 0
+        for (collection, sticker), info in GOODIES_PRICES.items():
+            result = generate_price_card(collection, sticker, info['price_ton'], args.output_dir)
+            if result:
+                print(f"✅ Generated: {collection}/{sticker}")
+                generated += 1
+            else:
+                print(f"❌ Failed: {collection}/{sticker}")
+        print(f"\nGenerated {generated}/{len(GOODIES_PRICES)} Goodies cards")
     else:
-        print("Failed to generate price card")
+        # Generate single card
+        if not args.collection or not args.sticker:
+            print("Error: Both collection and sticker are required for single card generation")
+            return
+        
+        result = generate_price_card(args.collection, args.sticker, args.price or 0, args.output_dir)
+        if result:
+            print(f"Price card generated: {result}")
+        else:
+            print("Failed to generate price card")
 
 if __name__ == "__main__":
     main() 

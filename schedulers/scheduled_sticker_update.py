@@ -24,16 +24,25 @@ logging.basicConfig(
 logger = logging.getLogger('scheduled_sticker_update')
 
 # Get script directory for cross-platform compatibility
-script_dir = os.path.dirname(os.path.abspath(__file__))
+_project_root = os.path.dirname(os.path.abspath(__file__))
+if os.path.basename(_project_root) != 'giftschart':
+    _project_root = os.path.dirname(_project_root)
+if _project_root not in sys.path:
+    sys.path.insert(0, _project_root)
 
-# Constants - use os.path.join for cross-platform compatibility
-PRICE_DATA_FILE = os.path.join(script_dir, "sticker_price_results.json")
+# Import centralized paths
+from config.paths import (
+    PROJECT_ROOT, STICKER_PRICE_RESULTS_FILE, MRKT_API_DIR
+)
+
+# Constants
+PRICE_DATA_FILE = STICKER_PRICE_RESULTS_FILE
 
 # Path to the scripts
 FETCH_SCRIPT = "fetch_sticker_prices.py"
 GENERATE_CARDS_SCRIPT = "generate_all_sticker_price_cards.py"
 GOODIES_CARDS_SCRIPT = "goodies_price_card_generator.py"
-GIFTS_JSON_SCRIPT = os.path.join(script_dir, "api", "mrkt", "download_gifts_json.py")
+GIFTS_JSON_SCRIPT = os.path.join(MRKT_API_DIR, "download_gifts_json.py")
 
 # Function to check data freshness
 def check_data_freshness():

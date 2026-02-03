@@ -1,4 +1,13 @@
 import os
+import sys
+
+# Add project root to path for config imports
+_project_root = os.path.dirname(os.path.abspath(__file__))
+if os.path.basename(_project_root) != 'giftschart':
+    _project_root = os.path.dirname(_project_root)
+if _project_root not in sys.path:
+    sys.path.insert(0, _project_root)
+
 import random
 from PIL import Image, ImageDraw, ImageFont, ImageColor, ImageStat, ImageEnhance, ImageFilter, ImageOps
 import colorsys
@@ -12,16 +21,20 @@ import math
 import logging
 
 # Import our Portal API module (replaces Tonnel API)
-import portal_api
+import services.portal_api as portal_api
 import asyncio
 
-# Get the directory where the script is located
-script_dir = os.path.dirname(os.path.abspath(__file__))
+# Import centralized paths
+from config.paths import (
+    PROJECT_ROOT, DOWNLOADED_IMAGES_DIR, GIFT_CARDS_DIR, ASSETS_DIR, 
+    PREGENERATED_BACKGROUNDS_DIR, MAIN_FONT_PATH, GIFT_API_RESULTS_LOG,
+    MRKT_API_DIR
+)
 
 # Set up detailed logging for API results and debugging
 api_logger = logging.getLogger("gift_api_results")
 api_logger.setLevel(logging.INFO)
-api_log_handler = logging.FileHandler(os.path.join(script_dir, "gift_api_results.log"))
+api_log_handler = logging.FileHandler(GIFT_API_RESULTS_LOG)
 api_log_handler.setFormatter(logging.Formatter("%(asctime)s - %(levelname)s - %(message)s"))
 if not any(isinstance(h, logging.FileHandler) and h.baseFilename == api_log_handler.baseFilename for h in api_logger.handlers):
     api_logger.addHandler(api_log_handler)
@@ -30,16 +43,16 @@ if not any(isinstance(h, logging.FileHandler) and h.baseFilename == api_log_hand
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
-# Directory paths - use os.path.join to ensure cross-platform compatibility
-input_dir = os.path.join(script_dir, "downloaded_images")
-output_dir = os.path.join(script_dir, "new_gift_cards")
-assets_dir = os.path.join(script_dir, "assets")
-backgrounds_dir = os.path.join(script_dir, "pregenerated_backgrounds")
+# Directory paths - using centralized config
+input_dir = DOWNLOADED_IMAGES_DIR
+output_dir = GIFT_CARDS_DIR
+assets_dir = ASSETS_DIR
+backgrounds_dir = PREGENERATED_BACKGROUNDS_DIR
 background_path = os.path.join(assets_dir, "Background color this.webp")
 white_box_path = os.path.join(assets_dir, "white box.webp")
 ton_logo_path = os.path.join(assets_dir, "TON2.webp")
 star_logo_path = os.path.join(assets_dir, "star.webp")
-font_path = os.path.join(script_dir, "assets/fonts/Typekiln - EloquiaDisplay-ExtraBold.otf")
+font_path = MAIN_FONT_PATH
 
 # Helper function to find image file (tries .webp first, then .png)
 def find_image_file(base_path):
@@ -189,7 +202,11 @@ def apply_color_to_background(background_img, color):
 def load_local_mrkt_data(gift_name):
     """Load price from local gifts_collections.json if API fails"""
     try:
-        json_path = os.path.join(script_dir, "api", "mrkt", "gifts_collections.json")
+        if 'MRKT_API_DIR' in globals():
+            json_path = os.path.join(MRKT_API_DIR, "gifts_collections.json")
+        else:
+             from config.paths import PROJECT_ROOT
+             json_path = os.path.join(PROJECT_ROOT, "api", "mrkt", "gifts_collections.json")
         if not os.path.exists(json_path):
             return None
             
@@ -237,7 +254,7 @@ async def fetch_gift_data(gift_name, force_fresh=False):
     """Fetch gift data using appropriate API based on gift type: MRKT/Quant for plus premarket, Tonnel for premarket, Portal for regular."""
     try:
         # Check if this is a plus premarket gift first
-        from plus_premarket_gifts import is_plus_premarket_gift
+        from services.plus_premarket_gifts import is_plus_premarket_gift
         if is_plus_premarket_gift(gift_name):
             if force_fresh:
                 print(f"[Plus Premarket] 🔥 FORCE FRESH: Using MRKT/Quant API for {gift_name}")
@@ -254,7 +271,7 @@ async def fetch_gift_data(gift_name, force_fresh=False):
                 return None
         
         # Check if this is a regular premarket gift (Tonnel API)
-        import tonnel_api
+        from services import tonnel_api
         # Check if gift_name is one of the values in PREMARKET_GIFTS (display names)
         premarket_key = None
         for key, value in tonnel_api.PREMARKET_GIFTS.items():
@@ -288,7 +305,7 @@ async def fetch_gift_data(gift_name, force_fresh=False):
                 }
             else:
                 print(f"[Premarket] Tonnel API failed for {gift_name}, falling back to Portal API")
-                from portal_api import fetch_gift_data as portal_fetch
+                from services.portal_api import fetch_gift_data as portal_fetch
                 return await portal_fetch(gift_name, is_premarket=False)
         else:
             if force_fresh:
@@ -297,7 +314,7 @@ async def fetch_gift_data(gift_name, force_fresh=False):
                 print(f"[Regular] Using Portal API for {gift_name} (premarket=False)")
             
             # Use Portal API for regular gifts
-            from portal_api import fetch_gift_data as portal_fetch
+            from services.portal_api import fetch_gift_data as portal_fetch
             data = await portal_fetch(gift_name, is_premarket=False)
             
             if data:
@@ -317,7 +334,7 @@ async def fetch_chart_data(gift_name, force_fresh=False):
     """Fetch chart data using appropriate API based on gift type: MRKT/Quant for plus premarket, Legacy API for premarket, Portal API for regular."""
     try:
         # Check if this is a plus premarket gift first
-        from plus_premarket_gifts import is_plus_premarket_gift
+        from services.plus_premarket_gifts import is_plus_premarket_gift
         if is_plus_premarket_gift(gift_name):
             if force_fresh:
                 print(f"[Plus Premarket] 🔥 FORCE FRESH: Using MRKT/Quant API for {gift_name} chart data")
@@ -334,7 +351,7 @@ async def fetch_chart_data(gift_name, force_fresh=False):
                 return []
         
         # Check if this is a regular premarket gift (Tonnel API)
-        import tonnel_api
+        from services import tonnel_api
         # Check if gift_name is one of the values in PREMARKET_GIFTS (display names)
         premarket_key = None
         for key, value in tonnel_api.PREMARKET_GIFTS.items():
@@ -357,7 +374,7 @@ async def fetch_chart_data(gift_name, force_fresh=False):
                 return chart_data
             else:
                 print(f"[Premarket] Legacy API failed for {gift_name} chart, falling back to Portal API")
-                from portal_api import fetch_chart_data as portal_fetch
+                from services.portal_api import fetch_chart_data as portal_fetch
                 return await portal_fetch(gift_name)
         else:
             if force_fresh:
@@ -366,7 +383,7 @@ async def fetch_chart_data(gift_name, force_fresh=False):
                 print(f"[Regular] Using Portal API for {gift_name} chart data (premarket=False)")
             
             # Use Portal API for regular gifts
-            from portal_api import fetch_chart_data as portal_fetch
+            from services.portal_api import fetch_chart_data as portal_fetch
             return await portal_fetch(gift_name)
             
     except Exception as e:
@@ -389,7 +406,7 @@ def calculate_percentage_change(chart_data, gift_name=None):
     try:
         # Check if this is a premarket gift
         if gift_name:
-            import tonnel_api
+            from services import tonnel_api
             # Check if gift_name is one of the values in PREMARKET_GIFTS (display names)
             premarket_key = None
             for key, value in tonnel_api.PREMARKET_GIFTS.items():
@@ -715,12 +732,12 @@ async def create_gift_card(gift_name, output_path=None, force_fresh=False):
     """
     try:
         # Check if this is a plus premarket gift - use sticker-style design
-        from plus_premarket_gifts import is_plus_premarket_gift
+        from services.plus_premarket_gifts import is_plus_premarket_gift
         if is_plus_premarket_gift(gift_name):
             print(f"Creating plus premarket gift card (sticker style) for: {gift_name}")
             
             # Import plus premarket card generator
-            from plus_premarket_card_generator import generate_plus_premarket_card
+            from generators.plus_premarket_card_generator import generate_plus_premarket_card
             import mrkt_quant_api
             
             # Fetch gift data
@@ -728,7 +745,7 @@ async def create_gift_card(gift_name, output_path=None, force_fresh=False):
             
             # If gift_data is None or has $0 price, use first_sale_price as fallback
             if not gift_data or gift_data.get('priceUsd', 0) == 0:
-                from plus_premarket_gifts import get_first_sale_price_stars, get_gift_supply, STAR_TO_USD
+                from services.plus_premarket_gifts import get_first_sale_price_stars, get_gift_supply, STAR_TO_USD
                 from ton_price_utils import get_ton_price_usd
                 
                 first_sale_stars = get_first_sale_price_stars(gift_name)
@@ -757,7 +774,7 @@ async def create_gift_card(gift_name, output_path=None, force_fresh=False):
             return card
         
         # Check if this is a regular premarket gift - use sticker-style design but different API logic
-        from premarket_gifts import is_premarket_gift, is_transitioned_to_market, get_premarket_supply, get_premarket_first_sale_price_stars, STAR_TO_USD
+        from services.premarket_gifts import is_premarket_gift, is_transitioned_to_market, get_premarket_supply, get_premarket_first_sale_price_stars, STAR_TO_USD
         if is_premarket_gift(gift_name):
             print(f"Creating premarket gift card (sticker style) for: {gift_name}")
             
@@ -767,12 +784,12 @@ async def create_gift_card(gift_name, output_path=None, force_fresh=False):
             if transitioned:
                 print(f"[Premarket] {gift_name} has transitioned to market (21+ days), using Portal API")
                 # Use Portal API for normal market gifts
-                from portal_api import fetch_gift_data as portal_fetch
+                from services.portal_api import fetch_gift_data as portal_fetch
                 gift_data = await portal_fetch(gift_name, is_premarket=False)
             else:
                 print(f"[Premarket] {gift_name} is still in premarket (<21 days), using Tonnel API")
                 # Use Tonnel API for premarket gifts - need to find the premarket key
-                import tonnel_api
+                from services import tonnel_api
                 premarket_key = None
                 for key, value in tonnel_api.PREMARKET_GIFTS.items():
                     if value == gift_name:
@@ -799,7 +816,7 @@ async def create_gift_card(gift_name, output_path=None, force_fresh=False):
                     gift_data = None
             
             # Import plus premarket card generator (same design)
-            from plus_premarket_card_generator import generate_plus_premarket_card
+            from generators.plus_premarket_card_generator import generate_plus_premarket_card
             from ton_price_utils import get_ton_price_usd
             
             # Ensure gift_data has the correct format for the card generator
@@ -847,7 +864,7 @@ async def create_gift_card(gift_name, output_path=None, force_fresh=False):
         if force_fresh:
             print(f"🔥 FORCE FRESH MODE: Creating card for {gift_name} with fresh API data")
             # Clear all caches from tonnel_api
-            import tonnel_api
+            from services import tonnel_api
             tonnel_api.clear_all_caches()
         
         print(f"Creating gift card for: {gift_name}")
@@ -1185,7 +1202,7 @@ async def create_gift_card(gift_name, output_path=None, force_fresh=False):
         if supply_count != "N/A" and isinstance(supply_count, (int, float)) and supply_count > 0:
             try:
                 # Get gift image path - handle premarket gifts differently
-                import tonnel_api
+                from services import tonnel_api
                 is_premarket = False
                 for key, value in tonnel_api.PREMARKET_GIFTS.items():
                     if value == gift_name:
@@ -1700,7 +1717,7 @@ async def add_dynamic_elements(gift_name, template_path=None, output_path=None):
         if supply_count != "N/A" and isinstance(supply_count, (int, float)) and supply_count > 0:
             try:
                 # Get gift image path - handle premarket gifts differently
-                import tonnel_api
+                from services import tonnel_api
                 is_premarket = False
                 for key, value in tonnel_api.PREMARKET_GIFTS.items():
                     if value == gift_name:

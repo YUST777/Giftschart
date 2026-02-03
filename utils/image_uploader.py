@@ -1,11 +1,19 @@
 import os
+import sys
 import requests
 import logging
 from typing import Optional
 import time
 
-# Get the directory where the script is located
-script_dir = os.path.dirname(os.path.abspath(__file__))
+# Get script directory for cross-platform compatibility
+_project_root = os.path.dirname(os.path.abspath(__file__))
+if os.path.basename(_project_root) != 'giftschart':
+    _project_root = os.path.dirname(_project_root)
+if _project_root not in sys.path:
+    sys.path.insert(0, _project_root)
+
+# Import centralized paths
+from config.paths import NEW_GIFT_CARDS_DIR
 
 # Configure logging
 logging.basicConfig(
@@ -93,7 +101,7 @@ def get_gift_card_url(gift_name: str) -> Optional[str]:
         normalized_name = gift_name.replace(" ", "_").replace("-", "_").replace("'", "")
     
     # Gift card file path
-    gift_card_path = os.path.join(script_dir, "new_gift_cards", f"{normalized_name}_card.webp")
+    gift_card_path = os.path.join(NEW_GIFT_CARDS_DIR, f"{normalized_name}_card.webp")
     
     # Check if the gift card exists
     if not os.path.exists(gift_card_path):
@@ -126,7 +134,7 @@ if __name__ == "__main__":
         # Otherwise, list all available gift cards
         print("Available gift cards:")
         from glob import glob
-        cards = glob(os.path.join(script_dir, "new_gift_cards", "*_card.webp"))
+        cards = glob(os.path.join(NEW_GIFT_CARDS_DIR, "*_card.webp"))
         for card in cards:
             gift_name = os.path.basename(card).replace("_card.webp", "")
             print(f"- {gift_name}")

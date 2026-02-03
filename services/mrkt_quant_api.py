@@ -12,7 +12,7 @@ import asyncio
 import requests
 import urllib.parse
 from typing import Optional, Dict, Any
-from plus_premarket_gifts import PLUS_PREMARKET_GIFTS, is_mrkt_gift, get_gift_id
+from services.plus_premarket_gifts import PLUS_PREMARKET_GIFTS, is_mrkt_gift, get_gift_id
 
 # Load environment variables
 try:
@@ -530,12 +530,12 @@ async def fetch_chart_data(gift_name: str) -> Optional[list]:
 def _fetch_from_saved_json(gift_id: str, gift_name: str) -> Optional[Dict[str, Any]]:
     """Fetch gift data from saved JSON files as fallback"""
     try:
-        script_dir = os.path.dirname(os.path.abspath(__file__))
+        from config.paths import MRKT_API_DIR, API_DIR
         
         # Check if it's an MRKT gift
         if is_mrkt_gift(gift_id):
             # Try MRKT JSON file
-            mrkt_json_path = os.path.join(script_dir, "api", "mrkt", "gifts_collections.json")
+            mrkt_json_path = os.path.join(MRKT_API_DIR, "gifts_collections.json")
             if os.path.exists(mrkt_json_path):
                 with open(mrkt_json_path, 'r') as f:
                     data = json.load(f)
@@ -561,7 +561,7 @@ def _fetch_from_saved_json(gift_id: str, gift_name: str) -> Optional[Dict[str, A
                             }
         
         # Try Quant JSON file
-        quant_json_path = os.path.join(script_dir, "api", "quant", "quant_api_gifts.json")
+        quant_json_path = os.path.join(API_DIR, "quant", "quant_api_gifts.json")
         if os.path.exists(quant_json_path):
             with open(quant_json_path, 'r') as f:
                 data = json.load(f)

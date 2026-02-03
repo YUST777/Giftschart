@@ -22,14 +22,24 @@ logging.basicConfig(
 logger = logging.getLogger('generate_sticker_price_card')
 
 # Get script directory for cross-platform compatibility
-script_dir = os.path.dirname(os.path.abspath(__file__))
+_project_root = os.path.dirname(os.path.abspath(__file__))
+if os.path.basename(_project_root) != 'giftschart':
+    _project_root = os.path.dirname(_project_root)
+if _project_root not in sys.path:
+    sys.path.insert(0, _project_root)
+
+# Import centralized paths
+from config.paths import (
+    PROJECT_ROOT, CARD_TEMPLATES_DIR, STICKER_METADATA_DIR,
+    STICKER_PRICE_CARDS_DIR, STICKER_PRICE_RESULTS_FILE, MAIN_FONT_PATH
+)
 
 # Constants - use os.path.join for cross-platform compatibility
-TEMPLATES_DIR = os.path.join(script_dir, "sticker_templates")
-METADATA_DIR = os.path.join(script_dir, "sticker_metadata")
-OUTPUT_DIR = os.path.join(script_dir, "Sticker_Price_Cards")
-PRICE_DATA_FILE = os.path.join(script_dir, "sticker_price_results.json")
-FONT_PATH = os.path.join(script_dir, "assets/fonts/Typekiln - EloquiaDisplay-ExtraBold.otf")
+TEMPLATES_DIR = CARD_TEMPLATES_DIR
+METADATA_DIR = STICKER_METADATA_DIR
+OUTPUT_DIR = STICKER_PRICE_CARDS_DIR
+PRICE_DATA_FILE = STICKER_PRICE_RESULTS_FILE
+FONT_PATH = MAIN_FONT_PATH
 
 # TON to USD conversion rate
 # Import TON price utility

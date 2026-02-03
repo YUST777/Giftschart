@@ -3,9 +3,14 @@
 
 import sqlite3
 import time
+import sys
 import os
 import logging
 import datetime
+# Add project root to path for config imports
+_project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if _project_root not in sys.path:
+    sys.path.insert(0, _project_root)
 
 # Integrate premium system for future flexibility (but always enforce rate limit)
 try:
@@ -20,8 +25,9 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# Database file
-DB_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "sqlite_data", "user_requests.db")
+# Import centralized paths
+from config.paths import USER_REQUESTS_DB_FILE
+DB_FILE = USER_REQUESTS_DB_FILE
 
 def ensure_tables_exist():
     """Check if all required tables exist, and create them if they don't."""

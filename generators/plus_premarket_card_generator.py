@@ -14,9 +14,7 @@ import re
 from PIL import Image, ImageDraw, ImageFont
 import numpy as np
 import colorsys
-from plus_premarket_gifts import (
-    PLUS_PREMARKET_GIFTS, get_gift_supply, get_first_sale_price_stars, 
-    STAR_TO_USD, get_gift_id, calculate_days_since_release
+from services.plus_premarket_gifts import PLUS_PREMARKET_GIFTS, get_first_sale_price_stars, get_gift_supply, STAR_TO_USD, get_gift_id, calculate_days_since_release
 )
 
 # Try to import premarket gifts functions (for regular premarket gifts)
@@ -52,16 +50,24 @@ logging.basicConfig(
 logger = logging.getLogger('plus_premarket_card_generator')
 
 # Get script directory
-script_dir = os.path.dirname(os.path.abspath(__file__))
+_project_root = os.path.dirname(os.path.abspath(__file__))
+if os.path.basename(_project_root) != 'giftschart':
+    _project_root = os.path.dirname(_project_root)
+if _project_root not in sys.path:
+    sys.path.insert(0, _project_root)
+
+# Import centralized paths
+from config.paths import (
+    PROJECT_ROOT, ASSETS_DIR, DOWNLOADED_IMAGES_DIR, 
+    MAIN_FONT_PATH, NEW_GIFT_CARDS_DIR
+)
 
 # Constants
-OUTPUT_DIR = os.path.join(script_dir, "new_gift_cards")
-ASSETS_DIR = os.path.join(script_dir, "assets")
-DOWNLOADED_IMAGES_DIR = os.path.join(script_dir, "downloaded_images")
+OUTPUT_DIR = NEW_GIFT_CARDS_DIR
 TON_LOGO_PATH = os.path.join(ASSETS_DIR, "TON2.webp")
 STAR_LOGO_PATH = os.path.join(ASSETS_DIR, "star.webp")
 TIME_ICON_PATH = os.path.join(ASSETS_DIR, "time.svg")
-FONT_PATH = os.path.join(script_dir, "assets/fonts/Typekiln - EloquiaDisplay-ExtraBold.otf")
+FONT_PATH = MAIN_FONT_PATH
 
 # Import TON price utility (not used directly as price_usd comes from API, but available if needed)
 try:

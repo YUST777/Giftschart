@@ -9,11 +9,12 @@ This script:
 """
 
 import os
+import sys
 import json
 import time
 import logging
 from datetime import datetime
-import stickers_tools_api as sticker_api
+import services.stickers_tools_api as sticker_api
 
 # Configure logging
 logging.basicConfig(
@@ -23,9 +24,18 @@ logging.basicConfig(
 logger = logging.getLogger("update_prices")
 
 # Get script directory for cross-platform compatibility
-script_dir = os.path.dirname(os.path.abspath(__file__))
+_project_root = os.path.dirname(os.path.abspath(__file__))
+if os.path.basename(_project_root) != 'giftschart':
+    _project_root = os.path.dirname(_project_root)
+if _project_root not in sys.path:
+    import sys
+    sys.path.insert(0, _project_root)
+
+# Import centralized paths
+from config.paths import STICKER_PRICE_RESULTS_FILE
+
 # Path to the sticker price results file
-PRICE_DATA_FILE = "sticker_price_results.json"
+PRICE_DATA_FILE = STICKER_PRICE_RESULTS_FILE
 
 def load_existing_prices():
     """

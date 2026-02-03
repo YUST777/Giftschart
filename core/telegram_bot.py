@@ -1,6 +1,15 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 import os
+import sys
+
+# Add project root to path for config imports
+_project_root = os.path.dirname(os.path.abspath(__file__))
+if os.path.basename(_project_root) != 'giftschart':
+    _project_root = os.path.dirname(_project_root)
+if _project_root not in sys.path:
+    sys.path.insert(0, _project_root)
+
 import random
 import logging
 import re
@@ -9,7 +18,6 @@ import datetime
 import asyncio
 import socket
 import subprocess
-import sys
 import threading
 import signal
 from difflib import get_close_matches
@@ -21,18 +29,18 @@ from telegram.error import TelegramError, NetworkError
 from urllib.parse import quote
 from httpx import HTTPError, ConnectError, ProxyError
 
+# Import centralized paths
+from config.paths import PROJECT_ROOT, GIFT_CARDS_DIR, ASSETS_DIR, CACHE_DIR
+
 # Import premium system functions
 try:
-    from premium_system import handle_premium_status
+    from core.premium_system import handle_premium_status
 except ImportError:
     handle_premium_status = None
 
-# Get the directory where the script is located
-script_dir = os.path.dirname(os.path.abspath(__file__))
-
 # Import bot configuration
 try:
-    from bot_config import (
+    from core.bot_config import (
         BOT_TOKEN, BOT_USERNAME, RESPOND_TO_ALL_MESSAGES, USE_DIRECT_IP, API_TELEGRAM_IP, SKIP_SSL_VERIFY, SPECIAL_GROUPS,
         DEFAULT_BUY_SELL_LINK, DEFAULT_TONNEL_LINK, DEFAULT_PALACE_LINK, DEFAULT_PORTAL_LINK, DEFAULT_MRKT_LINK,
         HELP_IMAGE_PATH
@@ -51,7 +59,7 @@ except ImportError:
     DEFAULT_PALACE_LINK = "https://t.me/palacenftbot/app?startapp=zOyJPdbc9t"
     DEFAULT_PORTAL_LINK = "https://t.me/portals/market?startapp=q7iu6i"
     DEFAULT_MRKT_LINK = "https://t.me/mrkt/app?startapp=7660176383"
-    HELP_IMAGE_PATH = os.path.join(script_dir, "assets", "help.jpg")
+    HELP_IMAGE_PATH = os.path.join(ASSETS_DIR, "help.jpg")
 
 # Enable logging (with reduced verbosity for HTTP requests)
 logging.basicConfig(
@@ -98,8 +106,8 @@ def desanitize_callback_data(sanitized_text: str) -> str:
     # For general cases, replace underscores with spaces
     return sanitized_text.replace("_", " ")
 
-# Get path to gift cards
-GIFT_CARDS_DIR = os.path.join(script_dir, "new_gift_cards")
+# Get path to gift cards - uses centralized config
+# GIFT_CARDS_DIR is imported from config.paths
 
 # Check for Place Market sticker functionality
 try:
@@ -119,11 +127,24 @@ except ImportError:
     STICKERS_AVAILABLE = False
     logger.warning("Place Market sticker functionality not available")
 
-# Get available gift names from the main.py file
+# Get available gift names
+names = None
+
+# Try importing from bot_config first
 try:
-    from main import names
+    from core.bot_config import names
 except ImportError:
-    # Fallback names list if we can't import from main.py
+    pass
+
+# Try importing from main as fallback
+if not names:
+    try:
+        from main import names
+    except ImportError:
+        pass
+
+# Use hardcoded fallback if imports fail
+if not names:
     names = [
         "Heart Locket", "Lush Bouquet", "Astral Shard", "B-Day Candle", "Berry Box",
         "Big Year", "Bonded Ring", "Bow Tie", "Bunny Muffin", "Candy Cane",
@@ -175,7 +196,7 @@ for name in names:
 # Import the callback handler from the external module
 try:
     # Import the callback handler from the external module
-    from callback_handler import callback_handler as external_callback_handler
+    from core.callback_handler import callback_handler as external_callback_handler
     
     # Create a wrapper function that will use the imported handler
     async def callback_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -218,7 +239,7 @@ try:
         if data.startswith("sticker_"):
             # Handle sticker-related callbacks with the sticker integration
             try:
-                import sticker_integration
+                from services import sticker_integration
                 await sticker_integration.handle_sticker_callback(update, context)
             except ImportError:
                 logger.error("Sticker integration not available")
@@ -267,7 +288,7 @@ except ImportError:
         if query.data.startswith("sticker_"):
             # Handle sticker-related callbacks with the sticker integration
             try:
-                import sticker_integration
+                from services import sticker_integration
                 await sticker_integration.handle_sticker_callback(update, context)
             except ImportError:
                 logger.error("Sticker integration not available")
@@ -626,7 +647,8 @@ def generate_gift_card(gift_file_name):
         logger.info(f"No pre-generated card found for {gift_file_name}, checking timestamp...")
         
         # If card doesn't exist, check if we need to regenerate all cards
-        timestamp_file = os.path.join(script_dir, "last_generation_time.txt")
+        from config.paths import LAST_GENERATION_TIME_FILE
+        timestamp_file = LAST_GENERATION_TIME_FILE
         current_time = int(time.time())
         
         if os.path.exists(timestamp_file):
@@ -640,13 +662,13 @@ def generate_gift_card(gift_file_name):
                 if elapsed_minutes >= 32:
                     logging.info("Cards are stale, triggering regeneration")
                     # Run the pregeneration script in the background
-                    subprocess.Popen([sys.executable, os.path.join(script_dir, "pregenerate_gift_cards.py")])
+                    subprocess.Popen([sys.executable, os.path.join(PROJECT_ROOT, "pregenerate_gift_cards.py")])
             except Exception as e:
                 logging.error(f"Error checking timestamp: {e}")
         else:
             # No timestamp file, trigger regeneration
             logging.info("No timestamp file found, triggering regeneration")
-            subprocess.Popen([sys.executable, os.path.join(script_dir, "pregenerate_gift_cards.py")])
+            subprocess.Popen([sys.executable, os.path.join(PROJECT_ROOT, "pregenerate_gift_cards.py")])
         
         # Try one more time to get the card (it might exist now)
         card_path = get_gift_card_by_name(gift_file_name)
@@ -1004,8 +1026,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     user = update.effective_user
     
     # Get script directory for cross-platform compatibility
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-    video_path = os.path.join(script_dir, "assets", "start.mp4")
+    video_path = os.path.join(ASSETS_DIR, "start.mp4")
     
     welcome_text = (
         f"Hi {user.first_name}! I'm the Telegram Gift Price Bot. ✨\n\n"
@@ -1234,7 +1255,7 @@ async def devs_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
         logger.warning("Rate limiter not available, continuing without rate limiting")
     
     # Get the path to the devs image
-    devs_image_path = os.path.join(script_dir, "assets", "devs.jpg")
+    devs_image_path = os.path.join(ASSETS_DIR, "devs.jpg")
     
     # Check if the image exists
     if os.path.exists(devs_image_path):
@@ -1354,7 +1375,7 @@ async def terms_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
     )
     
     # Send photo with terms text
-    photo_path = os.path.join(script_dir, "assets", "terms.webp")
+    photo_path = os.path.join(ASSETS_DIR, "terms.webp")
     if os.path.exists(photo_path):
         await update.message.reply_photo(
             photo=open(photo_path, 'rb'),
@@ -1442,7 +1463,7 @@ async def refund_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
             refund_text += "\nClick the button below to request a refund for any eligible group."
             
             # Send photo with refund text
-            photo_path = os.path.join(script_dir, "assets", "refund.webp")
+            photo_path = os.path.join(ASSETS_DIR, "refund.webp")
             if os.path.exists(photo_path):
                 await update.message.reply_photo(
                     photo=open(photo_path, 'rb'),
@@ -1465,7 +1486,7 @@ async def refund_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
             refund_text += "\n📞 **Contact Support**: @GiftsChart_Support for assistance."
             
             # Send photo with refund text
-            photo_path = os.path.join(script_dir, "assets", "refund.webp")
+            photo_path = os.path.join(ASSETS_DIR, "refund.webp")
             if os.path.exists(photo_path):
                 await update.message.reply_photo(
                     photo=open(photo_path, 'rb'),
@@ -1854,7 +1875,7 @@ async def inline_query(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
             
             # Load price data to sort by real API prices (similar to stickers)
             import json
-            gift_price_file = os.path.join(script_dir, "gift_price_results.json")
+            gift_price_file = os.path.join(CACHE_DIR, "gift_price_results.json")
             price_data = {}
             if os.path.exists(gift_price_file):
                 try:
@@ -2006,7 +2027,7 @@ async def inline_query(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
                 
                 # Load price data to sort by real API prices
                 import json
-                sticker_price_file = os.path.join(script_dir, "sticker_price_results.json")
+                sticker_price_file = os.path.join(CACHE_DIR, "sticker_price_results.json")
                 price_data = {}
                 if os.path.exists(sticker_price_file):
                     try:
@@ -2895,7 +2916,7 @@ async def configure_command(update: Update, context: ContextTypes.DEFAULT_TYPE) 
         )
         
         # Send photo with configure text
-        photo_path = os.path.join(script_dir, "assets", "configure.webp")
+        photo_path = os.path.join(ASSETS_DIR, "configure.webp")
         if os.path.exists(photo_path):
             await update.message.reply_photo(
                 photo=open(photo_path, 'rb'),
@@ -3193,8 +3214,9 @@ def backup_system_worker():
     
 
     
-    # Paths
-    sqlite_data_dir = os.path.join(script_dir, "sqlite_data")
+    # Paths - using centralized config
+    from config.paths import SQLITE_DATA_DIR
+    sqlite_data_dir = SQLITE_DATA_DIR
     backup_dir = os.path.join(sqlite_data_dir, "backups")
     os.makedirs(backup_dir, exist_ok=True)
     

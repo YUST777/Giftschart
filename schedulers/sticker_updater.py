@@ -16,7 +16,7 @@ import logging
 import json
 import subprocess
 from datetime import datetime
-from sticker_price_card_generator import generate_all_price_cards
+from generators.sticker_price_card_generator import generate_all_price_cards
 
 # Configure logging
 logging.basicConfig(
@@ -29,9 +29,20 @@ logging.basicConfig(
 )
 logger = logging.getLogger("sticker_price_update_and_cardgen")
 
-script_dir = os.path.dirname(os.path.abspath(__file__))
-PRICE_DATA_FILE = os.path.join(script_dir, "sticker_price_results.json")
-OUTPUT_DIR = os.path.join(script_dir, "Sticker_Price_Cards")
+# Get script directory for cross-platform compatibility
+_project_root = os.path.dirname(os.path.abspath(__file__))
+if os.path.basename(_project_root) != 'giftschart':
+    _project_root = os.path.dirname(_project_root)
+if _project_root not in sys.path:
+    sys.path.insert(0, _project_root)
+
+# Import centralized paths
+from config.paths import (
+    PROJECT_ROOT, STICKER_PRICE_RESULTS_FILE, STICKER_PRICE_CARDS_DIR
+)
+
+PRICE_DATA_FILE = STICKER_PRICE_RESULTS_FILE
+OUTPUT_DIR = STICKER_PRICE_CARDS_DIR
 INTERVAL_SECONDS = 32 * 60
 
 # Windows-safe print function
@@ -55,7 +66,8 @@ def fetch_and_save_prices():
         safe_print(f"[TIME] Fetching sticker prices at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
         
         # Run the existing fetch script
-        result = subprocess.run([sys.executable, "fetch_sticker_prices.py"], 
+        fetch_script_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "update_sticker_prices.py")
+        result = subprocess.run([sys.executable, fetch_script_path], 
                                capture_output=True, 
                                text=True,
                                timeout=300)  # 5 minute timeout

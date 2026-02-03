@@ -11,7 +11,7 @@ import sys
 import json
 import logging
 import argparse
-import mrkt_api
+import services.mrkt_api as mrkt_api
 
 # Configure logging
 logging.basicConfig(
@@ -21,10 +21,20 @@ logging.basicConfig(
 logger = logging.getLogger("live_price_card")
 
 # Get script directory for cross-platform compatibility
-script_dir = os.path.dirname(os.path.abspath(__file__))
+_project_root = os.path.dirname(os.path.abspath(__file__))
+if os.path.basename(_project_root) != 'giftschart':
+    _project_root = os.path.dirname(_project_root)
+if _project_root not in sys.path:
+    sys.path.insert(0, _project_root)
+
+# Import centralized paths
+from config.paths import (
+    PROJECT_ROOT, STICKER_PRICE_CARDS_DIR, STICKER_COLLECTIONS_DIR,
+    CARD_TEMPLATES_DIR, MAIN_FONT_PATH
+)
 
 # Constants - use os.path.join for cross-platform compatibility
-OUTPUT_DIR = os.path.join(script_dir, "Sticker_Price_Cards")
+OUTPUT_DIR = STICKER_PRICE_CARDS_DIR
 
 def normalize_filename(name):
     """Normalize filename for file operations"""
@@ -56,7 +66,8 @@ def generate_live_price_card(collection, sticker):
     
     # Import the card generator directly to avoid circular imports
     import importlib.util
-    card_generator_path = os.path.join(script_dir, "sticker_price_card_generator.py")
+    # Use PROJECT_ROOT to locate the generator
+    card_generator_path = os.path.join(PROJECT_ROOT, "sticker_price_card_generator.py")
     spec = importlib.util.spec_from_file_location("card_generator", card_generator_path)
     card_generator = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(card_generator)
@@ -70,7 +81,7 @@ def generate_live_price_card(collection, sticker):
     
     # Find sticker image
     sticker_image_path = None
-    sticker_collections_dir = os.path.join(script_dir, "sticker_collections")
+    sticker_collections_dir = STICKER_COLLECTIONS_DIR
     for root, dirs, files in os.walk(sticker_collections_dir):
         for directory in dirs:
             if directory.lower() == sticker_norm.lower():
