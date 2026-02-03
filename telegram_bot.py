@@ -8,7 +8,6 @@ import time
 import datetime
 import asyncio
 import socket
-import warnings
 import subprocess
 import sys
 import threading

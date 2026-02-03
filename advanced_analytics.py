@@ -2,7 +2,7 @@
 import sqlite3
 import os
 from datetime import datetime, timedelta
-from collections import Counter, defaultdict
+from collections import deque
 
 def advanced_analytics():
     db_path = "/home/yousefmsm1/Desktop/3.7.1/merged_database/merged_user_requests.db"

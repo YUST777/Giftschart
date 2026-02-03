@@ -158,7 +158,6 @@ def generate_goodies_cards():
             print(f"❌ Failed to generate Goodies price cards, error code: {result.returncode}")
             
         return result.returncode == 0, execution_time
-        return result.returncode == 0, execution_time
     except Exception as e:
         logger.error(f"Error generating Goodies price cards: {e}")
         print(f"❌ Error generating Goodies price cards: {e}")
