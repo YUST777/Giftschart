@@ -29,7 +29,7 @@ TEMPLATES_DIR = os.path.join(script_dir, "sticker_templates")
 METADATA_DIR = os.path.join(script_dir, "sticker_metadata")
 OUTPUT_DIR = os.path.join(script_dir, "Sticker_Price_Cards")
 PRICE_DATA_FILE = os.path.join(script_dir, "sticker_price_results.json")
-FONT_PATH = os.path.join(script_dir, "Typekiln - EloquiaDisplay-ExtraBold.otf")
+FONT_PATH = os.path.join(script_dir, "assets/fonts/Typekiln - EloquiaDisplay-ExtraBold.otf")
 
 # TON to USD conversion rate
 # Import TON price utility

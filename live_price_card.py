@@ -109,7 +109,7 @@ def generate_live_price_card(collection, sticker):
         draw = ImageDraw.Draw(card)
         
         # Draw collection and sticker names
-        font_path = os.path.join(script_dir, "Typekiln - EloquiaDisplay-ExtraBold.otf")
+        font_path = os.path.join(script_dir, "assets/fonts/Typekiln - EloquiaDisplay-ExtraBold.otf")
         try:
             font = ImageFont.truetype(font_path, 60)
         except:

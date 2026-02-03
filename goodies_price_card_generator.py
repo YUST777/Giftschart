@@ -63,7 +63,7 @@ PRICE_DATA_FILE = os.path.join(script_dir, "sticker_price_results.json")
 TON_LOGO_PATH = os.path.join(ASSETS_DIR, "TON2.webp")
 TRIANGLE_LOGO_PATH = os.path.join(ASSETS_DIR, "triangle.webp")  # You may need to create this asset
 STAR_LOGO_PATH = os.path.join(ASSETS_DIR, "star.webp")  # Star image for sale price
-FONT_PATH = os.path.join(script_dir, "Typekiln - EloquiaDisplay-ExtraBold.otf")
+FONT_PATH = os.path.join(script_dir, "assets/fonts/Typekiln - EloquiaDisplay-ExtraBold.otf")
 CACHE_MAX_AGE = 1800  # 30 minutes in seconds
 
 # Global variables for tracking cache vs live API usage

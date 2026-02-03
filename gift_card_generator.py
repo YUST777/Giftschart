@@ -39,7 +39,7 @@ background_path = os.path.join(assets_dir, "Background color this.webp")
 white_box_path = os.path.join(assets_dir, "white box.webp")
 ton_logo_path = os.path.join(assets_dir, "TON2.webp")
 star_logo_path = os.path.join(assets_dir, "star.webp")
-font_path = os.path.join(script_dir, "Typekiln - EloquiaDisplay-ExtraBold.otf")
+font_path = os.path.join(script_dir, "assets/fonts/Typekiln - EloquiaDisplay-ExtraBold.otf")
 
 # Helper function to find image file (tries .webp first, then .png)
 def find_image_file(base_path):

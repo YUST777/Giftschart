@@ -61,7 +61,7 @@ DOWNLOADED_IMAGES_DIR = os.path.join(script_dir, "downloaded_images")
 TON_LOGO_PATH = os.path.join(ASSETS_DIR, "TON2.webp")
 STAR_LOGO_PATH = os.path.join(ASSETS_DIR, "star.webp")
 TIME_ICON_PATH = os.path.join(ASSETS_DIR, "time.svg")
-FONT_PATH = os.path.join(script_dir, "Typekiln - EloquiaDisplay-ExtraBold.otf")
+FONT_PATH = os.path.join(script_dir, "assets/fonts/Typekiln - EloquiaDisplay-ExtraBold.otf")
 
 # Import TON price utility (not used directly as price_usd comes from API, but available if needed)
 try:
