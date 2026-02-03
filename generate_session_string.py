@@ -11,6 +11,10 @@ Usage: python3 generate_session_string.py
 import asyncio
 import os
 import sys
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 # Add the current directory to Python path
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -20,10 +24,16 @@ async def generate_session_string():
     try:
         from pyrogram import Client
         
-        API_ID = "22307634"
-        API_HASH = "7ab906fc6d065a2047a84411c1697593"
+        API_ID = os.getenv("PORTAL_API_ID", "")
+        API_HASH = os.getenv("PORTAL_API_HASH", "")
+        
+        if not API_ID or not API_HASH:
+            print("❌ ERROR: PORTAL_API_ID and PORTAL_API_HASH must be set in .env file")
+            return False
+        
         script_dir = os.path.dirname(os.path.abspath(__file__))
         session_file = os.path.join(script_dir, "portal_session_string.txt")
+
         
         print("🔐 Portal API Session String Generator")
         print("=" * 50)

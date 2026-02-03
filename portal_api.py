@@ -16,6 +16,10 @@ import logging
 import requests
 from datetime import datetime, timedelta
 from typing import Optional, Dict, Any
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 # Get script directory for cross-platform compatibility
 script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -35,9 +39,10 @@ logger = logging.getLogger(__name__)
 GIFTS_API = "https://giftcharts-api.onrender.com/gifts"
 CHART_API = "https://giftcharts-api.onrender.com/weekChart?name="
 
-# Portal API credentials
-API_ID = "22307634"
-API_HASH = "7ab906fc6d065a2047a84411c1697593"
+# Portal API credentials - loaded from environment
+API_ID = os.getenv("PORTAL_API_ID", "")
+API_HASH = os.getenv("PORTAL_API_HASH", "")
+
 
 # Portal API token management
 PORTAL_TOKEN_FILE = os.path.join(script_dir, "portal_auth_token.txt")
