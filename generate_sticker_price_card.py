@@ -12,7 +12,7 @@ import json
 import logging
 import argparse
 from PIL import Image, ImageDraw, ImageFont
-import mrkt_api_improved as mrkt_api
+import mrkt_api as mrkt_api
 
 # Configure logging
 logging.basicConfig(

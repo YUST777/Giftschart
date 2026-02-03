@@ -19,9 +19,9 @@ logging.basicConfig(
 )
 logger = logging.getLogger("pregenerate_cards")
 
-# Add parent directory to path to import new_card_design
+# Add parent directory to path to import gift_card_generator
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
-import new_card_design
+import gift_card_generator
 
 # Path for the output cards
 GIFT_CARDS_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "new_gift_cards")
@@ -139,7 +139,7 @@ def generate_card(gift_name):
             output_path = os.path.join(GIFT_CARDS_DIR, f"{normalized_filename}_card.webp")
             
             # Generate the card with force_fresh=True to bypass all caches and provide output_path
-            result = asyncio.run(new_card_design.create_gift_card(gift_name, output_path=output_path, force_fresh=True))
+            result = asyncio.run(gift_card_generator.create_gift_card(gift_name, output_path=output_path, force_fresh=True))
             
             if result:
                 logger.info(f"Successfully generated card for {gift_name} at {output_path}")
@@ -274,7 +274,7 @@ def pregenerate_all_cards_from_templates():
         elif gift_name == 'Durovs Cap':
             gift_name = "Durov's Cap"
         print(f"Generating card for {gift_name} from template...")
-        new_card_design.generate_specific_gift(gift_name)
+        gift_card_generator.generate_specific_gift(gift_name)
 
 def main():
     try:

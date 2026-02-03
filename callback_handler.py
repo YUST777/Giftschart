@@ -473,8 +473,8 @@ async def callback_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -
                 
                 # Get the gift price data
                 try:
-                    import new_card_design
-                    gift_data = new_card_design.fetch_gift_data(gift_name)
+                    import gift_card_generator
+                    gift_data = gift_card_generator.fetch_gift_data(gift_name)
                     if gift_data:
                         price_usd = float(gift_data.get("priceUsd", 0))
                         price_ton = float(gift_data.get("priceTon", 0))

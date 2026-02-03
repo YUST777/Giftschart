@@ -22,9 +22,9 @@ logging.basicConfig(
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 try:
-    import new_card_design
+    import gift_card_generator
 except ImportError as e:
-    logging.error(f'Failed to import new_card_design: {e}')
+    logging.error(f'Failed to import gift_card_generator: {e}')
     sys.exit(1)
 
 # Paths

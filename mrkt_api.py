@@ -20,7 +20,7 @@ logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
-logger = logging.getLogger("mrkt_api_improved")
+logger = logging.getLogger("mrkt_api")
 
 # Global variables for caching
 STICKER_PRICE_CACHE = {}

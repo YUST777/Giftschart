@@ -657,8 +657,8 @@ def generate_gift_card(gift_file_name):
             
         # If we still don't have the card, generate it on demand as a fallback
         logging.info(f"Pre-generated card not found for {gift_file_name}, generating on demand")
-        import new_card_design
-        new_card_design.generate_specific_gift(gift_display_name)
+        import gift_card_generator
+        gift_card_generator.generate_specific_gift(gift_display_name)
         
         # Get the card path using the file_name format
         final_card_path = get_gift_card_by_name(gift_file_name)
@@ -899,9 +899,9 @@ def generate_timestamped_card(gift_file_name):
             normalized_filename = gift_file_name.replace("-", "_").replace("'", "")
         
         # Generate with timestamp suffix to ensure it's fresh
-        import new_card_design
+        import gift_card_generator
         timestamp = int(time.time())
-        output_path = new_card_design.generate_specific_gift(gift_display_name, f"_{timestamp}")
+        output_path = gift_card_generator.generate_specific_gift(gift_display_name, f"_{timestamp}")
         
         return output_path
     except Exception as e:

@@ -11,7 +11,7 @@ import sys
 import json
 import logging
 import argparse
-import mrkt_api_improved
+import mrkt_api
 
 # Configure logging
 logging.basicConfig(
@@ -39,12 +39,12 @@ def normalize_filename(name):
 def generate_live_price_card(collection, sticker):
     """Generate a price card using live data from the MRKT API"""
     # Clear API cache to ensure fresh data
-    mrkt_api_improved.clear_cache()
+    mrkt_api.clear_cache()
     logger.info(f"Generating live price card for {collection} - {sticker}")
     
     # Get live price data
     search_term = f"{collection} {sticker}"
-    price_data = mrkt_api_improved.get_sticker_price(search_term, use_cache=False)
+    price_data = mrkt_api.get_sticker_price(search_term, use_cache=False)
     
     if not price_data or "price" not in price_data:
         logger.error(f"Failed to get price data for {search_term}")
