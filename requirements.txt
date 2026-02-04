@@ -11,7 +11,7 @@ tgcrypto==1.2.5
 telethon==1.36.0
 
 # Image Processing Libraries
-Pillow==10.2.0
+Pillow==12.1.0
 matplotlib==3.6.3
 numpy==1.26.4
 
