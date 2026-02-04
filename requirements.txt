@@ -5,7 +5,7 @@
 # All packages have pre-compiled wheels or are pure Python
 
 # Core Telegram Bot Dependencies
-python-telegram-bot==22.1
+python-telegram-bot==22.6
 pyrogram==2.0.106
 tgcrypto==1.2.5
 telethon==1.36.0
