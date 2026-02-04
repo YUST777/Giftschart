@@ -46,7 +46,7 @@ aportalsmp
 tonnelmp
 
 # Database - Supabase (PostgreSQL)
-psycopg2-binary==2.9.9
+psycopg2-binary==2.9.11
 
 # Build and Distribution Tools (Recommended)
 setuptools>=65.0.0
