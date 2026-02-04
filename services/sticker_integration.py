@@ -10,23 +10,25 @@ import os
 import json
 import logging
 import re
+import time
 from datetime import datetime
 import asyncio
 import functools
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, InputMediaPhoto
 from telegram.ext import ContextTypes
 from difflib import get_close_matches
-from premium_system import premium_system
-from bot_config import DEFAULT_MRKT_LINK, DEFAULT_PALACE_LINK
-import stickers_tools_api as sticker_api
+from core.premium_system import premium_system
+from core.bot_config import DEFAULT_MRKT_LINK, DEFAULT_PALACE_LINK
+from services import stickers_tools_api as sticker_api
 
 # Configure logging
 logger = logging.getLogger(__name__)
 
 # Path to sticker price data and cards
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-STICKER_PRICE_DATA_FILE = os.path.join(SCRIPT_DIR, "sticker_price_results.json")
-STICKER_CARDS_DIR = os.path.join(SCRIPT_DIR, "Sticker_Price_Cards")
+PROJECT_ROOT = os.path.dirname(SCRIPT_DIR)  # Go up one level from services/
+STICKER_PRICE_DATA_FILE = os.path.join(PROJECT_ROOT, "data", "sticker_price_results.json")
+STICKER_CARDS_DIR = os.path.join(PROJECT_ROOT, "Sticker_Price_Cards")
 
 # Sticker keyword mappings for better matching
 STICKER_KEYWORDS = {
@@ -670,6 +672,12 @@ def load_sticker_price_data():
         if os.path.exists(STICKER_PRICE_DATA_FILE):
             with open(STICKER_PRICE_DATA_FILE, 'r') as f:
                 data = json.load(f)
+                
+                # Handle both old format (dict with stickers_with_prices key) and new format (array)
+                if isinstance(data, list):
+                    # New format: convert to old format
+                    data = {"stickers_with_prices": data}
+                
                 logger.info(f"Loaded sticker price data with {len(data.get('stickers_with_prices', []))} entries")
                 return data
         else:
@@ -707,8 +715,9 @@ def get_sticker_card_path(collection, sticker):
             if (time.time() - mtime) > (30 * 60):
                 should_generate = True
                 logger.info(f"Card for {collection} - {sticker} is stale (>30m), regenerating...")
-        except:
-             should_generate = True
+        except (OSError, IOError) as e:
+            logger.warning(f"Error checking file modification time for {filepath}: {e}")
+            should_generate = True
 
     if should_generate:
         try:
@@ -851,7 +860,7 @@ def format_sticker_price_message(sticker_info):
     
     return message
 
-async def send_sticker_card(update: Update, context: ContextTypes.DEFAULT_TYPE, collection, sticker, edit_message_id=None, chat_id=None):
+async def send_sticker_card(update: Update, context: ContextTypes.DEFAULT_TYPE, collection, sticker, edit_message_id=None, chat_id=None, user_id=None):
     """Send a sticker price card with buttons."""
     # Get the card path
     card_path = get_sticker_card_path(collection, sticker)
@@ -865,7 +874,10 @@ async def send_sticker_card(update: Update, context: ContextTypes.DEFAULT_TYPE, 
                 text=error_msg
             )
         else:
-            await update.message.reply_text(error_msg)
+            if update.message:
+                await update.message.reply_text(error_msg)
+            elif update.callback_query:
+                await update.callback_query.answer(error_msg, show_alert=True)
         return
     
     # Get sticker price info from stickers.tools API (run in executor to avoid blocking)
@@ -907,9 +919,13 @@ async def send_sticker_card(update: Update, context: ContextTypes.DEFAULT_TYPE, 
     palace_link = links.get('palace_link') if links and links.get('palace_link') else DEFAULT_PALACE_LINK
 
     # Create keyboard with Buy/Sell and Back to Collections on the same row, then Delete below
+    # Normalize collection and sticker names for callback data (replace spaces with underscores)
+    collection_normalized = collection.replace(" ", "_")
+    sticker_normalized = sticker.replace(" ", "_")
+    
     keyboard = [
         [
-            InlineKeyboardButton("💰 Buy/Sell Stickers", callback_data=f"sticker_markets_{collection}_{sticker}"),
+            InlineKeyboardButton("💰 Buy/Sell Stickers", callback_data=f"sticker_markets_{collection_normalized}_{sticker_normalized}"),
             InlineKeyboardButton("« Back to Collections", callback_data="sticker_collections")
         ],
         [InlineKeyboardButton("🗑️ Delete", callback_data="delete")]
@@ -927,12 +943,12 @@ async def send_sticker_card(update: Update, context: ContextTypes.DEFAULT_TYPE, 
             "supply": price_info.get("supply", 0)
         }
         base_caption = format_sticker_price_message(sticker_info)
-        # Add channel promotion and bot command suggestion
-        caption = f"{base_caption}\n\nJoin @The01Studio\nTry @CollectibleKITbot"
+        # Add channel promotion
+        caption = f"{base_caption}\n\nJoin @The01Studio"
     else:
         base_caption = f"{collection} - {sticker}"
-        # Add channel promotion and bot command suggestion
-        caption = f"{base_caption}\n\nJoin @The01Studio\nTry @CollectibleKITbot"
+        # Add channel promotion
+        caption = f"{base_caption}\n\nJoin @The01Studio"
     
     try:
         # Send or edit the message with the photo
@@ -949,6 +965,17 @@ async def send_sticker_card(update: Update, context: ContextTypes.DEFAULT_TYPE, 
                     ),
                     reply_markup=reply_markup
                 )
+            
+            # Register the new message owner if user_id is provided
+            if user_id:
+                try:
+                    from rate_limiter import register_message
+                    register_message(user_id, chat_id, edit_message_id)
+                    logger.info(f"✅ REGISTERED: Edited sticker card message {edit_message_id} to user {user_id} in chat {chat_id}")
+                except ImportError:
+                    logger.warning("Rate limiter not available, message ownership not registered")
+                except Exception as e:
+                    logger.error(f"Error registering message ownership: {e}")
         else:
             # When sending a new message
             sent_message = await update.message.reply_photo(
@@ -961,8 +988,8 @@ async def send_sticker_card(update: Update, context: ContextTypes.DEFAULT_TYPE, 
             # Register the message owner in the database for delete permission tracking
             try:
                 from rate_limiter import register_message
-                user_id = update.effective_user.id
-                chat_id = update.effective_chat.id
+                user_id = user_id or update.effective_user.id
+                chat_id = chat_id or update.effective_chat.id
                 register_message(user_id, chat_id, sent_message.message_id)
                 logger.info(f"✅ REGISTERED: Sticker card message {sent_message.message_id} to user {user_id} in chat {chat_id}")
             except ImportError:
@@ -980,8 +1007,8 @@ async def send_sticker_card(update: Update, context: ContextTypes.DEFAULT_TYPE, 
                     caption=caption,
                     parse_mode='Markdown'
                 )
-            except:
-                pass
+            except Exception as e2:
+                logger.error(f"Error editing message caption as fallback: {e2}")
 
 def get_sticker_collections():
     """Get list of all available sticker collections."""
@@ -1011,6 +1038,9 @@ def get_sticker_keyboard(collection=None, page=0):
         stickers = get_stickers_in_collection(collection)
         keyboard = []
         
+        # Normalize collection name for callback data
+        collection_normalized = collection.replace(" ", "_")
+        
         # Special pagination for Dogs OG collection (68 stickers)
         if collection == "Dogs OG":
             items_per_page = 12  # 6 rows of 2 stickers each
@@ -1026,7 +1056,9 @@ def get_sticker_keyboard(collection=None, page=0):
             
             row = []
             for i, sticker in enumerate(page_stickers):
-                row.append(InlineKeyboardButton(sticker, callback_data=f"sticker_{collection}_{sticker}"))
+                # Normalize sticker name for callback
+                sticker_normalized = sticker.replace(" ", "_")
+                row.append(InlineKeyboardButton(sticker, callback_data=f"sticker_{collection_normalized}_{sticker_normalized}"))
                 if len(row) == 2:  # Always 2 columns
                     keyboard.append(row)
                     row = []
@@ -1038,9 +1070,9 @@ def get_sticker_keyboard(collection=None, page=0):
             # Add navigation buttons
             nav_row = []
             if page > 0:
-                nav_row.append(InlineKeyboardButton("← Back", callback_data=f"sticker_paginate_{collection.replace(' ', '_')}_{page-1}"))
+                nav_row.append(InlineKeyboardButton("← Back", callback_data=f"sticker_paginate_{collection_normalized}_{page-1}"))
             if page < total_pages - 1:
-                nav_row.append(InlineKeyboardButton("Next →", callback_data=f"sticker_paginate_{collection.replace(' ', '_')}_{page+1}"))
+                nav_row.append(InlineKeyboardButton("Next →", callback_data=f"sticker_paginate_{collection_normalized}_{page+1}"))
             
             if nav_row:
                 keyboard.append(nav_row)
@@ -1052,7 +1084,9 @@ def get_sticker_keyboard(collection=None, page=0):
             # Regular handling for other collections
             row = []
             for i, sticker in enumerate(stickers):
-                row.append(InlineKeyboardButton(sticker, callback_data=f"sticker_{collection}_{sticker}"))
+                # Normalize sticker name for callback
+                sticker_normalized = sticker.replace(" ", "_")
+                row.append(InlineKeyboardButton(sticker, callback_data=f"sticker_{collection_normalized}_{sticker_normalized}"))
                 if len(row) == 2 or i == len(stickers) - 1:
                     keyboard.append(row)
                     row = []
@@ -1297,13 +1331,35 @@ async def handle_sticker_callback(update: Update, context: ContextTypes.DEFAULT_
             await query.answer("Error loading page", show_alert=True)
     elif data.startswith("sticker_"):
         # Show specific sticker
-        parts = data.split("_", 2)
-        if len(parts) >= 3:
-            collection = parts[1]
-            sticker = parts[2]
+        # Format: sticker_<collection>_<sticker>
+        # Need to handle collection and sticker names that may contain underscores
+        prefix = "sticker_"
+        remaining = data[len(prefix):]
+        
+        # Try to split and match against known collections
+        sticker_data = load_sticker_price_data()
+        collections_list = list(set(item["collection"] for item in sticker_data.get("stickers_with_prices", [])))
+        
+        # Find the matching collection
+        collection = None
+        sticker = None
+        
+        for coll in collections_list:
+            # Normalize collection name for callback (replace spaces with underscores)
+            coll_normalized = coll.replace(" ", "_")
+            if remaining.startswith(coll_normalized + "_"):
+                collection = coll
+                sticker = remaining[len(coll_normalized) + 1:]  # +1 for the underscore
+                break
+        
+        if collection and sticker:
             await send_sticker_card(update, context, collection, sticker, 
                                   edit_message_id=query.message.message_id, 
-                                  chat_id=query.message.chat_id)
+                                  chat_id=query.message.chat_id,
+                                  user_id=user_id)
+        else:
+            logger.error(f"Could not parse sticker callback data: {data}")
+            await query.answer("Error loading sticker", show_alert=True)
 
 # Check if sticker functionality is available
 def is_sticker_functionality_available():

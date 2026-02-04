@@ -17,16 +17,18 @@ logger = logging.getLogger(__name__)
 # Import special groups configuration
 try:
     from core.bot_config import (
-        SPECIAL_GROUPS, DEFAULT_BUY_SELL_LINK, DEFAULT_TONNEL_LINK, DEFAULT_PALACE_LINK, DEFAULT_PORTAL_LINK, DEFAULT_MRKT_LINK
+        SPECIAL_GROUPS, DEFAULT_BUY_SELL_LINK, DEFAULT_TONNEL_LINK, DEFAULT_PALACE_LINK, 
+        DEFAULT_PORTAL_LINK, DEFAULT_MRKT_LINK, DEFAULT_REFERRAL_ID
     )
 except ImportError:
     # Default values if config file is missing
+    DEFAULT_REFERRAL_ID = "7660176383"
     SPECIAL_GROUPS = {}
-    DEFAULT_BUY_SELL_LINK = "https://t.me/tonnel_network_bot/gifts?startapp=ref_7660176383"
-    DEFAULT_TONNEL_LINK = "https://t.me/tonnel_network_bot/gifts?startapp=ref_7660176383"
+    DEFAULT_BUY_SELL_LINK = f"https://t.me/tonnel_network_bot/gifts?startapp=ref_{DEFAULT_REFERRAL_ID}"
+    DEFAULT_TONNEL_LINK = f"https://t.me/tonnel_network_bot/gifts?startapp=ref_{DEFAULT_REFERRAL_ID}"
     DEFAULT_PALACE_LINK = "https://t.me/palacenftbot/app?startapp=zOyJPdbc9t"
     DEFAULT_PORTAL_LINK = "https://t.me/portals/market?startapp=q7iu6i"
-    DEFAULT_MRKT_LINK = "https://t.me/mrkt/app?startapp=7660176383"
+    DEFAULT_MRKT_LINK = f"https://t.me/mrkt/app?startapp={DEFAULT_REFERRAL_ID}"
 
 async def callback_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Handle callback queries."""
@@ -570,10 +572,10 @@ async def callback_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -
                 # Create caption based on premium status
                 if premium_system.is_group_premium(chat_id):
                     # Premium groups: show gift name + pro tip
-                    caption = f"{gift_name}\n\nJoin @The01Studio\nTry @CollectibleKITbot"
+                    caption = f"{gift_name}\n\nJoin @The01Studio"
                 else:
                     # Non-premium groups: show gift name + promotional text + sticker promotion
-                    caption = f"{gift_name}\n\nJoin @The01Studio\nTry @CollectibleKITbot"
+                    caption = f"{gift_name}\n\nJoin @The01Studio"
                 
                 # Send the photo with the appropriate keyboard
                 sent_message = await query.message.reply_photo(
@@ -607,8 +609,8 @@ async def callback_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -
                     )
                 else:
                     await query.message.reply_text(f"❌ Error generating price card: {e}")
-            except:
-                pass
+            except Exception as e2:
+                logger.error(f"Error sending error message to user: {e2}")
     
     # Handle gift markets button (Buy/Sell Gifts)
     elif callback_data.startswith("gift_markets_"):
@@ -1005,8 +1007,9 @@ async def callback_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -
         from rate_limiter import get_message_owner
         try:
             message_owner_id = get_message_owner(chat_id, query.message.message_id)
-        except:
+        except Exception as e:
             # Fallback to current user if we can't determine the owner
+            logger.warning(f"Could not determine message owner, using current user: {e}")
             message_owner_id = update.effective_user.id
         
         links = premium_system.get_premium_links(chat_id)

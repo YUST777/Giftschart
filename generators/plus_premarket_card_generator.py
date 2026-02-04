@@ -15,7 +15,6 @@ from PIL import Image, ImageDraw, ImageFont
 import numpy as np
 import colorsys
 from services.plus_premarket_gifts import PLUS_PREMARKET_GIFTS, get_first_sale_price_stars, get_gift_supply, STAR_TO_USD, get_gift_id, calculate_days_since_release
-)
 
 # Try to import premarket gifts functions (for regular premarket gifts)
 try:

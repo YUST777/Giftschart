@@ -1,4 +1,5 @@
 *.log
+logs/
 *.session
 *.db
 __pycache__/
@@ -28,6 +29,10 @@ portal_session_string.txt
 last_generation.txt
 last_generation_time.txt
 backup_info.txt
+
+# Temporary/Ghost files
+cleanup_project.py
+missing_*.txt
 
 # System
 .vscode/

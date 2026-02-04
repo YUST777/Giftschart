@@ -1,822 +1,405 @@
-# 🎁 Telegram Gift & Sticker Bot - Complete System Documentation
+<p align="center">
+  <img src="assets/giftschartbanner.jpg" alt="GiftsChart Banner" width="100%">
+</p>
 
-## 📋 Table of Contents
-- [System Overview](#system-overview)
-- [Architecture Diagram](#architecture-diagram)
-- [Core Components](#core-components)
-- [API Integrations](#api-integrations)
-- [Premium System](#premium-system)
-- [Data Storage](#data-storage)
-- [Installation & Setup](#installation--setup)
-- [Usage Guide](#usage-guide)
-- [Admin Functions](#admin-functions)
-- [Recent Updates](#recent-updates)
-- [Troubleshooting](#troubleshooting)
+<div align="center">
 
----
+# GiftsChart Bot
 
-## 🏗️ System Overview
+### Every NFT Has a Price. Know It Live.
 
-The Telegram Gift Bot is a comprehensive gift card and sticker management system built for the Telegram platform. It provides real-time pricing, dynamic card generation, premium subscriptions, and extensive admin capabilities.
+<br/>
 
-### Key Features:
-- **Real-time Gift Pricing** via Portal API integration
-- **Dynamic Card Generation** with 77+ gift designs
-- **Premium Subscription System** with Telegram Stars payments
-- **Sticker Management** with multiple collections
-- **Rate Limiting & Security** for user protection
-- **Admin Dashboard** with comprehensive analytics
-- **Multi-Admin Support** for team management
+[![Telegram Bot](https://img.shields.io/badge/Telegram-@GiftsChartBot-2CA5E0?style=for-the-badge&logo=telegram&logoColor=white)](https://t.me/GiftsChartBot)
+[![Python](https://img.shields.io/badge/Python-3.12+-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
+[![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)](LICENSE)
+[![Status](https://img.shields.io/badge/Status-Production-success?style=for-the-badge)](https://t.me/GiftsChartBot)
+[![Community](https://img.shields.io/badge/Community-@The01Studio-blueviolet?style=for-the-badge&logo=telegram)](https://t.me/The01Studio)
 
----
+</div>
 
-## 🗺️ Architecture Diagram
+<br/>
 
-```mermaid
-graph TB
-    subgraph "User Interface"
-        A[Telegram Users] --> B[Main Bot Interface]
-        B --> C[Gift Card Requests]
-        B --> D[Sticker Requests]
-        B --> E[Premium Commands]
-        B --> F[Admin Commands]
-    end
+<div align="center">
+  <video src="assets/giftschart.mp4" width="800" controls>
+    Your browser does not support the video tag.
+  </video>
+  <br>
+  <p><i>👆 See GiftsChart in action</i></p>
+</div>
 
-    subgraph "Core Bot System"
-        B --> G[telegram_bot.py<br/>Main Bot Logic<br/>2453 lines]
-        G --> H[callback_handler.py<br/>Button Interactions]
-        G --> I[bot_config.py<br/>Configuration]
-    end
+<br/>
 
-    subgraph "Premium System"
-        E --> J[premium_system.py<br/>Payment Processing<br/>1613 lines]
-        J --> K[Telegram Stars API]
-        J --> L[SQLite Premium DB]
-        J --> M[Refund System]
-    end
-
-    subgraph "Gift Card System"
-        C --> N[Gift Card Generation]
-        N --> O[new_card_design.py<br/>Card Creation<br/>Dynamic Pricing]
-        N --> P[Card Templates<br/>77+ Designs]
-        N --> Q[Real-time Pricing<br/>Portal API]
-        O --> R[Generated Cards<br/>PNG Files]
-    end
-
-    subgraph "Sticker System"
-        D --> S[sticker_integration.py<br/>Sticker Management<br/>1167 lines]
-        S --> T[Sticker Collections<br/>Multiple Packs]
-        S --> U[Price Cards Generation]
-        S --> V[Metadata Management]
-    end
-
-    subgraph "Rate Limiting & Security"
-        G --> W[rate_limiter.py<br/>Request Tracking]
-        W --> X[User Request DB<br/>Per-minute Limits]
-        W --> Y[Message Ownership<br/>Secure Deletion]
-    end
-
-    subgraph "Admin & Monitoring"
-        F --> Z[admin_dashboard.py<br/>Analytics Dashboard<br/>924 lines]
-        Z --> AA[System Health<br/>CPU, Memory, APIs]
-        Z --> AB[Usage Statistics<br/>Premium Analytics]
-        Z --> AC[Refund Management]
-    end
-
-    subgraph "APIs & External Services"
-        Q --> AD[Portal API<br/>Gift Prices]
-        O --> AE[MRKT API<br/>Market Data]
-        J --> AF[Telegram Payment API<br/>Stars Processing]
-        Z --> AG[System Monitoring<br/>Network & Performance]
-    end
-
-    subgraph "Data Storage"
-        L --> AH[(premium_subscriptions.db<br/>SQLite)]
-        X --> AI[(user_requests.db<br/>Rate Limiting)]
-        AB --> AJ[(analytics.db<br/>Usage Data)]
-        T --> AK[JSON Metadata<br/>Card & Sticker Info]
-    end
-```
+> [!TIP]
+> **New!** Premium features now include custom referral links, branded price cards, and priority support. Get started with just 99★ for 30 days!
 
 ---
 
-## 🔧 Core Components
+## 🎯 Overview
 
-### 1. **Main Bot Engine** (`telegram_bot.py` - 2,453 lines)
-**Purpose**: Central bot logic handling all user interactions and command routing.
+GiftsChart is a powerful Telegram bot that brings **live NFT price tracking** to your fingertips. Every TON gift and sticker has a price—now you can know it instantly, right in Telegram.
 
-**Key Functions:**
-- User message processing and command handling
-- Gift card generation requests
-- Sticker price card requests
-- Premium subscription management
-- Admin command routing
-- Rate limiting enforcement
-- Message timestamp filtering (prevents old message processing)
+**Every NFT Has a Price. Know It Live.**
 
-**Key Features:**
-```python
-# Timestamp filtering to prevent backlog processing
-def is_message_too_old(update: Update, max_age_seconds: int = 300) -> bool:
-    """Check if message is too old to process (5-minute threshold)"""
-    
-# Multi-admin support
-ADMIN_USER_IDS = [800092886, 6529233780]
+Get instant price cards with real-time market data, supply information, and direct marketplace links—all without leaving Telegram.
 
-# Rate limiting integration
-@rate_limit(requests_per_minute=5)
-async def handle_gift_request(update: Update, context: ContextTypes.DEFAULT_TYPE):
-```
-
-### 2. **Premium System** (`premium_system.py` - 1,613 lines)
-**Purpose**: Handles Telegram Stars payments, subscription management, and refunds.
-
-**Key Functions:**
-- Telegram Stars payment processing
-- Subscription status tracking
-- Automatic refund handling
-- Premium feature access control
-- Payment history management
-
-**Database Schema:**
-```sql
--- Premium subscriptions table
-CREATE TABLE premium_subscriptions (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    owner_id INTEGER NOT NULL,
-    group_id INTEGER NOT NULL,
-    payment_id TEXT NOT NULL,
-    stars_amount INTEGER NOT NULL,
-    mrkt_link TEXT,
-    palace_link TEXT,
-    tonnel_link TEXT,
-    portal_link TEXT,
-    created_at INTEGER NOT NULL,
-    expires_at INTEGER,
-    is_active BOOLEAN DEFAULT 1,
-    UNIQUE(owner_id, group_id)
-);
-
--- Payment history
-CREATE TABLE payment_history (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    owner_id INTEGER NOT NULL,
-    payment_id TEXT NOT NULL,
-    stars_amount INTEGER NOT NULL,
-    status TEXT NOT NULL,
-    created_at INTEGER NOT NULL
-);
-
--- Pending payments
-CREATE TABLE pending_payments (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    owner_id INTEGER NOT NULL,
-    payment_id TEXT NOT NULL,
-    stars_amount INTEGER NOT NULL,
-    created_at INTEGER NOT NULL,
-    expires_at INTEGER NOT NULL
-);
-```
-
-### 3. **Gift Card Generation** (`new_card_design.py`)
-**Purpose**: Dynamic gift card creation with real-time pricing and supply data.
-
-**Key Features:**
-- **Portal API Integration**: Primary data source for gift pricing
-- **Legacy API Fallback**: Backup data source when Portal API fails
-- **Supply Data Caching**: Efficient supply information retrieval
-- **Dynamic Pricing**: Real-time price updates with USD/TON conversion
-- **Template System**: 77+ pre-designed card templates
-- **Async Processing**: Non-blocking card generation
-
-**API Integration Pattern:**
-```python
-# Portal API (Primary) → Legacy API (Fallback) → Cache
-async def fetch_gift_data(gift_name: str) -> Optional[Dict[str, Any]]:
-    # Try Portal API first
-    auth_token = await update_auth(api_id=API_ID, api_hash=API_HASH)
-    results = await portal_search(gift_name=gift_name, authData=auth_token, sort="price_asc", limit=5)
-    
-    # Fallback to legacy API if Portal fails
-    if not results:
-        return await _fetch_from_legacy_api(gift_name)
-```
-
-### 4. **Sticker Integration** (`sticker_integration.py` - 1,167 lines)
-**Purpose**: Comprehensive sticker collection management and price card generation.
-
-**Key Features:**
-- Multiple sticker collections (Azuki, BabyDoge, Blum, etc.)
-- Dynamic price card generation
-- Metadata management
-- Collection-specific pricing
-- Bulk processing capabilities
-
-**Collections Supported:**
-- Azuki, BabyDoge, Blum, Bored Ape Originals
-- Bored Stickers, Cattea Life, Dogs OG
-- Doodles, Flappy Bird, Kudai, Lazy and Rich
-- Lil Pudgys, Lost Dogs, Not Pixel, Notcoin
-- PUCCA, Pudgy and Friends, Ric Flair
-- Smeshariki, SUNDOG, WAGMI HUB
-
-### 5. **Rate Limiting System** (`rate_limiter.py`)
-**Purpose**: Protects the system from abuse and ensures fair usage.
-
-**Key Features:**
-- Per-user request tracking
-- Configurable rate limits (default: 5 requests/minute)
-- Message ownership tracking for secure deletion
-- Command-specific rate limiting
-- Database persistence for tracking
+**Key Capabilities:**
+- 🎁 **Gift Price Cards**: Track 93+ TON gifts with live prices from Portal API
+- 🎭 **Sticker Price Cards**: Monitor 218+ sticker collections from Stickers.tools
+- 💎 **Premium Features**: Custom referral links and branded cards for groups
+- ⚡ **Lightning Fast**: Cached responses with 30-minute refresh cycles
+- 🔒 **Spam Protection**: Built-in rate limiting and ownership verification
+- 📊 **Live Data**: Real-time prices from Portal, MRKT, and Stickers.tools APIs
 
 ---
 
-## 🔌 API Integrations
+## ✨ Features
 
-### Portal API Integration (Primary)
-**Status**: ✅ **FULLY IMPLEMENTED**
+### 🎁 Gift Tracking
+Track any TON gift instantly. Just type the gift name in any chat:
 
-The system now uses Portal API as the primary data source with comprehensive integration:
+- **Live Prices**: Real-time TON and USD prices
+- **Supply Data**: Current and initial supply information
+- **Market Links**: Direct links to Portal, MRKT, Tonnel, and Palace
+- **Beautiful Cards**: Auto-generated cards with gift images and gradients
+- **Smart Matching**: Fuzzy search finds gifts even with typos
 
-#### Features:
-- **Automatic Authentication**: Tokens refresh every hour
-- **Rate Limiting**: 500ms intervals between requests
-- **Error Handling**: Robust retry logic with fallbacks
-- **Market Auth Tokens**: Generates tokens in user-specified format
+### 🎭 Sticker Collections
+Browse and track 218+ sticker collections:
 
-#### Implementation:
-```python
-# Portal API Integration Pattern
-async def fetch_gift_data(gift_name: str) -> Optional[Dict[str, Any]]:
-    try:
-        # Apply rate limiting
-        await apply_request_rate_limiting()
-        
-        # Get auth token
-        auth_token = await get_auth_token()
-        
-        # Fetch data from Portal API
-        results = await portal_search(
-            gift_name=gift_name, 
-            authData=auth_token, 
-            sort="price_asc", 
-            limit=5
-        )
-        
-        if results:
-            return process_portal_results(results)
-        else:
-            # Fallback to legacy API
-            return await fetch_from_legacy_api(gift_name)
-            
-    except Exception as e:
-        if "429" in str(e):
-            await handle_rate_limiting()
-        return await fetch_from_legacy_api(gift_name)
-```
+- **Collection Browser**: Organized by collection with pagination
+- **Price Tracking**: Floor prices in TON and USD
+- **Supply Info**: Track availability and rarity
+- **Marketplace Links**: Quick access to MRKT and Palace
+- **Preview Images**: High-quality sticker previews
 
-#### Market Auth Token Format:
-```json
-{
-  "token": "880525e2-8b49-4f8e-8b2f-77258f19483e",
-  "isFirstTime": false,
-  "giftId": null,
-  "stickerId": null
-}
-```
+### 💎 Premium System
+Unlock advanced features for your group:
 
-### Legacy API (Fallback)
-**Status**: ✅ **ACTIVE FALLBACK**
+- **Custom Referral Links**: Add your own MRKT, Palace, Tonnel, and Portal links
+- **Branded Cards**: Your links appear on all price cards in your group
+- **Priority Support**: Get help faster
+- **No Ads**: Clean, distraction-free experience
+- **30-Day Access**: Just 99★ (Telegram Stars)
+- **3-Day Refund**: Full refund within 3 days if not satisfied
 
-Used when Portal API fails or for supply data:
-- Supply information retrieval
-- Chart data generation
-- Backup pricing data
-
-### Telegram Stars API
-**Status**: ✅ **FULLY INTEGRATED**
-
-For premium subscription payments:
-- Secure payment processing
-- Automatic refund handling
-- Payment verification
+### 🛡️ Security & Performance
+- **Rate Limiting**: Prevents spam and abuse
+- **Message Ownership**: Only requesters can use buttons
+- **Cached Data**: Fast responses with smart cache invalidation
+- **Error Handling**: Graceful degradation when APIs are down
+- **Database Backup**: Automatic Supabase backups every 6 hours
 
 ---
 
-## ⭐ Premium System
+## 🏗️ System Architecture
 
-### Overview
-The premium system allows group owners to purchase premium subscriptions for their groups, enabling custom referral links and enhanced features.
-
-### Features Implemented
-
-#### 1. Telegram Stars Payment Integration
-- ✅ Proper `sendInvoice` implementation with XTR currency
-- ✅ Pre-checkout query handling with `answerPreCheckoutQuery`
-- ✅ Successful payment handling with `successful_payment` updates
-- ✅ Payment verification and database management
-- ✅ 30-minute payment expiration for security
-
-#### 2. Premium Command
-- ✅ `/premium` command for private chat access
-- ✅ Automatic private chat requirement enforcement
-- ✅ Integration with existing bot command system
-
-#### 3. Payment Flow
-1. User clicks "💫 Get Premium" button or uses `/premium` command
-2. Bot sends invoice with 1 Telegram Star price (test mode)
-3. User completes payment through Telegram's payment system
-4. Bot receives successful payment confirmation
-5. Group setup flow begins automatically
-
-#### 4. Group Setup Flow
-- ✅ Step-by-step guided setup process
-- ✅ Group ID validation (must start with -100)
-- ✅ Custom referral link collection for all 4 platforms
-- ✅ Data validation and error handling
-- ✅ 30-day subscription period
-
-#### 5. Premium Features
-- ✅ Custom referral links for groups
-- ✅ Premium status checking
-- ✅ User premium group management
-- ✅ Premium keyboard generation
-- ✅ Integration with gift card display
-
-### Gift Card Caption System
-
-#### Non-Premium Groups
-- **Caption Format**: `🎁 {gift_name}\n\nJoin our channel for the latest updates @giftsChart`
-- **Example**: 
-  ```
-  🎁 Tama Gadget
-  
-  Join our channel for the latest updates @giftsChart
-  ```
-
-#### Premium Groups  
-- **Caption Format**: `🎁 {gift_name}`
-- **Example**: 
-  ```
-  🎁 Tama Gadget
-  ```
-
-### Refund System
-- **3-Day Window**: Refunds only available within 3 days of purchase
-- **One-Time Policy**: Each group can only be refunded once
-- **Automatic Processing**: Refunds are processed immediately through Telegram Stars API
-- **Instant Refunds**: Users receive their Telegram Stars back immediately upon request
-- **User Interface**: Users can request refunds via `/refund` command with interactive buttons
-
----
-
-## 💾 Data Storage
-
-### Database Schema
-
-#### Rate Limiter Database (`user_requests.db`)
-```sql
--- User gift requests tracking
-CREATE TABLE user_requests (
-    user_id INTEGER,
-    chat_id INTEGER,
-    gift_name TEXT,
-    timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY (user_id, chat_id, gift_name)
-);
-
--- Command usage tracking
-CREATE TABLE command_requests (
-    user_id INTEGER,
-    chat_id INTEGER,
-    command_name TEXT,
-    minute INTEGER,
-    timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY (user_id, chat_id, command_name)
-);
-
--- Message ownership for secure deletion
-CREATE TABLE message_owners (
-    user_id INTEGER,
-    chat_id INTEGER,
-    message_id INTEGER,
-    timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY (user_id, chat_id, message_id)
-);
 ```
-
-#### Premium System Database (`premium_subscriptions.db`)
-```sql
--- Premium subscriptions
-CREATE TABLE premium_subscriptions (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    owner_id INTEGER NOT NULL,
-    group_id INTEGER NOT NULL,
-    payment_id TEXT NOT NULL,
-    telegram_payment_charge_id TEXT,
-    stars_amount INTEGER NOT NULL,
-    mrkt_link TEXT,
-    palace_link TEXT,
-    tonnel_link TEXT,
-    portal_link TEXT,
-    created_at INTEGER NOT NULL,
-    expires_at INTEGER,
-    is_active BOOLEAN DEFAULT 1,
-    UNIQUE(owner_id, group_id)
-);
-
--- Payment history
-CREATE TABLE payment_history (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    owner_id INTEGER NOT NULL,
-    payment_id TEXT NOT NULL,
-    stars_amount INTEGER NOT NULL,
-    status TEXT NOT NULL,
-    created_at INTEGER NOT NULL
-);
-
--- Pending payments
-CREATE TABLE pending_payments (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    owner_id INTEGER NOT NULL,
-    payment_id TEXT NOT NULL,
-    stars_amount INTEGER NOT NULL,
-    created_at INTEGER NOT NULL,
-    expires_at INTEGER NOT NULL
-);
-
--- Refund requests
-CREATE TABLE refunds (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    owner_id INTEGER NOT NULL,
-    group_id INTEGER NOT NULL,
-    payment_id TEXT NOT NULL,
-    reason TEXT,
-    status TEXT DEFAULT 'pending',
-    created_at INTEGER NOT NULL,
-    processed_at INTEGER,
-    processed_by TEXT
-);
-
--- Refunded groups tracking
-CREATE TABLE refunded_groups (
-    group_id INTEGER PRIMARY KEY,
-    refund_date INTEGER NOT NULL
-);
+┌─────────────────────────────────────────────────────────────────┐
+│                     TELEGRAM PLATFORM                            │
+│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐         │
+│  │    Users     │  │    Groups    │  │   Channels   │         │
+│  └──────┬───────┘  └──────┬───────┘  └──────┬───────┘         │
+└─────────┼──────────────────┼──────────────────┼─────────────────┘
+          │                  │                  │
+          └──────────────────┼──────────────────┘
+                             │
+                    ┌────────▼────────┐
+                    │  Telegram Bot   │
+                    │      API        │
+                    └────────┬────────┘
+                             │
+          ┌──────────────────┼──────────────────┐
+          │                  │                  │
+    ┌─────▼─────┐     ┌─────▼─────┐     ┌─────▼─────┐
+    │    Bot    │     │    CDN    │     │ Scheduler │
+    │  Service  │     │  Service  │     │  Service  │
+    │ (Main)    │     │ (Flask)   │     │  (Cron)   │
+    └─────┬─────┘     └─────┬─────┘     └─────┬─────┘
+          │                 │                  │
+          └─────────────────┼──────────────────┘
+                            │
+                   ┌────────▼────────┐
+                   │   SQLite DBs    │
+                   │  - Premium      │
+                   │  - Rate Limit   │
+                   │  - Analytics    │
+                   └────────┬────────┘
+                            │
+          ┌─────────────────┼─────────────────┐
+          │                 │                 │
+    ┌─────▼─────┐    ┌─────▼─────┐    ┌─────▼─────┐
+    │  Portal   │    │   MRKT    │    │  Stickers │
+    │    API    │    │    API    │    │    API    │
+    └───────────┘    └───────────┘    └───────────┘
 ```
 
 ---
 
-## 🚀 Installation & Setup
+## 🚀 Quick Start
 
 ### Prerequisites
-- Python 3.8 or higher
-- Telegram Bot Token (from @BotFather)
-- Linux/Windows/macOS
+- Python 3.12+
+- Telegram Bot Token
+- Portal API credentials
+- 2GB RAM minimum
+- Linux/macOS (Windows with WSL)
 
 ### Installation
 
-1. **Clone or download the project**
-   ```bash
-   cd /path/to/project
-   ```
-
-2. **Set up virtual environment (recommended)**
-   ```bash
-   python3 -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
-
-3. **Install dependencies**
-   ```bash
-   pip install -r requirements.txt
-   pip install aportalsmp==1.2
-   ```
-
-4. **Configure the bot**
-   - Edit `bot_config.py` with your bot token
-   - Set environment variables if needed:
-     ```bash
-     export TELEGRAM_BOT_TOKEN="your_bot_token_here"
-     export TELEGRAM_BOT_USERNAME="@your_bot_username"
-     ```
-
-5. **Start the bot**
-   ```bash
-   python start_bot.py
-   ```
-
-### Alternative Startup Methods
-
-**Direct startup:**
+1. **Clone the repository**:
 ```bash
-python telegram_bot.py
+git clone https://github.com/yourusername/GiftsChart-ALL.git
+cd GiftsChart-ALL
 ```
 
-**With system Python:**
+2. **Install dependencies**:
 ```bash
-chmod +x telegram_bot.py
-./telegram_bot.py
+pip install -r requirements.txt
 ```
 
-### Configuration
-
-#### Bot Configuration (`bot_config.py`)
-
-```python
-# Bot settings
-BOT_TOKEN = "your_bot_token_here"
-BOT_USERNAME = "@your_bot_username"
-
-# Admin users
-ADMIN_USER_IDS = [800092886, 6529233780]
-
-# Special groups with custom referral links
-SPECIAL_GROUPS = {
-    -1001234567890: {
-        "buy_sell_link": "https://t.me/tonnel_network_bot/gifts?startapp=ref_123456",
-        "portal_link": "https://t.me/portals/market?startapp=123456"
-    }
-}
-
-# Default referral links
-DEFAULT_BUY_SELL_LINK = "https://t.me/tonnel_network_bot/gifts?startapp=ref_default"
-DEFAULT_PORTAL_LINK = "https://t.me/portals/market?startapp=default"
+3. **Configure environment**:
+```bash
+cp .env.example .env
+# Edit .env with your credentials
 ```
 
-#### Environment Variables
+4. **Run the bot**:
+```bash
+./quick_start.sh
+```
 
-- `TELEGRAM_BOT_TOKEN`: Your bot token
-- `TELEGRAM_BOT_USERNAME`: Your bot username
-- `TONNEL_API_AUTH`: Tonnel API authentication (optional)
+Or use PM2 for production:
+```bash
+pm2 start ecosystem.config.js
+```
+
+### Docker Deployment
+
+```bash
+docker-compose up -d --build
+```
 
 ---
 
-## 📖 Usage Guide
+## 📖 Usage
 
 ### Basic Commands
 
-- `/start` - Welcome message and main menu
-- `/help` - Show help information
-- `/premium` - Premium subscription management
-- `/sticker` - Sticker collection browser
-- `/terms` - Terms of service and policies
-- `/refund` - Refund policy information and request refunds (private chat only)
+- `/start` - Welcome message and bot introduction
+- `/gift <name>` - Get price card for a specific gift
+- `/sticker` - Browse sticker collections
+- `/premium` - Upgrade to premium features
+- `/help` - Show help and available commands
 
-### How to Use Gift Cards
+### Inline Mode
 
-**Simply type any gift name in your group** (no commands needed):
-- Type `tama` → Shows Tama gift price card
-- Type `pepe` → Shows Pepe gift price card
-- Type `heart` → Shows Heart gift price card
-- Type `diamond` → Shows Diamond gift price card
+Type `@GiftsChartBot <gift name>` in any chat to search and share gift cards instantly.
 
-### Premium Features
+### Natural Language
 
-- **Custom Referral Links**: Set personalized links for your group
-- **Priority Support**: Faster response times
-- **Advanced Analytics**: Detailed usage statistics
-- **Group Management**: Manage multiple premium groups
-- **Clean Captions**: No promotional text on gift cards
+Just type a gift name in any chat where the bot is present:
+```
+Deluxe
+Diamond Ring
+Astral Shard
+```
 
-### Rate Limiting
-
-The bot enforces strict rate limiting:
-- **Gift Requests**: 1 request per minute per user per gift
-- **Commands**: 1 command per minute per user
-- **Premium Groups**: Same rate limits apply (no exemptions)
-
-### Sticker Collections
-
-Available sticker collections:
-- Azuki, BabyDoge, Blum, Bored Ape Originals
-- Bored Stickers, Cattea Life, Dogs OG
-- Doodles, Flappy Bird, Kudai, Lazy and Rich
-- Lil Pudgys, Lost Dogs, Not Pixel, Notcoin
-- PUCCA, Pudgy and Friends, Ric Flair
-- Smeshariki, SUNDOG, WAGMI HUB
+The bot will automatically detect and respond with a price card!
 
 ---
 
-## 👨‍💼 Admin Functions
+## 💎 Premium Features
 
-### 1. **System Monitoring**
-- Real-time CPU, memory, and disk usage
-- API status monitoring
-- Network performance tracking
-- Error rate monitoring
+### How to Get Premium
 
-### 2. **User Analytics**
-- Request frequency analysis
-- Premium subscription metrics
-- User behavior patterns
-- Geographic distribution
+1. Start a private chat with [@GiftsChartBot](https://t.me/GiftsChartBot)
+2. Send `/premium` command
+3. Pay 99★ (Telegram Stars)
+4. Share your group with the bot
+5. Add your custom referral links
+6. Enjoy premium features for 30 days!
 
-### 3. **Refund Management**
-- Automated refund processing
-- Manual refund approval
-- Refund history tracking
-- Payment dispute resolution
+### What's Included
 
-### 4. **Performance Optimization**
-- Response time monitoring
-- Database performance analysis
-- API rate limit management
-- Cache efficiency tracking
-
-### Admin Commands
-```
-/admin - Access admin dashboard
-/stats - View system statistics
-/refunds - Manage refunds
-/health - Check system health
-/users - View user analytics
-```
+✅ **Custom Referral Links** - Add your MRKT, Palace, Tonnel, and Portal links  
+✅ **Branded Price Cards** - Your links appear on all cards in your group  
+✅ **Priority Support** - Get help faster from our team  
+✅ **No Ads** - Clean, distraction-free experience  
+✅ **30-Day Access** - Full month of premium features  
+✅ **3-Day Refund** - Not satisfied? Get a full refund within 3 days  
 
 ---
 
-## 🔄 Recent Updates
+## 🗂️ Project Structure
 
-### Portal API Integration (Latest)
-- ✅ **Complete TonnelMP Removal**: Old API completely eliminated
-- ✅ **Portal API Primary**: Now uses Portal API as main data source
-- ✅ **Async Implementation**: All API calls use proper async/await
-- ✅ **Rate Limiting**: 500ms delays + retry logic for 429 errors
-- ✅ **Token Management**: Automatic refresh every hour
-- ✅ **Market Auth Tokens**: Generates tokens in user-specified format
+```
+GiftsChart-ALL/
+├── core/                    # Core bot functionality
+│   ├── telegram_bot.py      # Main bot logic
+│   ├── callback_handler.py  # Button callbacks
+│   ├── premium_system.py    # Premium features
+│   └── rate_limiter.py      # Spam protection
+├── services/                # External API integrations
+│   ├── portal_api.py        # Portal API client
+│   ├── mrkt_api.py          # MRKT API client
+│   └── sticker_integration.py # Sticker functionality
+├── generators/              # Card generation
+│   ├── gift_card_generator.py
+│   └── sticker_price_card_generator.py
+├── schedulers/              # Background tasks
+│   └── supabase_backup_sync.py
+├── docs/                    # Documentation
+│   ├── setup/               # Setup guides
+│   ├── analysis/            # Technical docs
+│   └── status/              # Status reports
+└── assets/                  # Static assets
+```
 
-### Premium System Enhancements
-- ✅ **Telegram Stars Integration**: Secure payment processing
-- ✅ **Refund System**: 3-day window with one-time policy
-- ✅ **Group Setup Flow**: Step-by-step guided process
-- ✅ **Custom Referral Links**: MRKT, Palace, Tonnel, Portal
-- ✅ **Premium Captions**: Clean gift card captions for premium groups
-
-### Security & Performance
-- ✅ **Timestamp Filtering**: Prevents old message processing
-- ✅ **Multi-Admin Support**: Multiple admin users
-- ✅ **Rate Limiting**: Comprehensive request tracking
-- ✅ **Message Ownership**: Secure message deletion
-- ✅ **Enhanced Logging**: Detailed operation logs
-
-### Gift Card System
-- ✅ **77+ Gift Cards**: Comprehensive gift collection
-- ✅ **Dynamic Pricing**: Real-time price updates
-- ✅ **Template System**: Professional card designs
-- ✅ **Supply Data**: Cached supply information
-- ✅ **Fallback System**: Legacy API backup
+See [docs/PROJECT_STRUCTURE.md](docs/PROJECT_STRUCTURE.md) for detailed structure.
 
 ---
 
-## 🔧 Troubleshooting
+## 📊 Statistics
 
-### Common Issues
-
-#### 1. **Portal API Connection Issues**
-```python
-# Check API credentials
-print(f"API_ID: {API_ID}")
-print(f"API_HASH: {API_HASH}")
-
-# Verify aportalsmp installation
-pip install aportalsmp
-```
-
-#### 2. **Rate Limiting Errors**
-```python
-# Check rate limiter configuration
-REQUESTS_PER_MINUTE = 5  # Adjust as needed
-
-# Clear user request history
-DELETE FROM user_requests WHERE timestamp < datetime('now', '-1 hour');
-```
-
-#### 3. **Database Connection Issues**
-```python
-# Check database file permissions
-ls -la *.db
-
-# Recreate database if corrupted
-rm premium_subscriptions.db
-# Restart bot to recreate
-```
-
-#### 4. **Card Generation Failures**
-```python
-# Check template files
-ls card_templates/
-
-# Verify image processing libraries
-pip install Pillow matplotlib numpy
-```
-
-### Debug Mode
-Enable detailed logging for troubleshooting:
-```python
-import logging
-logging.basicConfig(level=logging.DEBUG)
-```
-
-### Log Files
-- `gift_api_results.log` - Portal API call logs
-- `pregenerate_cards.log` - Card generation logs
-- `premium_system.log` - Payment processing logs
-- `admin_dashboard.log` - Admin function logs
+- **93 Gift Templates** - All major TON gifts supported
+- **218 Sticker Collections** - Comprehensive sticker tracking
+- **320+ Generated Cards** - Pre-generated for instant responses
+- **30-Minute Cache** - Fresh data without API spam
+- **6-Hour Backups** - Automatic database backups to Supabase
+- **15,000+ Lines of Code** - Production-ready, well-tested
 
 ---
 
-## 📊 Performance Metrics
+## 🛠️ Development
 
-### System Performance
-- **Response Time**: < 2 seconds for gift card generation
-- **API Success Rate**: > 95% for Portal API calls
-- **Uptime**: 99.9% availability
-- **Concurrent Users**: Supports 100+ simultaneous users
+### Running Tests
 
-### Resource Usage
-- **Memory**: ~200MB base usage
-- **CPU**: < 10% average usage
-- **Storage**: ~500MB for templates and generated cards
-- **Network**: ~1GB/month data transfer
+```bash
+# Test Portal API
+python test_portal_live.py
 
-### Scalability
-- **Horizontal Scaling**: Multiple bot instances supported
-- **Database Optimization**: Indexed queries for fast response
-- **Caching**: Supply data cached for 10 minutes
-- **Rate Limiting**: Prevents system overload
+# Check system status
+python check_system.py
 
----
+# Generate all cards
+python generators/pregenerate_gift_cards.py
+python generators/generate_all_stickers.py
+```
 
-## 🔒 Security Features
+### Code Quality
 
-### 1. **Rate Limiting**
-- Per-user request tracking
-- Configurable limits
-- Automatic abuse prevention
+We maintain high code quality standards:
+- ✅ No bare `except:` clauses
+- ✅ Specific exception handling
+- ✅ Comprehensive logging
+- ✅ Type hints (in progress)
+- ✅ Clean code structure
 
-### 2. **Message Ownership**
-- Secure message deletion
-- User verification
-- Anti-spam protection
-
-### 3. **Payment Security**
-- Telegram Stars integration
-- Secure payment processing
-- Refund protection
-
-### 4. **Admin Access Control**
-- Multi-admin support
-- Role-based permissions
-- Audit logging
+See [docs/code_quality/](docs/code_quality/) for details.
 
 ---
 
-## 🚀 Future Enhancements
+## 🤝 Contributing
 
-### Planned Features
-- **Web Dashboard**: Browser-based admin interface
-- **Mobile App**: Native mobile application
-- **Advanced Analytics**: Machine learning insights
-- **Multi-Language Support**: Internationalization
-- **API Webhooks**: Real-time notifications
-- **Advanced Caching**: Redis integration
-- **Microservices**: Service-oriented architecture
+We welcome contributions! Here's how:
 
-### Performance Improvements
-- **CDN Integration**: Faster content delivery
-- **Database Optimization**: Query performance tuning
-- **Async Processing**: Background task processing
-- **Load Balancing**: Multiple server support
+1. **Fork the repository**
+2. **Create a feature branch**: `git checkout -b feature/amazing-feature`
+3. **Commit your changes**: `git commit -m 'Add amazing feature'`
+4. **Push to the branch**: `git push origin feature/amazing-feature`
+5. **Open a Pull Request**
+
+### Development Guidelines
+
+- Follow PEP 8 style guide
+- Add docstrings to all functions
+- Write tests for new features
+- Update documentation
+- Use meaningful commit messages
 
 ---
 
-## 📞 Support & Contact
+## 📚 Documentation
 
-### Documentation
-- **GitHub Repository**: [Repository URL]
-- **API Documentation**: [API Docs URL]
-- **User Guide**: [User Guide URL]
+- **Getting Started**: [docs/setup/START_HERE.md](docs/setup/START_HERE.md)
+- **Production Setup**: [docs/setup/PRODUCTION_SETUP.md](docs/setup/PRODUCTION_SETUP.md)
+- **System Architecture**: [docs/analysis/SYSTEM_DIAGRAMS.md](docs/analysis/SYSTEM_DIAGRAMS.md)
+- **API Documentation**: [docs/analysis/ANALYSIS_PART3_API.md](docs/analysis/ANALYSIS_PART3_API.md)
+- **Premium System**: [docs/analysis/ANALYSIS_PART2_PREMIUM.md](docs/analysis/ANALYSIS_PART2_PREMIUM.md)
 
-### Support Channels
-- **Telegram Support**: @GiftsChart_Support
-- **Email Support**: support@example.com
-- **GitHub Issues**: [Issues Page]
+---
 
-### Contributing
-- Fork the repository
-- Create a feature branch
-- Submit a pull request
-- Follow coding standards
+## 🔒 Security & Privacy
+
+GiftsChart is committed to user privacy and security:
+
+- **No Data Collection**: We don't store personal messages
+- **Secure Storage**: All sensitive data encrypted
+- **Rate Limiting**: Protection against abuse
+- **Open Source**: Transparent and auditable code
+- **Regular Updates**: Security patches applied promptly
 
 ---
 
 ## 📝 License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ---
 
-*Last Updated: January 2025*
-*Version: 3.4*
-*Documentation Version: 1.0* 
+## 🌟 Support the Project
+
+**Love GiftsChart?** Here's how you can help:
+
+- ⭐ **Star this repository** on GitHub
+- 📢 **Share** with your friends and communities
+- 💬 **Join** our community at [@The01Studio](https://t.me/The01Studio)
+- 🐛 **Report bugs** via [GitHub Issues](https://github.com/yourusername/GiftsChart-ALL/issues)
+- 💡 **Suggest features** in [Discussions](https://github.com/yourusername/GiftsChart-ALL/discussions)
+
+---
+
+## 📞 Contact & Community
+
+- **Telegram Bot**: [@GiftsChartBot](https://t.me/GiftsChartBot)
+- **Community**: [@The01Studio](https://t.me/The01Studio)
+- **Issues**: [GitHub Issues](https://github.com/yourusername/GiftsChart-ALL/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/yourusername/GiftsChart-ALL/discussions)
+
+---
+
+## 🗺️ Roadmap
+
+### ✅ Completed (February 2026)
+- Core gift tracking functionality
+- Sticker collection support
+- Premium system with custom links
+- Rate limiting and spam protection
+- Automatic database backups
+- CDN server for image hosting
+
+### 🚧 In Progress
+- AI-powered gift recommendations
+- Price alerts and notifications
+- Historical price charts
+- Multi-language support
+
+### 🔮 Future Plans
+- Mobile app companion
+- Web dashboard for analytics
+- API for third-party integrations
+- Advanced analytics and insights
+- Community marketplace features
+
+---
+
+<div align="center">
+
+### Built with ❤️ for the TON Community
+
+*GiftsChart is currently in Production. We appreciate your feedback!*
+
+<sub>Made by [@The01Studio](https://t.me/The01Studio) • Powered by TON Blockchain</sub>
+
+</div>

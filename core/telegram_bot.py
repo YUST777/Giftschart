@@ -54,12 +54,17 @@ except ImportError:
     API_TELEGRAM_IP = "149.154.167.220"
     SKIP_SSL_VERIFY = False
     SPECIAL_GROUPS = {}
-    DEFAULT_BUY_SELL_LINK = "https://t.me/tonnel_network_bot/gifts?startapp=ref_7660176383"
-    DEFAULT_TONNEL_LINK = "https://t.me/tonnel_network_bot/gifts?startapp=ref_7660176383"
+    DEFAULT_REFERRAL_ID = "7660176383"
+    DEFAULT_BUY_SELL_LINK = f"https://t.me/tonnel_network_bot/gifts?startapp=ref_{DEFAULT_REFERRAL_ID}"
+    DEFAULT_TONNEL_LINK = f"https://t.me/tonnel_network_bot/gifts?startapp=ref_{DEFAULT_REFERRAL_ID}"
     DEFAULT_PALACE_LINK = "https://t.me/palacenftbot/app?startapp=zOyJPdbc9t"
     DEFAULT_PORTAL_LINK = "https://t.me/portals/market?startapp=q7iu6i"
-    DEFAULT_MRKT_LINK = "https://t.me/mrkt/app?startapp=7660176383"
+    DEFAULT_MRKT_LINK = f"https://t.me/mrkt/app?startapp={DEFAULT_REFERRAL_ID}"
     HELP_IMAGE_PATH = os.path.join(ASSETS_DIR, "help.jpg")
+    COMMUNITY_CHANNEL = "@The01Studio"
+    SUPPORT_CHANNEL = "@GiftsChart_Support"
+    DONATION_ADDRESS = "UQCFRqB2vZnGZRh3ZoZAItNidk8zpkN0uRHlhzrnwweU3mos"
+    TERMS_URL = "https://telegra.ph/GiftsChart-07-06"
 
 # Enable logging (with reduced verbosity for HTTP requests)
 logging.basicConfig(
@@ -971,10 +976,10 @@ async def send_gift_card(update: Update, context: ContextTypes.DEFAULT_TYPE, gif
         # Create caption based on premium status
         if is_premium:
             # Premium groups: show gift name + pro tip
-            caption = f"{gift_name}\n\nJoin @The01Studio\nTry @CollectibleKITbot"
+            caption = f"{gift_name}\n\nJoin @The01Studio"
         else:
             # Non-premium groups: show gift name + promotional text + sticker promotion
-            caption = f"{gift_name}\n\nJoin @The01Studio\nTry @CollectibleKITbot"
+            caption = f"{gift_name}\n\nJoin @The01Studio"
         
         sent_message = await update.message.reply_photo(
             photo=open(card_path, 'rb'),
@@ -1100,7 +1105,7 @@ async def show_help_page(update: Update, context: ContextTypes.DEFAULT_TYPE, pag
         
         # Add sticker info if available
         try:
-            import sticker_integration
+            from services import sticker_integration
             if sticker_integration.is_sticker_functionality_available():
                 help_text += "• All the sticker prices (159 of them) in a beautiful card using stickers.tools API\n\n"
         except ImportError:
@@ -1745,7 +1750,7 @@ async def sticker_command(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
         logger.warning("Rate limiter not available, continuing without rate limiting")
     
     try:
-        import sticker_integration
+        from services import sticker_integration
         if sticker_integration.is_sticker_functionality_available():
             reply_markup = sticker_integration.get_sticker_keyboard()
             sent_message = await update.message.reply_text(
@@ -2000,7 +2005,7 @@ async def inline_query(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
     if query == "sticker":
         try:
             logger.info("Processing 'sticker' inline query")
-            import sticker_integration
+            from services import sticker_integration
             if sticker_integration.is_sticker_functionality_available():
                 # Get all stickers from all collections
                 all_stickers = []
@@ -2322,7 +2327,7 @@ async def inline_query(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
     # Handle specific sticker collection search
     stickers_to_show = []
     try:
-        import sticker_integration
+        from services import sticker_integration
         if sticker_integration.is_sticker_functionality_available():
             # Extract collection name from query (remove "sticker" prefix)
             search_query = query
@@ -3568,7 +3573,7 @@ def main() -> None:
     
     # Check if sticker functionality is available
     try:
-        import sticker_integration
+        from services import sticker_integration
         if sticker_integration.is_sticker_functionality_available():
             logger.info("Sticker functionality is available and registered")
         else:

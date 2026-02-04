@@ -70,7 +70,7 @@ def is_valid_link(link, kind, debug=False):
     try:
         url_parts = link.replace('https://t.me/', '').split('/')
         bot_name = url_parts[0].split('?')[0]  # Get bot name before any parameters
-    except:
+    except (IndexError, AttributeError) as e:
         if debug:
             return False, f"❌ Invalid URL format. Expected: https://t.me/BOTNAME?startapp=..."
         return False
@@ -91,7 +91,7 @@ def is_valid_link(link, kind, debug=False):
     # Extract startapp value for special validation
     try:
         startapp_part = link.split('startapp=')[1].split('&')[0]  # Get value before any & parameters
-    except:
+    except (IndexError, AttributeError) as e:
         if debug:
             return False, f"❌ Invalid 'startapp' parameter format"
         return False

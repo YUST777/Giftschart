@@ -57,6 +57,10 @@ DEFAULT_HEADERS = {
     "Sec-Fetch-Site": "same-site"
 }
 
+# Load environment variables
+from dotenv import load_dotenv
+load_dotenv()
+
 # Working API tokens - try multiple tokens in case some expire
 API_TOKENS = [
     "a7b292ee-72f2-4afa-a5fe-21680eb910ed",  # 🆕 FRESH TOKEN from user - July 2025
@@ -68,12 +72,21 @@ API_TOKENS = [
     "35d4925e-0f4a-4bb2-a8c2-ab2d00f8102d"   # Token from status file
 ]
 
-# Auth data from captured request for direct authentication
-AUTH_DATA = {
-    "data": "user=%7B%22id%22%3A7660176383%2C%22first_name%22%3A%22Afsado%22%2C%22last_name%22%3A%22%22%2C%22username%22%3A%22Afsado%22%2C%22language_code%22%3A%22en%22%2C%22allows_write_to_pm%22%3Atrue%2C%22photo_url%22%3A%22https%3A%5C%2F%5C%2Ft.me%5C%2Fi%5C%2Fuserpic%5C%2F320%5C%2F42a5aspTdutRS8KbBc1zWKx5ZYpgjr2PXp5bKEDI91diLJxdTzXtvUussQcWf6g0.svg%22%7D&chat_instance=-6007791381635729774&chat_type=sender&auth_date=1750674849&signature=CDISSs-YDzfpoMgecsazM_9OVMnS0jpRH1Ad-47BXB4Jwh98T3PmrjlKPUzhqTbRA6JXHSNPznbxkkN80sboBQ&hash=97a53412aba54fd0830fcc6d6fc5e470808b9d61b3aa949cf5ce4d92d90223f3",
-    "photo": "https://t.me/i/userpic/320/42a5aspTdutRS8KbBc1zWKx5ZYpgjr2PXp5bKEDI91diLJxdTzXtvUussQcWf6g0.svg",
-    "appId": None
-}
+def get_auth_data():
+    """Get authentication data from environment variables"""
+    auth_data_str = os.getenv("MRKT_AUTH_DATA")
+    user_photo = os.getenv("MRKT_USER_PHOTO")
+    
+    if auth_data_str and user_photo:
+        return {
+            "data": auth_data_str,
+            "photo": user_photo,
+            "appId": None
+        }
+    
+    # Fallback: Return None if not configured
+    logger.warning("MRKT_AUTH_DATA not configured in environment variables")
+    return None
 
 # Collection IDs from the API payload
 COLLECTION_IDS = [24, 11, 23, 4, 3, 19, 22, 25, 1, 9, 18, 5, 12, 15, 17, 7, 6, 8, 10, 16, 2, 21, 14, 13, 20]

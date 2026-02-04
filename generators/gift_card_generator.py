@@ -1048,31 +1048,28 @@ async def create_gift_card(gift_name, output_path=None, force_fresh=False):
         else:
             stars_price = 0
         
-        # Calculate percentage change using the dedicated function
-        change_pct = 0
-        if gift_data and "changePercentage" in gift_data:
-            change_pct = float(gift_data["changePercentage"])
-        else:
-            # Use our new function to calculate the percentage change
-            change_pct = calculate_percentage_change(chart_data)
+        # REMOVED: Percentage change display (user request)
+        # change_pct = 0
+        # if gift_data and "changePercentage" in gift_data:
+        #     change_pct = float(gift_data["changePercentage"])
+        # else:
+        #     change_pct = calculate_percentage_change(chart_data)
+        # 
+        # change_sign = "+" if change_pct >= 0 else ""
+        # if change_pct >= 0:
+        #     change_color = (46, 204, 113)
+        # else:
+        #     change_color = (231, 76, 60)
+        # 
+        # pct_font = ImageFont.truetype(font_path, 70)
+        # pct_text = f"{change_sign}{int(change_pct)}%"
+        # pct_width = draw.textlength(pct_text, font=pct_font)
+        # pct_x = x_center + box_width - pct_width - 140
+        # pct_y = y_center + 155
+        # draw.text((pct_x, pct_y), pct_text, fill=change_color, font=pct_font)
         
-        # Determine color based on percentage change
-        change_sign = "+" if change_pct >= 0 else ""
-        
-        # Create more vibrant colors for change percentage
-        if change_pct >= 0:
-            change_color = (46, 204, 113)  # Vibrant green
-        else:
-            change_color = (231, 76, 60)  # Vibrant red
-        
-        # Draw percentage change at fixed position independent of gift image
-        pct_font = ImageFont.truetype(font_path, 70)
-        pct_text = f"{change_sign}{int(change_pct)}%"
-        pct_width = draw.textlength(pct_text, font=pct_font)
-        # Fixed position at top right of white box
-        pct_x = x_center + box_width - pct_width - 140
-        pct_y = y_center + 155  # Moved down by 5px from 150
-        draw.text((pct_x, pct_y), pct_text, fill=change_color, font=pct_font)
+        # Use default chart color (green)
+        change_color = (46, 204, 113)
         
         # Draw dollar sign and USD price at exact position from reference
         price_font = ImageFont.truetype(font_path, 140)
@@ -1243,17 +1240,17 @@ async def create_gift_card(gift_name, output_path=None, force_fresh=False):
         
         # Add watermark at top center
         watermark_lines = ["@GiftsChartbot"]
-        watermark_font = ImageFont.truetype(font_path, 32)
-        watermark_color = (255, 255, 255, 200)  # Semi-transparent white
+        watermark_font = ImageFont.truetype(font_path, 32) if os.path.exists(font_path) else ImageFont.load_default()
         line_height = watermark_font.getbbox("A")[3] + 5
         watermark_y = 30  # Start position
         
         # Draw each line centered
         for i, line in enumerate(watermark_lines):
-            line_width = draw.textlength(line, font=watermark_font)
-            watermark_x = card.width // 2 - line_width // 2
+            line_bbox = draw.textbbox((0, 0), line, font=watermark_font)
+            line_width = line_bbox[2] - line_bbox[0]
+            watermark_x = (1600 - line_width) // 2  # Card width is 1600
             line_y = watermark_y + (i * line_height)
-            draw.text((watermark_x, line_y), line, fill=watermark_color, font=watermark_font)
+            draw.text((watermark_x, line_y), line, fill=(255, 255, 255, 200), font=watermark_font)
         
         # Save the card if output path is provided
         if output_path:
@@ -1511,17 +1508,18 @@ def generate_template_card(gift_name):
         
         # Add watermark at top center
         watermark_lines = ["@GiftsChartbot"]
-        watermark_font = ImageFont.truetype(font_path, 32)
-        watermark_color = (255, 255, 255, 200)  # Semi-transparent white
+        watermark_font = ImageFont.truetype(font_path, 32) if os.path.exists(font_path) else ImageFont.load_default()
         line_height = watermark_font.getbbox("A")[3] + 5
         watermark_y = 30  # Start position
         
         # Draw each line centered
+        draw_template = ImageDraw.Draw(template)
         for i, line in enumerate(watermark_lines):
-            line_width = draw.textlength(line, font=watermark_font)
-            watermark_x = template.width // 2 - line_width // 2
+            line_bbox = draw_template.textbbox((0, 0), line, font=watermark_font)
+            line_width = line_bbox[2] - line_bbox[0]
+            watermark_x = (1600 - line_width) // 2  # Card width is 1600
             line_y = watermark_y + (i * line_height)
-            draw.text((watermark_x, line_y), line, fill=watermark_color, font=watermark_font)
+            draw_template.text((watermark_x, line_y), line, fill=(255, 255, 255, 200), font=watermark_font)
         
         # Save the template as WebP
         if template_path.endswith('.webp'):
@@ -1639,31 +1637,32 @@ async def add_dynamic_elements(gift_name, template_path=None, output_path=None):
         else:
             stars_price = 0
         
-        # Calculate percentage change using the dedicated function
-        change_pct = 0
-        if gift_data and "changePercentage" in gift_data:
-            change_pct = float(gift_data["changePercentage"])
-        else:
-            # Use our new function to calculate the percentage change
-            change_pct = calculate_percentage_change(chart_data, gift_name)
+        # REMOVED: Percentage change display (user request)
+        # change_pct = 0
+        # if gift_data and "changePercentage" in gift_data:
+        #     change_pct = float(gift_data["changePercentage"])
+        # else:
+        #     change_pct = calculate_percentage_change(chart_data, gift_name)
+        # 
+        # change_sign = "+" if change_pct >= 0 else ""
+        # if change_pct >= 0:
+        #     change_color = (46, 204, 113)
+        # else:
+        #     change_color = (231, 76, 60)
         
-        # Determine color based on percentage change
-        change_sign = "+" if change_pct >= 0 else ""
-        if change_pct >= 0:
-            change_color = (46, 204, 113)  # Vibrant green
-        else:
-            change_color = (231, 76, 60)  # Vibrant red
+        # Use default chart color (green)
+        change_color = (46, 204, 113)
         
         # Prepare for drawing
         draw = ImageDraw.Draw(card)
         
-        # Draw percentage change
-        pct_font = ImageFont.truetype(font_path, 70)
-        pct_text = f"{change_sign}{int(change_pct)}%"
-        pct_width = draw.textlength(pct_text, font=pct_font)
-        pct_x = x_center + box_width - pct_width - 140
-        pct_y = y_center + 155
-        draw.text((pct_x, pct_y), pct_text, fill=change_color, font=pct_font)
+        # REMOVED: Draw percentage change (user request)
+        # pct_font = ImageFont.truetype(font_path, 70)
+        # pct_text = f"{change_sign}{int(change_pct)}%"
+        # pct_width = draw.textlength(pct_text, font=pct_font)
+        # pct_x = x_center + box_width - pct_width - 140
+        # pct_y = y_center + 155
+        # draw.text((pct_x, pct_y), pct_text, fill=change_color, font=pct_font)
         
         # Draw dollar sign and USD price
         price_font = ImageFont.truetype(font_path, 140)
@@ -1758,17 +1757,17 @@ async def add_dynamic_elements(gift_name, template_path=None, output_path=None):
         
         # Add watermark at top center
         watermark_lines = ["@GiftsChartbot"]
-        watermark_font = ImageFont.truetype(font_path, 32)
-        watermark_color = (255, 255, 255, 200)  # Semi-transparent white
+        watermark_font = ImageFont.truetype(font_path, 32) if os.path.exists(font_path) else ImageFont.load_default()
         line_height = watermark_font.getbbox("A")[3] + 5
         watermark_y = 30  # Start position
         
         # Draw each line centered
         for i, line in enumerate(watermark_lines):
-            line_width = draw.textlength(line, font=watermark_font)
-            watermark_x = card.width // 2 - line_width // 2
+            line_bbox = draw.textbbox((0, 0), line, font=watermark_font)
+            line_width = line_bbox[2] - line_bbox[0]
+            watermark_x = (1600 - line_width) // 2  # Card width is 1600
             line_y = watermark_y + (i * line_height)
-            draw.text((watermark_x, line_y), line, fill=watermark_color, font=watermark_font)
+            draw.text((watermark_x, line_y), line, fill=(255, 255, 255, 200), font=watermark_font)
         
         # Save the final card
         if output_path:
@@ -1902,12 +1901,10 @@ def create_custom_card(image_path, output_path, name, price_usd, price_ton, chan
         draw.text((price_x, price_y + 40), "USD", fill=(100, 100, 100), font=regular_font, anchor="mm")
         draw.text((ton_price_x, ton_price_y + 40), "TON", fill=(100, 100, 100), font=regular_font, anchor="mm")
         
-        # Add percent change
-        percent_text = f"{'+' if change_percentage > 0 else ''}{change_percentage:.2f}%"
-        percent_color = (46, 204, 113) if change_percentage >= 0 else (231, 76, 60)
-        change_x = card_width // 2
-        change_y = 610
-        draw.text((change_x, change_y), percent_text, fill=percent_color, font=regular_font, anchor="mm")
+        # REMOVED: Percentage change display (user request)
+        # change_x = card_width // 2
+        # change_y = 610
+        # draw.text((change_x, change_y), percent_text, fill=percent_color, font=regular_font, anchor="mm")
         
         # Add chart
         chart_pos_x = 50
@@ -1916,23 +1913,23 @@ def create_custom_card(image_path, output_path, name, price_usd, price_ton, chan
         
         # Add timestamp
         timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
-        timestamp_x = card_width // 2
-        timestamp_y = card_height - 30
+        timestamp_x = 1600 // 2  # Card width is 1600
+        timestamp_y = 1000 - 30  # Card height is 1000
         draw.text((timestamp_x, timestamp_y), f"Updated: {timestamp}", fill=(100, 100, 100), font=small_font, anchor="mm")
         
         # Add watermark at top center
         watermark_lines = ["@GiftsChartbot"]
-        watermark_font = ImageFont.truetype(font_path, 32)
-        watermark_color = (255, 255, 255, 200)  # Semi-transparent white
+        watermark_font = ImageFont.truetype(font_path, 32) if os.path.exists(font_path) else ImageFont.load_default()
         line_height = watermark_font.getbbox("A")[3] + 5
         watermark_y = 30  # Start position
         
         # Draw each line centered
         for i, line in enumerate(watermark_lines):
-            line_width = draw.textlength(line, font=watermark_font)
-            watermark_x = card_width // 2 - line_width // 2
+            line_bbox = draw.textbbox((0, 0), line, font=watermark_font)
+            line_width = line_bbox[2] - line_bbox[0]
+            watermark_x = (1600 - line_width) // 2  # Card width is 1600
             line_y = watermark_y + (i * line_height)
-            draw.text((watermark_x, line_y), line, fill=watermark_color, font=watermark_font)
+            draw.text((watermark_x, line_y), line, fill=(255, 255, 255, 200), font=watermark_font)
         
         # Save the card as WebP
         if output_path.endswith('.webp'):
