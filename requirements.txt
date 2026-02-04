@@ -19,7 +19,7 @@ numpy==1.26.4
 requests==2.31.0
 httpx==0.28.1
 curl_cffi==0.11.4
-anyio==4.9.0
+anyio==4.12.1
 
 # Utility Libraries
 python-dateutil==2.8.2
