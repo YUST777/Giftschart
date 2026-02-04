@@ -38,7 +38,7 @@ pytest-mock==3.14.1
 
 # Additional Features
 qrcode==7.4.2
-rich==13.7.1
+rich==14.3.2
 psutil==7.0.0
 
 # Portal & Tonnel API Integration
